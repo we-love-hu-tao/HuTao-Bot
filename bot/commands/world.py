@@ -22,6 +22,6 @@ async def world_handler(message: Message, genshin_id: int):
         f"Богатые сундуки: {data['exquisite_chests']}\n"
         f"Драгоценные сундуки: {data['precious_chests']}\n"
         f"Роскошные сундуки: {data['luxurious_chests']}\n"
-        f"Телепортаторы: {data['unlocked_waypoints']}\n"
+        f"Телепорты: {data['unlocked_waypoints']}\n"
         f"Данжи: {data['unlocked_domains']}"
     )
