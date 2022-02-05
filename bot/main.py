@@ -1,7 +1,14 @@
-import genshinstats as gs
+from vkbottle.bot import Bot
+from vkbottle import load_blueprints_from_package
+import json
 
 
-gs.set_cookie(ltuid=195624302, ltoken="iqWKkh3GE4KzaRrfcWsTf0BSEx5GRdHvqYKK74Tc")
-uid = 96432618
+with open("config.json", "r") as file:
+    config = json.load(file)
 
-print(gs.get_user_stats(uid))
+bot = Bot(token=config["bot_token"])
+
+for bp in load_blueprints_from_package("commands"):
+    bp.load(bot)
+
+bot.run_forever()
