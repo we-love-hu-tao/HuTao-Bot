@@ -13,10 +13,10 @@ class Wish:
         self.user_id = user_id
         self.message = message
 
-    async def player_registered(self, db):
+    async def player_registered(self) -> bool:
         async with aiosqlite.connect("db.db") as db:
             async with db.execute(
-                "SELECT user_id FROM players WHERE user_id = (?)",
+                "SELECT user_id FROM players WHERE user_id=(?)",
                 (self.user_id,),
             ) as cur:
                 exists = await cur.fetchone()
@@ -25,26 +25,26 @@ class Wish:
                 else:
                     return False
 
-    async def check_standard(self, db):
+    async def check_standard(self) -> bool:
         async with aiosqlite.connect("db.db") as db:
             async with db.execute(
-                "SELECT standard_wishes FROM players WHERE user_id = ?",
+                "SELECT standard_wishes FROM players WHERE user_id=(?)",
                 (self.user_id,),
             ) as cur:
                 count = await cur.fetchone()
-                if count:
+                if count[0] > 0:
                     return True
                 else:
                     return False
 
-    async def check_event(self, db):
+    async def check_event(self) -> bool:
         async with aiosqlite.connect("db.db") as db:
             async with db.execute(
-                "SELECT event_wishes FROM players WHERE user_id = ?",
+                "SELECT event_wishes FROM players WHERE user_id=(?)",
                 (self.user_id,),
             ) as cur:
                 count = await cur.fetchone()
-                if count:
+                if count[0] > 0:
                     return True
                 else:
                     return False
@@ -55,22 +55,62 @@ class Wish:
         else:
             return False
 
-    async def use_wish(self, db, type):
+    async def reset_rolls_count(self, type="rare"):
         async with aiosqlite.connect("db.db") as db:
-            if type == "standard":
+            if type == "rare":
                 await db.execute(
-                    "UPDATE players SET standard_wishes=standard_wishes-1"
-                    " WHERE user_id=(?)",
+                    "UPDATE players SET rolls=0 WHERE user_id=(?)",
                     (self.user_id,),
                 )
-                if await self.chance(1.6):
+            elif type == "legendary":
+                await db.execute(
+                    "UPDATE players SET legendary_rolls=0 WHERE user_id=(?)",
+                    (self.user_id,),
+                )
+            await db.commit()
+
+    async def increase_rolls_count(self):
+        async with aiosqlite.connect("db.db") as db:
+            await db.execute(
+                "UPDATE players SET legendary_rolls=legendary_rolls+1 "
+                "WHERE user_id=(?)",
+                (self.user_id,),
+            )
+            await db.execute(
+                "UPDATE players SET rolls=rolls+1 "
+                "WHERE user_id=(?)",
+                (self.user_id,),
+            )
+            await db.commit()
+
+    async def use_wish(self, type):
+        async with aiosqlite.connect("db.db") as db:
+            async with db.execute(
+                "SELECT rolls, legendary_rolls FROM players WHERE user_id=(?)",
+                (self.user_id,),
+            ) as cur:
+                count = await cur.fetchone()
+                roll_count = count[0]
+                legendary_roll_count = count[1]
+
+            if type == "standard":
+                await db.execute(
+                    "UPDATE players SET standard_wishes=standard_wishes-1 "
+                    "WHERE user_id=(?)",
+                    (self.user_id,),
+                )
+                await db.commit()
+
+                if await self.chance(1.6) or legendary_roll_count >= 90:
+                    await self.reset_rolls_count("legendary")
                     type_rarity = random.choice(
                         (
                             drop.legendary_standard_characters,
                             drop.legendary_standard_weapons,
                         )
                     )
-                elif await self.chance(13.0):
+                elif await self.chance(13.0) or roll_count >= 10:
+                    await self.reset_rolls_count()
                     type_rarity = random.choice(
                         (
                             drop.rare_standard_characters,
@@ -78,6 +118,7 @@ class Wish:
                         )
                     )
                 else:
+                    await self.increase_rolls_count()
                     type_rarity = drop.normal_standard_weapons
 
                 item_drop = random.choice(list(type_rarity.items()))
@@ -93,15 +134,23 @@ class Wish:
                     "user_id=(?)",
                     (self.user_id,),
                 )
-                type_rarity = random.choice(
-                    (
-                        drop.normal_standard_weapons,
-                        drop.rare_standard_weapons,
-                        drop.rare_standard_characters,
-                        drop.legendary_standard_characters,
-                        drop.legendary_event_characters,
+                await db.commit()
+
+                if await self.chance(1.6):
+                    await self.reset_rolls_count("legendary")
+                    type_rarity = drop.legendary_event_characters
+
+                elif await self.chance(13.0):
+                    await self.reset_rolls_count()
+                    type_rarity = random.choice(
+                        (
+                            drop.rare_standard_characters,
+                            drop.rare_standard_weapons,
+                        )
                     )
-                )
+                else:
+                    await self.increase_rolls_count()
+                    type_rarity = drop.normal_standard_weapons
 
                 if type_rarity == drop.legendary_event_characters:
                     leg_event = drop.legendary_event_characters
@@ -116,34 +165,36 @@ class Wish:
                     name = item_drop[0]
                     picture = item_drop[1]["picture"]
 
-        if rarity == 3:
-            # 3 star gif
-            await self.message.answer(
-                "Открываем...", attachment="doc-193964161_629438630"
-            )
-        elif rarity == 4:
-            # 4 star gif
-            await self.message.answer(
-                "Открываем...",
-                attachment="doc-193964161_629435717",
-            )
-        elif rarity == 5:
-            # 5 star gif
-            await self.message.answer(
-                "Открываем...",
-                attachment="doc-193964161_629110361",
-            )
-        await asyncio.sleep(5.8)
+            if rarity == 3:
+                # 3 star gif
+                await self.message.answer(
+                    "Открываем...", attachment="doc-193964161_629438630"
+                )
+            elif rarity == 4:
+                # 4 star gif
+                await self.message.answer(
+                    "Открываем...",
+                    attachment="doc-193964161_629435717",
+                )
+            elif rarity == 5:
+                # 5 star gif
+                await self.message.answer(
+                    "Открываем...",
+                    attachment="doc-193964161_629110361",
+                )
+            await asyncio.sleep(5.8)
 
-        if type == "weapon":
-            await self.message.answer(
-                f"Выпало оружие {name} ({'★' * rarity})!", attachment=picture
-            )
-        elif type == "character":
-            await self.message.answer(
-                f"Выпал персонаж {name} ({'★' * rarity})!", attachment=picture
-            )
-        await db.commit()
+            if type == "weapon":
+                await self.message.answer(
+                    f"Выпало оружие {name} ({'★' * rarity})!",
+                    attachment=picture,
+                )
+            elif type == "character":
+                await self.message.answer(
+                    f"Выпал персонаж {name} ({'★' * rarity})!",
+                    attachment=picture,
+                )
+            await db.commit()
 
 
 @bp.on.message(command="помолиться стандарт")
