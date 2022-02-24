@@ -6,7 +6,7 @@ bp.labeler.vbml_ignore_case = True
 
 
 @bp.on.message(command="начать")
-async def standart_wish(message: Message):
+async def standard_wish(message: Message):
     async with aiosqlite.connect("db.db") as db:
         async with db.execute(
             "SELECT user_id FROM players WHERE user_id = (?)",

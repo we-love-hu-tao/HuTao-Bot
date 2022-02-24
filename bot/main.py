@@ -9,7 +9,9 @@ async def create_table():
         await db.execute("""CREATE TABLE IF NOT EXISTS players (
             user_id INTEGER,
             standard_wishes INTEGER DEFAULT 5,
-            event_wishes INTEGER DEFAULT 5
+            event_wishes INTEGER DEFAULT 5,
+            rolls INTEGER DEFAULT 0,
+            legendary_rolls INTEGER DEFAULT 0
         )""")
 asyncio.get_event_loop().run_until_complete(create_table())
 

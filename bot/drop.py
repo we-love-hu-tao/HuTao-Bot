@@ -1,369 +1,297 @@
-normal_standard_weapons = {
-    "Рогатка": {
-        "type": "weapon",
-        "rarity": 3
-    },
-    "Клятва стрелка": {
-        "type": "weapon",
-        "rarity": 3
-    },
-    "Лук ворона": {
-        "type": "weapon",
-        "rarity": 3
-    },
-    "Меч небесного всадника": {
-        "type": "weapon",
-        "rarity": 3
-    },
-    "Предвестник зари": {
-        "type": "weapon",
-        "rarity": 3
-    },
-    "Холодное лезвие": {
-        "type": "weapon",
-        "rarity": 3
-    },
-    "Дубина переговоров": {
-        "type": "weapon",
-        "rarity": 3
-    },
-    "Меч драконьей крови": {
-        "type": "weapon",
-        "rarity": 3
-    },
-    "Металлическая тень": {
-        "type": "weapon",
-        "rarity": 3
-    },
-    "Черная кисть": {
-        "type": "weapon",
-        "rarity": 3
-    },
-    "Изумрудный шар": {
-        "type": "weapon",
-        "rarity": 3
-    },
-    "Руководство по магии": {
-        "type": "weapon",
-        "rarity": 3
-    },
-    "Эпос о драконоборцах": {
-        "type": "weapon",
-        "rarity": 3
-    }
-}
-
-rare_standard_weapons = {
-    "Бесструнный": {
-        "type": "weapon",
-        "rarity": 4
-    },
-    "Боевой лук Фавония": {
-        "type": "weapon",
-        "rarity": 4
-    },
-    "Ржавый лук": {
-        "type": "weapon",
-        "rarity": 4
-    },
-    "Церемониальный лук": {
-        "type": "weapon",
-        "rarity": 4
-    },
-
-    "Драконий рык": {
-        "type": "weapon",
-        "rarity": 4
-    },
-    "Меч-флейта": {
-        "type": "weapon",
-        "rarity": 4
-    },
-    "Меч Фавония": {
-        "type": "weapon",
-        "rarity": 4
-    },
-    "Церемониальный меч": {
-        "type": "weapon",
-        "rarity": 4
-    },
-
-    "Дождерез": {
-        "type": "weapon",
-        "rarity": 4
-    },
-    "Двуручный меч Фавония": {
-        "type": "weapon",
-        "rarity": 4
-    },
-    "Меч-колокол": {
-        "type": "weapon",
-        "rarity": 4
-    },
-    "Церемониальный двуручный меч": {
-        "type": "weapon",
-        "rarity": 4
-    },
-
-    "Гроза драконов": {
-        "type": "weapon",
-        "rarity": 4
-    },
-    "Копьё Фавония": {
-        "type": "weapon",
-        "rarity": 4
-    },
-
-    "Кодекс Фавония": {
-        "type": "weapon",
-        "rarity": 4
-    },
-    "Око сознания": {
-        "type": "weapon",
-        "rarity": 4
-    },
-    "Песнь странника": {
-        "type": "weapon",
-        "rarity": 4
-    },
-    "Церемониальные мемуары": {
-        "type": "weapon",
-        "rarity": 4
-    }
-}
-
-legendary_standard_weapons = {
-    "Лук Амоса": {
-        "type": "weapon",
-        "rarity": 5
-    },
-    "Небесное крыло": {
-        "type": "weapon",
-        "rarity": 5
-    },
-
-    "Меч Сокола": {
-        "type": "weapon",
-        "rarity": 5
-    },
-    "Небесный меч": {
-        "type": "weapon",
-        "rarity": 5
-    },
-
-    "Вольчя погибель": {
-        "type": "weapon",
-        "rarity": 5
-    },
-    "Небесное величие": {
-        "type": "weapon",
-        "rarity": 5
-    },
-
-    "Нефритовый коршун": {
-        "type": "weapon",
-        "rarity": 5
-    },
-    "Небесная ось": {
-        "type": "weapon",
-        "rarity": 5
-    },
-
-    "Молитва святым ветрам": {
-        "type": "weapon",
-        "rarity": 5
-    },
-    "Небесный атлас": {
-        "type": "weapon",
-        "rarity": 5
-    }
-}
-
-rare_standard_characters = {
-    "Барбара": {
-        "type": "character",
-        "rarity": 4
-    },
-    "Беннет": {
-        "type": "character",
-        "rariry": 4
-    },
-    "Бэй Доу": {
-        "type": "character",
-        "rarity": 4
-    },
-    "Горо": {
-        "type": "character",
-        "rarity": 4
-    },
-    "Диона": {
-        "type": "character",
-        "rarity": 4
-    },
-    "Кэйа": {
-        "type": "character",
-        "rarity": 4
-    },
-    "Лиза": {
-        "type": "character",
-        "rarity": 4
-    },
-    "Нин Гуан": {
-        "type": "character",
-        "rarity": 4
-    },
-    "Ноэлль": {
-        "type": "character",
-        "rarity": 4
-    },
-    "Розария": {
-        "type": "character",
-        "rarity": 4
-    },
-    "Рейзор": {
-        "type": "character",
-        "rarity": 4
-    },
-    "Сара": {
-        "type": "character",
-        "rarity": 4
-    },
-    "Сахароза": {
-        "type": "character",
-        "rarity": 4
-    },
-    "Саю": {
-        "type": "character",
-        "rarity": 4
-    },
-    "Син Цю": {
-        "type": "character",
-        "rarity": 4
-    },
-    "Синь Янь": {
-        "type": "character",
-        "rarity": 4
-    },
-    "Сян Лин": {
-        "type": "character",
-        "rarity": 4
-    },
-    "Тома": {
-        "type": "character",
-        "rarity": 4
-    },
-    "Фишль": {
-        "type": "character",
-        "rarity": 4
-    },
-    "Чун Юнь": {
-        "type": "character",
-        "rarity": 4
-    },
-    "Эмбер": {
-        "type": "character",
-        "rarity": 4
-    },
-    "Юнь Цзинь": {
-        "type": "character",
-        "rarity": 4
-    },
-    "Янь Фей": {
-        "type": "character",
-        "rarity": 4
-    }
-}
-
-legendary_standard_characters = {
-    "Джинн": {
-        "type": "character",
-        "rarity": 5
-    },
-    "Дилюк": {
-        "type": "character",
-        "rarity": 5
-    },
-    "Кэ Цин": {
-        "type": "character",
-        "rarity": 5
-    },
-    "Мона": {
-        "type": "character",
-        "rarity": 5
-    },
-    "Ци Ци": {
-        "type": "character",
-        "rarity": 5
-    }
-}
-
-legendary_event_characters = {
-    "Ёимия": {
-        "type": "character",
-        "rarity": 5
-    },
-    "Альбедо": {
-        "type": "character",
-        "rarity": 5
-    },
-    "Аяка": {
-        "type": "character",
-        "rarity": 5
-    },
-    "Венти": {
-        "type": "character",
-        "rarity": 5
-    },
-    "Гань Юй": {
-        "type": "character",
-        "rarity": 5
-    },
-    "Итто": {
-        "type": "character",
-        "rarity": 5
-    },
-    "Кадзуха": {
-        "type": "character",
-        "rarity": 5
-    },
-    "Кли": {
-        "type": "character",
-        "rarity": 5
-    },
-    "Кокоми": {
-        "type": "character",
-        "rarity": 5
-    },
-    "Райдэн": {
-        "type": "character",
-        "rarity": 5
-    },
-    "Сяо": {
-        "type": "character",
-        "rarity": 5
-    },
-    "Тарталья": {
-        "type": "character",
-        "rarity": 5
-    },
-    "Ху Тао": {
-        "type": "character",
-        "rarity": 5
-    },
-    "Чжун Ли": {
-        "type": "character",
-        "rarity": 5
-    },
-    "Шэнь Хэ": {
-        "type": "character",
-        "rarity": 5
-    },
-    "Эола": {
-        "type": "character",
-        "rarity": 5
-    },
-    "Яэ Мико": {
-        "type": "character",
-        "rarity": 5
-    }
-}
+normal_standard_weapons = {
+    "Рогатка": {"type": "weapon", "rarity": 3, "picture": ""},
+    "Клятва стрелка": {"type": "weapon", "rarity": 3, "picture": ""},
+    "Лук ворона": {"type": "weapon", "rarity": 3, "picture": ""},
+    "Меч небесного всадника": {
+        "type": "weapon",
+        "rarity": 3,
+        "picture": "photo-193964161_457239026",
+    },
+    "Предвестник зари": {"type": "weapon", "rarity": 3, "picture": ""},
+    "Холодное лезвие": {"type": "weapon", "rarity": 3, "picture": ""},
+    "Дубина переговоров": {
+        "type": "weapon",
+        "rarity": 3,
+        "picture": "photo-193964161_457239022",
+    },
+    "Меч драконьей крови": {"type": "weapon", "rarity": 3, "picture": ""},
+    "Металлическая тень": {"type": "weapon", "rarity": 3, "picture": ""},
+    "Черная кисть": {"type": "weapon", "rarity": 3, "picture": ""},
+    "Изумрудный шар": {"type": "weapon", "rarity": 3, "picture": ""},
+    "Руководство по магии": {"type": "weapon", "rarity": 3, "picture": ""},
+    "Эпос о драконоборцах": {"type": "weapon", "rarity": 3, "picture": ""},
+}
+
+rare_standard_weapons = {
+    "Бесструнный": {"type": "weapon", "rarity": 4, "picture": ""},
+    "Боевой лук Фавония": {"type": "weapon", "rarity": 4, "picture": ""},
+    "Ржавый лук": {"type": "weapon", "rarity": 4, "picture": ""},
+    "Церемониальный лук": {"type": "weapon", "rarity": 4, "picture": ""},
+    "Драконий рык": {"type": "weapon", "rarity": 4, "picture": ""},
+    "Меч-флейта": {"type": "weapon", "rarity": 4, "picture": ""},
+    "Меч Фавония": {"type": "weapon", "rarity": 4, "picture": ""},
+    "Церемониальный меч": {"type": "weapon", "rarity": 4, "picture": ""},
+    "Дождерез": {"type": "weapon", "rarity": 4, "picture": ""},
+    "Двуручный меч Фавония": {"type": "weapon", "rarity": 4, "picture": ""},
+    "Меч-колокол": {"type": "weapon", "rarity": 4, "picture": ""},
+    "Церемониальный двуручный меч": {
+        "type": "weapon",
+        "rarity": 4,
+        "picture": "",
+    },
+    "Гроза драконов": {"type": "weapon", "rarity": 4, "picture": ""},
+    "Копьё Фавония": {"type": "weapon", "rarity": 4, "picture": ""},
+    "Кодекс Фавония": {"type": "weapon", "rarity": 4, "picture": ""},
+    "Око сознания": {"type": "weapon", "rarity": 4, "picture": ""},
+    "Песнь странника": {
+        "type": "weapon",
+        "rarity": 4,
+        "picture": "photo-193964161_457239028",
+    },
+    "Церемониальные мемуары": {"type": "weapon", "rarity": 4, "picture": ""},
+}
+
+legendary_standard_weapons = {
+    "Лук Амоса": {
+        "type": "weapon",
+        "rarity": 5,
+        "picture": "photo-193964161_457239024",
+    },
+    "Небесное крыло": {"type": "weapon", "rarity": 5, "picture": ""},
+    "Меч Сокола": {"type": "weapon", "rarity": 5, "picture": ""},
+    "Небесный меч": {"type": "weapon", "rarity": 5, "picture": ""},
+    "Вольчя погибель": {
+        "type": "weapon",
+        "rarity": 5,
+        "picture": "photo-193964161_457239023",
+    },
+    "Небесное величие": {"type": "weapon", "rarity": 5, "picture": ""},
+    "Нефритовый коршун": {"type": "weapon", "rarity": 5, "picture": ""},
+    "Небесная ось": {"type": "weapon", "rarity": 5, "picture": ""},
+    "Молитва святым ветрам": {"type": "weapon", "rarity": 5, "picture": ""},
+    "Небесный атлас": {"type": "weapon", "rarity": 5, "picture": ""},
+}
+
+rare_standard_characters = {
+    "Барбара": {
+        "type": "character",
+        "rarity": 4,
+        "picture": "",
+        "not_in_banner": False,
+    },
+    "Беннет": {"type": "character", "rariry": 4, "not_in_banner": False},
+    "Бэй Доу": {
+        "type": "character",
+        "rarity": 4,
+        "picture": "",
+        "not_in_banner": False,
+    },
+    "Горо": {
+        "type": "character",
+        "rarity": 4,
+        "picture": "",
+        "not_in_banner": False,
+    },
+    "Диона": {
+        "type": "character",
+        "rarity": 4,
+        "picture": "",
+        "not_in_banner": False,
+    },
+    "Кэйа": {"type": "character", "rarity": 4, "not_in_banner": True},
+    "Лиза": {"type": "character", "rarity": 4, "not_in_banner": True},
+    "Нин Гуан": {
+        "type": "character",
+        "rarity": 4,
+        "picture": "",
+        "not_in_banner": False,
+    },
+    "Ноэлль": {
+        "type": "character",
+        "rarity": 4,
+        "picture": "",
+        "not_in_banner": False,
+    },
+    "Розария": {
+        "type": "character",
+        "rarity": 4,
+        "picture": "photo-193964161_457239025",
+        "not_in_banner": False,
+    },
+    "Рейзор": {
+        "type": "character",
+        "rarity": 4,
+        "picture": "",
+        "not_in_banner": False,
+    },
+    "Сара": {
+        "type": "character",
+        "rarity": 4,
+        "picture": "",
+        "not_in_banner": False,
+    },
+    "Сахароза": {
+        "type": "character",
+        "rarity": 4,
+        "picture": "",
+        "not_in_banner": False,
+    },
+    "Саю": {
+        "type": "character",
+        "rarity": 4,
+        "picture": "",
+        "not_in_banner": False,
+    },
+    "Син Цю": {
+        "type": "character",
+        "rarity": 4,
+        "picture": "",
+        "not_in_banner": False,
+    },
+    "Синь Янь": {
+        "type": "character",
+        "rarity": 4,
+        "picture": "",
+        "not_in_banner": False,
+    },
+    "Сян Лин": {"type": "character", "rarity": 4, "picture": ""},
+    "Тома": {
+        "type": "character",
+        "rarity": 4,
+        "picture": "",
+        "not_in_banner": False,
+    },
+    "Фишль": {
+        "type": "character",
+        "rarity": 4,
+        "picture": "",
+        "not_in_banner": False,
+    },
+    "Чун Юнь": {
+        "type": "character",
+        "rarity": 4,
+        "picture": "",
+        "not_in_banner": False,
+    },
+    "Эмбер": {"type": "character", "rarity": 4, "not_in_banner": True},
+    "Юнь Цзинь": {
+        "type": "character",
+        "rarity": 4,
+        "picture": "",
+        "not_in_banner": False,
+    },
+    "Янь Фей": {
+        "type": "character",
+        "rarity": 4,
+        "picture": "",
+        "not_in_banner": False,
+    },
+}
+
+legendary_standard_characters = {
+    "Джинн": {"type": "character", "rarity": 5, "picture": ""},
+    "Дилюк": {"type": "character", "rarity": 5, "picture": ""},
+    "Кэ Цин": {"type": "character", "rarity": 5, "picture": ""},
+    "Мона": {"type": "character", "rarity": 5, "picture": ""},
+    "Ци Ци": {"type": "character", "rarity": 5, "picture": ""},
+}
+
+legendary_event_characters = {
+    "Ёимия": {
+        "type": "character",
+        "rarity": 5,
+        "picture": "",
+        "event": "tapestry_of_golden_flames",
+    },
+    "Альбедо": {
+        "type": "character",
+        "rarity": 5,
+        "picture": "",
+        "event": "secretum_secretorum",
+    },
+    "Аяка": {
+        "type": "character",
+        "rarity": 5,
+        "picture": "",
+        "event": "the_herons_court",
+    },
+    "Венти": {
+        "type": "character",
+        "rarity": 5,
+        "picture": "",
+        "event": "ballad_in_goblets",
+    },
+    "Гань Юй": {
+        "type": "character",
+        "rarity": 5,
+        "picture": "",
+        "event": "adrift_in_the_harbor",
+    },
+    "Итто": {
+        "type": "character",
+        "rarity": 5,
+        "picture": "",
+        "event": "onis_royale",
+    },
+    "Кадзуха": {
+        "type": "character",
+        "rarity": 5,
+        "picture": "",
+        "event": "leaves_in_the_wind",
+    },
+    "Кли": {
+        "type": "character",
+        "rarity": 5,
+        "picture": "",
+        "event": "sparkling_steps",
+    },
+    "Кокоми": {
+        "type": "character",
+        "rarity": 5,
+        "picture": "",
+        "event": "drifting_luminescence",
+    },
+    "Райдэн": {
+        "type": "character",
+        "rarity": 5,
+        "picture": "",
+        "event": "reign_of_serenity",
+    },
+    "Сяо": {
+        "type": "character",
+        "rarity": 5,
+        "picture": "",
+        "event": "invitation_to_mundane_life",
+    },
+    "Тарталья": {
+        "type": "character",
+        "rarity": 5,
+        "picture": "",
+        "event": "farewell_of_snezhnaya",
+    },
+    "Ху Тао": {"type": "character", "rarity": 5, "event": "moment_of_bloom"},
+    "Чжун Ли": {
+        "type": "character",
+        "rarity": 5,
+        "picture": "",
+        "event": "gentry_of_hermitage",
+    },
+    "Шэнь Хэ": {
+        "type": "character",
+        "rarity": 5,
+        "picture": "",
+        "event": "the_transcendent_one_returns",
+    },
+    "Эола": {
+        "type": "character",
+        "rarity": 5,
+        "picture": "",
+        "event": "born_of_ocean_swell",
+    },
+    "Яэ Мико": {
+        "type": "character",
+        "rarity": 5,
+        "picture": "",
+        "event": "everbloom_violet",
+    },
+}
