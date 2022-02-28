@@ -1,7 +1,15 @@
 normal_standard_weapons = {
     "Рогатка": {"type": "weapon", "rarity": 3, "picture": ""},
-    "Клятва стрелка": {"type": "weapon", "rarity": 3, "picture": ""},
-    "Лук ворона": {"type": "weapon", "rarity": 3, "picture": ""},
+    "Клятва стрелка": {
+        "type": "weapon",
+        "rarity": 3,
+        "picture": "photo-193964161_457239037",
+    },
+    "Лук ворона": {
+        "type": "weapon",
+        "rarity": 3,
+        "picture": "photo-193964161_457239040",
+    },
     "Меч небесного всадника": {
         "type": "weapon",
         "rarity": 3,
@@ -15,16 +23,36 @@ normal_standard_weapons = {
         "picture": "photo-193964161_457239022",
     },
     "Меч драконьей крови": {"type": "weapon", "rarity": 3, "picture": ""},
-    "Металлическая тень": {"type": "weapon", "rarity": 3, "picture": ""},
-    "Черная кисть": {"type": "weapon", "rarity": 3, "picture": ""},
-    "Изумрудный шар": {"type": "weapon", "rarity": 3, "picture": ""},
-    "Руководство по магии": {"type": "weapon", "rarity": 3, "picture": ""},
-    "Эпос о драконоборцах": {"type": "weapon", "rarity": 3, "picture": ""},
+    "Металлическая тень": {
+        "type": "weapon",
+        "rarity": 3,
+        "picture": "photo-193964161_457239042",
+    },
+    "Чёрная кисть": {
+        "type": "weapon",
+        "rarity": 3,
+        "picture": "photo-193964161_457239036",
+    },
+    "Изумрудный шар": {
+        "type": "weapon",
+        "rarity": 3,
+        "picture": "photo-193964161_457239039",
+    },
+    "Руководство по магии": {
+        "type": "weapon",
+        "rarity": 3,
+        "picture": "photo-193964161_457239038",
+    },
+    "Эпос о драконоборцах": {
+        "type": "weapon",
+        "rarity": 3,
+        "picture": "photo-193964161_457239035",
+    },
 }
 
 rare_standard_weapons = {
     "Бесструнный": {"type": "weapon", "rarity": 4, "picture": ""},
-    "Боевой лук Фавония": {"type": "weapon", "rarity": 4, "picture": ""},
+    "Боевой лук Феврония": {"type": "weapon", "rarity": 4, "picture": ""},
     "Ржавый лук": {"type": "weapon", "rarity": 4, "picture": ""},
     "Церемониальный лук": {"type": "weapon", "rarity": 4, "picture": ""},
     "Драконий рык": {"type": "weapon", "rarity": 4, "picture": ""},
@@ -41,7 +69,7 @@ rare_standard_weapons = {
     },
     "Гроза драконов": {"type": "weapon", "rarity": 4, "picture": ""},
     "Копьё Фавония": {"type": "weapon", "rarity": 4, "picture": ""},
-    "Кодекс Фавония": {"type": "weapon", "rarity": 4, "picture": ""},
+    "Кодекс Феврония": {"type": "weapon", "rarity": 4, "picture": ""},
     "Око сознания": {"type": "weapon", "rarity": 4, "picture": ""},
     "Песнь странника": {
         "type": "weapon",
@@ -60,7 +88,7 @@ legendary_standard_weapons = {
     "Небесное крыло": {"type": "weapon", "rarity": 5, "picture": ""},
     "Меч Сокола": {"type": "weapon", "rarity": 5, "picture": ""},
     "Небесный меч": {"type": "weapon", "rarity": 5, "picture": ""},
-    "Вольчя погибель": {
+    "Волчья погибель": {
         "type": "weapon",
         "rarity": 5,
         "picture": "photo-193964161_457239023",
@@ -98,8 +126,18 @@ rare_standard_characters = {
         "picture": "",
         "not_in_banner": False,
     },
-    "Кэйа": {"type": "character", "rarity": 4, "not_in_banner": True},
-    "Лиза": {"type": "character", "rarity": 4, "not_in_banner": True},
+    "Кэйа": {
+        "type": "character",
+        "rarity": 4,
+        "picture": "",
+        "not_in_banner": True,
+    },
+    "Лиза": {
+        "type": "character",
+        "rarity": 4,
+        "picture": "",
+        "not_in_banner": True,
+    },
     "Нин Гуан": {
         "type": "character",
         "rarity": 4,
@@ -269,7 +307,12 @@ legendary_event_characters = {
         "picture": "",
         "event": "farewell_of_snezhnaya",
     },
-    "Ху Тао": {"type": "character", "rarity": 5, "event": "moment_of_bloom"},
+    "Ху Тао": {
+        "type": "character",
+        "rarity": 5,
+        "picture": "",
+        "event": "moment_of_bloom",
+    },
     "Чжун Ли": {
         "type": "character",
         "rarity": 5,

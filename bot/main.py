@@ -10,8 +10,10 @@ async def create_table():
             user_id INTEGER,
             standard_wishes INTEGER DEFAULT 5,
             event_wishes INTEGER DEFAULT 5,
-            rolls INTEGER DEFAULT 0,
-            legendary_rolls INTEGER DEFAULT 0
+            rolls_standard INTEGER DEFAULT 0,
+            legendary_rolls_standard INTEGER DEFAULT 0,
+            rolls_event INTEGER DEFAULT 0,
+            legendary_rolls_event INTEGER DEFAULT 0
         )""")
 asyncio.get_event_loop().run_until_complete(create_table())
 
