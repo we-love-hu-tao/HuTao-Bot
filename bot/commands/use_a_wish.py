@@ -1,10 +1,10 @@
 from vkbottle.bot import Blueprint, Message
 import aiosqlite
 import asyncio
-import random
 import drop
+import random
 
-bp = Blueprint('Wish command')
+bp = Blueprint('Use wish')
 bp.labeler.vbml_ignore_case = True
 
 
@@ -157,7 +157,7 @@ class Wish:
                 )
                 await db.commit()
 
-                if self.chance(1.6) or legendary_rolls_standard_count >= 90:
+                if self.chance(1.6) or legendary_rolls_standard_count >= 89:
                     await self.reset_rolls_count(type="legendary")
                     type_rarity = random.choice(
                         (
@@ -183,7 +183,7 @@ class Wish:
                 name = item_drop[0]
                 picture = item_drop[1]["picture"]
             elif type == "event":
-                current_event = "everbloom_violet"  # Текущий ивент
+                current_event = "moment_of_bloom"  # Текущий ивент
 
                 # Отнятие одной ивентовой молитвы
                 await db.execute(
@@ -193,7 +193,7 @@ class Wish:
                 )
                 await db.commit()
 
-                if self.chance(1.6) or legendary_rolls_event_count >= 90:
+                if self.chance(1.6) or legendary_rolls_event_count >= 89:
                     # 5 звездочный персонаж
                     await self.reset_rolls_count(
                         wish="event", type="legendary"
@@ -224,14 +224,16 @@ class Wish:
                     leg_event = drop.legendary_event_characters
                     for character in leg_event:
                         if leg_event[character]["event"] == current_event:
-                            item_drop = leg_event[character]
+                            item_drop = leg_event[character].items()
                             name = character
+                            break
                 else:
                     item_drop = random.choice(list(type_rarity.items()))
-                    type = item_drop[1]["type"]
-                    rarity = item_drop[1]["rarity"]
-                    name = item_drop[0]
-                    picture = item_drop[1]["picture"]
+
+                type = item_drop[1]["type"]
+                rarity = item_drop[1]["rarity"]
+                name = item_drop[0]
+                picture = item_drop[1]["picture"]
 
             if rarity == 3:
                 # 3 star gif

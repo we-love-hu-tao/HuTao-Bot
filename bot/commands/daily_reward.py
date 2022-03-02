@@ -37,12 +37,12 @@ async def daily_reward(message: Message):
 
                 # Выдаем ежедневную награду игроку
                 await db.execute(
-                    "UPDATE players SET standard_wishes=standard_wishes+5 "
+                    "UPDATE players SET standard_wishes=standard_wishes+10 "
                     "WHERE user_id=(?)",
                     (message.from_id,),
                 )
                 await db.execute(
-                    "UPDATE players SET event_wishes=event_wishes+5 WHERE "
+                    "UPDATE players SET event_wishes=event_wishes+10 WHERE "
                     "user_id=(?)",
                     (message.from_id,),
                 )

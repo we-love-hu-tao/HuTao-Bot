@@ -6,7 +6,7 @@ bp.labeler.vbml_ignore_case = True
 
 @bp.on.message(command="ив баннер")
 async def show_event_banner(message: Message):
-    await message.answer(attachment="photo-193964161_457239017")
+    await message.answer(attachment="photo-193964161_457239044")
 
 
 @bp.on.message(command="ст баннер")

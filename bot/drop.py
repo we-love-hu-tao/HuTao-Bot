@@ -107,7 +107,7 @@ rare_standard_characters = {
         "picture": "",
         "not_in_banner": False,
     },
-    "Беннет": {"type": "character", "rariry": 4, "not_in_banner": False},
+    "Беннет": {"type": "character", "rariry": 4, "picture": "", "not_in_banner": False},
     "Бэй Доу": {
         "type": "character",
         "rarity": 4,
@@ -211,7 +211,12 @@ rare_standard_characters = {
         "picture": "",
         "not_in_banner": False,
     },
-    "Эмбер": {"type": "character", "rarity": 4, "not_in_banner": True},
+    "Эмбер": {
+        "type": "character",
+        "rarity": 4,
+        "picture": "",
+        "not_in_banner": True
+    },
     "Юнь Цзинь": {
         "type": "character",
         "rarity": 4,
@@ -310,7 +315,7 @@ legendary_event_characters = {
     "Ху Тао": {
         "type": "character",
         "rarity": 5,
-        "picture": "",
+        "picture": "photo-193964161_457239045",
         "event": "moment_of_bloom",
     },
     "Чжун Ли": {
