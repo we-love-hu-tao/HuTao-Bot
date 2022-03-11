@@ -8,7 +8,7 @@ normal_standard_weapons = {
     "Лук ворона": {
         "type": "weapon",
         "rarity": 3,
-        "picture": "photo-193964161_457239040",
+        "picture": "photo-193964161_457239047",
     },
     "Меч небесного всадника": {
         "type": "weapon",
@@ -60,7 +60,11 @@ rare_standard_weapons = {
     "Меч Фавония": {"type": "weapon", "rarity": 4, "picture": ""},
     "Церемониальный меч": {"type": "weapon", "rarity": 4, "picture": ""},
     "Дождерез": {"type": "weapon", "rarity": 4, "picture": ""},
-    "Двуручный меч Фавония": {"type": "weapon", "rarity": 4, "picture": ""},
+    "Двуручный меч Фавония": {
+        "type": "weapon",
+        "rarity": 4,
+        "picture": "photo-193964161_457239046"
+    },
     "Меч-колокол": {"type": "weapon", "rarity": 4, "picture": ""},
     "Церемониальный двуручный меч": {
         "type": "weapon",
@@ -107,7 +111,12 @@ rare_standard_characters = {
         "picture": "",
         "not_in_banner": False,
     },
-    "Беннет": {"type": "character", "rariry": 4, "picture": "", "not_in_banner": False},
+    "Беннет": {
+        "type": "character",
+        "rarity": 4,
+        "picture": "",
+        "not_in_banner": False
+    },
     "Бэй Доу": {
         "type": "character",
         "rarity": 4,
@@ -192,7 +201,12 @@ rare_standard_characters = {
         "picture": "",
         "not_in_banner": False,
     },
-    "Сян Лин": {"type": "character", "rarity": 4, "picture": ""},
+    "Сян Лин": {
+        "type": "character",
+        "rarity": 4,
+        "picture": "",
+        "not_in_banner": False,
+    },
     "Тома": {
         "type": "character",
         "rarity": 4,
@@ -234,12 +248,18 @@ rare_standard_characters = {
 legendary_standard_characters = {
     "Джинн": {"type": "character", "rarity": 5, "picture": ""},
     "Дилюк": {"type": "character", "rarity": 5, "picture": ""},
-    "Кэ Цин": {"type": "character", "rarity": 5, "picture": ""},
+    "Кэ Цин": {"type": "character", "rarity": 5, "picture": "photo-193964161_457239050"},
     "Мона": {"type": "character", "rarity": 5, "picture": ""},
     "Ци Ци": {"type": "character", "rarity": 5, "picture": ""},
 }
 
 legendary_event_characters = {
+    "Кэ Цин": {
+        "type": "character",
+        "rarity": 5,
+        "picture": "photo-193964161_457239050",
+        "event": "dance_of_lanterns"
+    },
     "Ёимия": {
         "type": "character",
         "rarity": 5,
