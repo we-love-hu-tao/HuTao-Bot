@@ -1,4 +1,5 @@
 from vkbottle.bot import Blueprint, Message
+from player_exists import HasAccount
 import aiosqlite
 import asyncio
 import drop
@@ -13,21 +14,7 @@ class Wish:
         self.user_id = user_id
         self.message = message
 
-    async def player_registered(self) -> bool:
-        """
-        Проверяет, зарегестрировался ли игрок
-        """
-        async with aiosqlite.connect("db.db") as db:
-            async with db.execute(
-                "SELECT user_id FROM players WHERE user_id=(?)",
-                (self.user_id,),
-            ) as cur:
-                exists = await cur.fetchone()
-                if exists:
-                    return True
-                return False
-
-    async def check_standard(self, min_=0) -> bool:
+    async def check_standard(self, min_=1) -> bool:
         """
         Проверяет, есть ли у игрока стандартное желание
         """
@@ -41,7 +28,7 @@ class Wish:
                     return True
                 return False
 
-    async def check_event(self, min_=0) -> bool:
+    async def check_event(self, min_=1) -> bool:
         """
         Проверяет, есть ли у игрока ивентовое желание
         """
@@ -71,8 +58,8 @@ class Wish:
             if wish == "standard":
                 if type == "rare":
                     await db.execute(
-                        "UPDATE players SET rolls_standard=0 WHERE"
-                        " user_id=(?)",
+                        "UPDATE players SET rolls_standard=0 WHERE "
+                        "user_id=(?)",
                         (self.user_id,),
                     )
                 elif type == "legendary":
@@ -297,67 +284,45 @@ class Wish:
             
 
 
-@bp.on.message(text="!помолиться стандарт")
+@bp.on.message(HasAccount(), text="!помолиться стандарт")
 async def standard_wish(message: Message):
     wish = Wish(message.from_id, message)
-    if await wish.player_registered():
-        if await wish.check_standard():
-            print("using standard wish")
-            await wish.use_wish("standard")
-        else:
-            await message.answer(
-                "У вас нет судьбоносных встреч! Ждите следующего дня"
-            )
+    if await wish.check_standard():
+        await wish.use_wish("standard")
     else:
         await message.answer(
-            "Для начала нужно зайти в genshin impact командой !начать"
+            "У вас нет судьбоносных встреч! Ждите следующего дня"
         )
 
 
-@bp.on.message(text="!помолиться стандарт 10")
+@bp.on.message(HasAccount(), text="!помолиться стандарт 10")
 async def standard_wish(message: Message):
     wish = Wish(message.from_id, message)
-    if await wish.player_registered():
-        if await wish.check_standard(10):
-            await wish.use_ten_wishes("standard")
-        else:
-            await message.answer(
-                "У вас нет судьбоносных встреч! Ждите следующего дня"
-            )
+    if await wish.check_standard(10):
+        await wish.use_ten_wishes("standard")
     else:
         await message.answer(
-            "Для начала нужно зайти в genshin impact командой !начать"
+            "У вас не хватает судьбоносных встреч! Ждите следующего дня"
         )
 
 
-
-@bp.on.message(text=("!помолиться событие", "!помолиться ивент"))
+@bp.on.message(HasAccount(), text=("!помолиться событие", "!помолиться ивент"))
 async def event_wish(message: Message):
     wish = Wish(message.from_id, message)
-    if await wish.player_registered():
-        if await wish.check_event():
-            await wish.use_wish("event")
-        else:
-            await message.answer(
-                "У вас нет переплетающихся судьб! Ждите следующего дня"
-            )
+    if await wish.check_event():
+        await wish.use_wish("event")
     else:
         await message.answer(
-            "Для начала нужно зайти в genshin impact командой !начать"
+            "У вас нет переплетающих судьб! Ждите следующего дня"
         )
 
 
-@bp.on.message(text=("!помолиться событие 10", "!помолиться ивент 10"))
+@bp.on.message(HasAccount(), text=("!помолиться событие 10", "!помолиться ивент 10"))
 async def event_wish(message: Message):
     wish = Wish(message.from_id, message)
-    if await wish.player_registered():
-        if await wish.check_event(10):
-            await wish.use_ten_wishes("event")
-        else:
-            await message.answer(
-                "У вас нет переплетающихся судьб! Ждите следующего дня"
-            )
+    if await wish.check_event(10):
+        await wish.use_ten_wishes("event")
     else:
         await message.answer(
-            "Для начала нужно зайти в genshin impact командой !начать"
+            "У вас не хватает переплетающих судьб! Ждите следующего дня"
         )

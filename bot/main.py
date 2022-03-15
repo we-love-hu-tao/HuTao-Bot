@@ -1,5 +1,5 @@
-from vkbottle.bot import Bot
-from vkbottle import load_blueprints_from_package
+from vkbottle.bot import Bot, Message
+from vkbottle import BaseMiddleware, load_blueprints_from_package
 import aiosqlite
 import asyncio
 import loguru
@@ -10,7 +10,7 @@ async def create_table():
         await db.execute("""CREATE TABLE IF NOT EXISTS players (
             user_id INTEGER,
             nickname TEXT,
-            gif_link TEXT,
+            photo_link TEXT,
             reward_last_time INTEGER DEFAULT 0,
             standard_wishes INTEGER DEFAULT 5,
             event_wishes INTEGER DEFAULT 5,
@@ -20,7 +20,7 @@ async def create_table():
             legendary_rolls_event INTEGER DEFAULT 0,
             did_quest_today INTEGER DEFAULT 0,
             doing_quest INTEGER DEFAULT 0,
-            daily_quests_time INTEGER
+            daily_quests_time INTEGER DEFAULT 0
         )""")
 asyncio.get_event_loop().run_until_complete(create_table())
 
