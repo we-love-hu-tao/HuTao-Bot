@@ -3,7 +3,7 @@ from vkbottle import PhotoMessageUploader
 from player_exists import HasAccount
 import aiosqlite
 
-bp = Blueprint('Profile')
+bp = Blueprint("Profile")
 bp.labeler.vbml_ignore_case = True
 
 
@@ -17,7 +17,8 @@ async def profile(message: Message):
             "event_wishes, "
             "legendary_rolls_standard, "
             "legendary_rolls_event "
-            "FROM players WHERE user_id=(?)", (message.from_id,)
+            "FROM players WHERE user_id=(?)",
+            (message.from_id,),
         ) as cur:
             result = await cur.fetchone()
 
@@ -28,11 +29,11 @@ async def profile(message: Message):
     legendary_event_guarantee = result[4]
 
     await message.answer(
-        f"Ник: {nickname}\n"
-        f"Стандартных молитв: {standard_wishes}\n"
-        f"Молитв события: {event_wishes}\n\n"
-        f"Открытых стандартных молитв без 5 звездочного предмета: {legendary_standard_guarantee}\n\n"
-        f"Открытых ивентовых молитв без 5 звездочного предмета: {legendary_event_guarantee}"
+        f"Ник: {nickname}\nСтандартных молитв: {standard_wishes}\nМолитв "
+        f"события: {event_wishes}\n\nОткрытых стандартных молитв без 5 "
+        f"звездочного предмета: {legendary_standard_guarantee}\n\nОткрытых "
+        " ивентовых молитв без 5 звездочного предмета:"
+        f"{legendary_event_guarantee}"
     )
 
 
@@ -41,19 +42,16 @@ async def set_image(message: Message):
     if message.attachments:
         if message.attachments[0].photo:
             photo = message.attachments[0].photo
-            sizes = photo.sizes
-            for size in sizes:
-                if size.type.value == "x":
-                    best_size = size
-                    break
-            print(f"best size: {best_size}")
+            photo_link = "photo" + str(photo.owner_id) + "_" + str(photo.id)
             async with aiosqlite.connect("db.db") as db:
-                await db.execute("UPDATE players SET photo_link=(?) WHERE user_id=(?)", (best_size.url, message.from_id))
+                await db.execute(
+                    "UPDATE players SET photo_link=(?) WHERE user_id=(?)",
+                    (photo_link, message.from_id),
+                )
                 await db.commit()
             print("sending")
-            await message.answer("image", attachment=best_size.url)  # ! вместо картинки прикладывает ссылку на неё
+            await message.answer("image", attachment=photo_link)
         else:
             print("not image")
     else:
         await message.answer("Вы не прикрепили картинку!")
-    
