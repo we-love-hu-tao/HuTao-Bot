@@ -1,8 +1,8 @@
-from vkbottle.bot import Bot, Message
-from vkbottle import BaseMiddleware, load_blueprints_from_package
+from vkbottle.bot import Bot
+from vkbottle import load_blueprints_from_package
 import aiosqlite
 import asyncio
-import loguru
+import loguru  # noqa: F401
 
 
 async def create_table():

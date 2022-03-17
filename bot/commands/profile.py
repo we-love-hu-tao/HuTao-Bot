@@ -1,5 +1,4 @@
 from vkbottle.bot import Blueprint, Message
-from vkbottle import PhotoMessageUploader
 from player_exists import HasAccount
 import aiosqlite
 
@@ -13,6 +12,7 @@ async def profile(message: Message):
         async with db.execute(
             "SELECT "
             "nickname, "
+            "photo_link, "
             "standard_wishes, "
             "event_wishes, "
             "legendary_rolls_standard, "
@@ -23,17 +23,19 @@ async def profile(message: Message):
             result = await cur.fetchone()
 
     nickname = result[0]
-    standard_wishes = result[1]
-    event_wishes = result[2]
-    legendary_standard_guarantee = result[3]
-    legendary_event_guarantee = result[4]
+    photo_link = result[1]
+    standard_wishes = result[2]
+    event_wishes = result[3]
+    legendary_standard_guarantee = result[4]
+    legendary_event_guarantee = result[5]
 
     await message.answer(
         f"Ник: {nickname}\nСтандартных молитв: {standard_wishes}\nМолитв "
         f"события: {event_wishes}\n\nОткрытых стандартных молитв без 5 "
         f"звездочного предмета: {legendary_standard_guarantee}\n\nОткрытых "
         " ивентовых молитв без 5 звездочного предмета:"
-        f"{legendary_event_guarantee}"
+        f"{legendary_event_guarantee}",
+        attachment=photo_link
     )
 
 

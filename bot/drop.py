@@ -63,7 +63,7 @@ rare_standard_weapons = {
     "Двуручный меч Фавония": {
         "type": "weapon",
         "rarity": 4,
-        "picture": "photo-193964161_457239046"
+        "picture": "photo-193964161_457239046",
     },
     "Меч-колокол": {"type": "weapon", "rarity": 4, "picture": ""},
     "Церемониальный двуручный меч": {
@@ -115,7 +115,7 @@ rare_standard_characters = {
         "type": "character",
         "rarity": 4,
         "picture": "",
-        "not_in_banner": False
+        "not_in_banner": False,
     },
     "Бэй Доу": {
         "type": "character",
@@ -229,7 +229,7 @@ rare_standard_characters = {
         "type": "character",
         "rarity": 4,
         "picture": "",
-        "not_in_banner": True
+        "not_in_banner": True,
     },
     "Юнь Цзинь": {
         "type": "character",
@@ -248,7 +248,11 @@ rare_standard_characters = {
 legendary_standard_characters = {
     "Джинн": {"type": "character", "rarity": 5, "picture": ""},
     "Дилюк": {"type": "character", "rarity": 5, "picture": ""},
-    "Кэ Цин": {"type": "character", "rarity": 5, "picture": "photo-193964161_457239050"},
+    "Кэ Цин": {
+        "type": "character",
+        "rarity": 5,
+        "picture": "photo-193964161_457239050",
+    },
     "Мона": {"type": "character", "rarity": 5, "picture": ""},
     "Ци Ци": {"type": "character", "rarity": 5, "picture": ""},
 }
@@ -258,7 +262,7 @@ legendary_event_characters = {
         "type": "character",
         "rarity": 5,
         "picture": "photo-193964161_457239050",
-        "event": "dance_of_lanterns"
+        "event": "dance_of_lanterns",
     },
     "Ёимия": {
         "type": "character",
