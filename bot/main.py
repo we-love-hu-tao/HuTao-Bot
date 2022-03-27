@@ -10,6 +10,7 @@ async def create_table():
         await db.execute("""CREATE TABLE IF NOT EXISTS players (
             user_id INTEGER,
             nickname TEXT,
+            banned INTEGER DEFAULT 0,
             photo_link TEXT,
             reward_last_time INTEGER DEFAULT 0,
             standard_wishes INTEGER DEFAULT 5,

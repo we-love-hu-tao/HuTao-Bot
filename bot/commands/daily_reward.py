@@ -1,5 +1,5 @@
 from vkbottle.bot import Blueprint, Message
-from player_exists import HasAccount
+from player_exists import exists
 import aiosqlite
 import time
 
@@ -7,8 +7,10 @@ bp = Blueprint("Daily reward")
 bp.labeler.vbml_ignore_case = True
 
 
-@bp.on.message(HasAccount(), text=("!забрать награду", "!получить награду", "!награда"))
+@bp.on.message(text=("!забрать награду", "!получить награду", "!награда"))
 async def daily_reward(message: Message):
+    if not await exists(message):
+        return
     async with aiosqlite.connect("db.db") as db:
         async with db.execute(
             """SELECT
@@ -25,12 +27,14 @@ async def daily_reward(message: Message):
         event_wishes = result[2]
 
         # Если прошло больше 1 дня (24 часа)
-        if int(time.time()) > reward_last_time+86400:
+        if int(time.time()) > reward_last_time + 86400:
             # Обновляем время
             await db.execute(
-                "UPDATE players SET reward_last_time=(?) WHERE "
-                "user_id=(?)",
-                (int(time.time()), message.from_id,),
+                "UPDATE players SET reward_last_time=(?) WHERE user_id=(?)",
+                (
+                    int(time.time()),
+                    message.from_id,
+                ),
             )
             await db.commit()
 
@@ -41,8 +45,8 @@ async def daily_reward(message: Message):
                 (message.from_id,),
             )
             await db.execute(
-               "UPDATE players SET event_wishes=event_wishes+10 WHERE "
-               "user_id=(?)",
+                "UPDATE players SET event_wishes=event_wishes+10 WHERE "
+                "user_id=(?)",
                 (message.from_id,),
             )
             await db.commit()

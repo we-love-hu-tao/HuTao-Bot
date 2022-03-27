@@ -1,18 +1,24 @@
 from vkbottle.bot import Blueprint, Message
-from player_exists import HasAccount
+from vkbottle_types.objects import UsersUserFull
+from player_exists import exists
 import aiosqlite
 import asyncio
 import drop
 import random
 
-bp = Blueprint('Use wish')
+bp = Blueprint("Use wish")
 bp.labeler.vbml_ignore_case = True
 
 
 class Wish:
-    def __init__(self, user_id: int, message: Message):
+    def __init__(self, user_id: int, message: Message, info: UsersUserFull):
         self.user_id = user_id
         self.message = message
+        self.full_name = info.first_name + " " + info.last_name
+        # Дательный падеж (Тимуру Богданову)
+        self.full_name_dat = info.first_name_dat + " " + info.last_name_dat
+        # Родительный падеж (Тимура Богданова)
+        self.full_name_gen = info.first_name_gen + " " + info.last_name_gen
 
     async def check_standard(self, min_=1) -> bool:
         """
@@ -84,9 +90,17 @@ class Wish:
 
     async def decrease_wish(self, db, type_="standard", count=1):
         if type_ == "standard":
-            await db.execute("UPDATE players SET standard_wishes=standard_wishes-(?) WHERE user_id=(?)", (count, self.user_id))
+            await db.execute(
+                "UPDATE players SET standard_wishes=standard_wishes-(?) WHERE "
+                "user_id=(?)",
+                (count, self.user_id),
+            )
         elif type_ == "event":
-            await db.execute("UPDATE players SET event_wishes=event_wishes-(?) WHERE user_id=(?)", (count, self.user_id))
+            await db.execute(
+                "UPDATE players SET event_wishes=event_wishes-(?) WHERE "
+                "user_id=(?)",
+                (count, self.user_id),
+            )
         await db.commit()
 
     async def increase_rolls_count(self, wish="standard"):
@@ -124,50 +138,53 @@ class Wish:
         if rarity == 3:
             # 3 star gif
             await self.message.answer(
-                "Открываем...", attachment="doc-193964161_629778843"
+                f"[id{self.user_id}|{self.full_name}] открывает...",
+                attachment="doc-193964161_629778843",
             )
         elif rarity == 4:
             if ten:
                 # 4 star gif 10 items
                 await self.message.answer(
-                    "Открываем...",
+                    f"[id{self.user_id}|{self.full_name}] открывает...",
                     attachment="",
                 )
             else:
                 # 4 star gif
                 await self.message.answer(
-                    "Открываем...",
+                    f"[id{self.user_id}|{self.full_name}] открывает...",
                     attachment="doc-193964161_629778865",
                 )
         elif rarity == 5:
             if ten:
                 # 5 star gif 10 times
                 await self.message.answer(
-                    "Открываем...",
+                    f"[id{self.user_id}|{self.full_name}] открывает...",
                     attachment="",
                 )
             else:
                 # 5 star gif
                 await self.message.answer(
-                    "Открываем...",
+                    f"[id{self.user_id}|{self.full_name}] открывает...",
                     attachment="doc-193964161_629110361",
                 )
 
     async def roll(self, db, type) -> tuple:
         async with db.execute(
-                """SELECT
-                rolls_standard,
-                legendary_rolls_standard,
-                rolls_event,
-                legendary_rolls_event
-                FROM players WHERE user_id=(?)""",
-                (self.user_id,),
-            ) as cur:
-                count = await cur.fetchone()
-                rolls_standard_count = count[0]
-                legendary_rolls_standard_count = count[1]
-                rolls_event_count = count[2]
-                legendary_rolls_event_count = count[3]
+            """
+            SELECT
+            rolls_standard,
+            legendary_rolls_standard,
+            rolls_event,
+            legendary_rolls_event
+            FROM players WHERE user_id=(?)
+            """,
+            (self.user_id,),
+        ) as cur:
+            count = await cur.fetchone()
+            rolls_standard_count = count[0]
+            legendary_rolls_standard_count = count[1]
+            rolls_event_count = count[2]
+            legendary_rolls_event_count = count[3]
 
         if type == "standard":
             if self.chance(1.6) or legendary_rolls_standard_count >= 89:
@@ -186,7 +203,7 @@ class Wish:
                         drop.rare_standard_weapons,
                     )
                 )
-                
+
             else:
                 await self.increase_rolls_count()
                 type_rarity = drop.normal_standard_weapons
@@ -195,13 +212,11 @@ class Wish:
             return random_item
 
         elif type == "event":
-            current_event = "dance_of_lanterns"  # Текущий ивент
+            current_event = "moment_of_bloom"  # Текущий ивент
 
             if self.chance(1.6) or legendary_rolls_event_count >= 89:
                 # 5 звездочный персонаж
-                await self.reset_rolls_count(
-                    wish="event", type="legendary"
-                )
+                await self.reset_rolls_count(wish="event", type="legendary")
                 type_rarity = random.choice(
                     (
                         drop.legendary_event_characters,
@@ -226,10 +241,8 @@ class Wish:
                 for character in type_rarity.items():
                     if character[1]["event"] == current_event:
                         return character
-                        break
             else:
-                return random.choice(list(type_rarity.items()))
-
+                return random.choice(list(type_rarity.items()))  # ! AttributeError: 'tuple' object has no attribute 'items' # noqa: E501
 
     async def use_wish(self, type):
         """
@@ -247,12 +260,14 @@ class Wish:
             await asyncio.sleep(6.0)
             if type == "weapon":
                 await self.message.answer(
-                    f"Выпало оружие {name} ({'★' * rarity})!",
+                    f"[id{self.user_id}|{self.full_name_dat}] выпало оружие "
+                    f"{name} ({'★' * rarity})!",
                     attachment=picture,
                 )
             elif type == "character":
                 await self.message.answer(
-                    f"Выпал персонаж {name} ({'★' * rarity})!",
+                    f"[id{self.user_id}|{self.full_name_dat}] выпал персонаж "
+                    f"{name} ({'★' * rarity})!",
                     attachment=picture,
                 )
             await db.commit()
@@ -260,10 +275,10 @@ class Wish:
     async def use_ten_wishes(self, roll_type):
         async with aiosqlite.connect("db.db") as db:
             item_drops = []
-            output = ""
+            output = f"Результаты [id{self.user_id}|{self.full_name_gen}]\n"
             five_star = False
             await self.decrease_wish(db, roll_type, 10)
-            for i in range(0,10):
+            for i in range(0, 10):
                 new_drop = await self.roll(db, roll_type)
                 item_drops.append(new_drop)
                 item_type = item_drops[i][1]["type"]
@@ -272,21 +287,32 @@ class Wish:
                     five_star = True
                 item_name = item_drops[i][0]
                 if item_type == "weapon":
-                    output+=f"Выпало оружие {item_name} ({'★' * item_rarity})!\n"
+                    output += (
+                        f"Выпало оружие {item_name} ({'★' * item_rarity})!\n"
+                    )
                 elif item_type == "character":
-                    output+=f"Выпал персонаж {item_name} ({'★' * item_rarity})!\n"
+                    output += (
+                        f"Выпал персонаж {item_name} ({'★' * item_rarity})!\n"
+                    )
             if five_star:
                 await self.choose_gif(5, True)
             else:
                 await self.choose_gif(4, True)
             await asyncio.sleep(6.0)
             await self.message.answer(output)
-            
 
 
-@bp.on.message(HasAccount(), text="!помолиться стандарт")
+CASES = "first_name_dat, last_name_dat, first_name_gen, last_name_gen"
+
+
+@bp.on.message(text="!помолиться стандарт")
 async def standard_wish(message: Message):
-    wish = Wish(message.from_id, message)
+    if not await exists(message):
+        return
+    info = await message.get_user(False, fields=CASES)
+    wish = Wish(
+        message.from_id, message, info
+    )
     if await wish.check_standard():
         await wish.use_wish("standard")
     else:
@@ -295,9 +321,14 @@ async def standard_wish(message: Message):
         )
 
 
-@bp.on.message(HasAccount(), text="!помолиться стандарт 10")
-async def standard_wish(message: Message):
-    wish = Wish(message.from_id, message)
+@bp.on.message(text="!помолиться стандарт 10")
+async def ten_standard_wishes(message: Message):
+    if not await exists(message):
+        return
+    info = await message.get_user(False, fields=CASES)
+    wish = Wish(
+        message.from_id, message, info
+    )
     if await wish.check_standard(10):
         await wish.use_ten_wishes("standard")
     else:
@@ -306,9 +337,14 @@ async def standard_wish(message: Message):
         )
 
 
-@bp.on.message(HasAccount(), text=("!помолиться событие", "!помолиться ивент"))
+@bp.on.message(text=("!помолиться событие", "!помолиться ивент"))
 async def event_wish(message: Message):
-    wish = Wish(message.from_id, message)
+    if not await exists(message):
+        return
+    info = await message.get_user(False, fields=CASES)
+    wish = Wish(
+        message.from_id, message, info
+    )
     if await wish.check_event():
         await wish.use_wish("event")
     else:
@@ -317,9 +353,14 @@ async def event_wish(message: Message):
         )
 
 
-@bp.on.message(HasAccount(), text=("!помолиться событие 10", "!помолиться ивент 10"))
-async def event_wish(message: Message):
-    wish = Wish(message.from_id, message)
+@bp.on.message(text=("!помолиться событие 10", "!помолиться ивент 10"))
+async def ten_event_wishes(message: Message):
+    if not await exists(message):
+        return
+    info = await message.get_user(False, fields=CASES)
+    wish = Wish(
+        message.from_id, message, info
+    )
     if await wish.check_event(10):
         await wish.use_ten_wishes("event")
     else:

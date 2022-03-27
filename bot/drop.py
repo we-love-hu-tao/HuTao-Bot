@@ -246,7 +246,11 @@ rare_standard_characters = {
 }
 
 legendary_standard_characters = {
-    "Джинн": {"type": "character", "rarity": 5, "picture": ""},
+    "Джинн": {
+        "type": "character",
+        "rarity": 5,
+        "picture": "photo-193964161_457239085",
+    },
     "Дилюк": {"type": "character", "rarity": 5, "picture": ""},
     "Кэ Цин": {
         "type": "character",
@@ -254,7 +258,11 @@ legendary_standard_characters = {
         "picture": "photo-193964161_457239050",
     },
     "Мона": {"type": "character", "rarity": 5, "picture": ""},
-    "Ци Ци": {"type": "character", "rarity": 5, "picture": ""},
+    "Ци Ци": {
+        "type": "character",
+        "rarity": 5,
+        "picture": "photo-193964161_457239086",
+    },
 }
 
 legendary_event_characters = {

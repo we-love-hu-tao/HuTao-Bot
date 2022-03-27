@@ -1,5 +1,5 @@
 from vkbottle.bot import Blueprint, Message
-from player_exists import HasAccount
+from player_exists import exists
 import aiosqlite
 import random
 import time
@@ -8,7 +8,7 @@ bp = Blueprint("Mini-games")
 bp.labeler.vbml_ignore_case = True
 
 
-@bp.on.message(HasAccount(), text="!начать поручения")
+@bp.on.message(text="!начать поручения")
 async def start_daily_quests(message: Message):
     """
     Игрок сможет начать поручение только если:
@@ -17,6 +17,8 @@ async def start_daily_quests(message: Message):
     doing_quest == 0
     daily_quests_time + 86400 секунд (24 часа) < текущего unix времени
     """
+    if not await exists(message):
+        return
     async with aiosqlite.connect("db.db") as db:
         async with db.execute(
             "SELECT "
@@ -48,7 +50,7 @@ async def start_daily_quests(message: Message):
             )
 
 
-@bp.on.message(HasAccount(), text="!закончить поручения")
+@bp.on.message(text="!закончить поручения")
 async def complete_daily_quests(message: Message):
     """
     Игрок сможет закончить поручение только если:
@@ -56,6 +58,8 @@ async def complete_daily_quests(message: Message):
         doing_quest == 1;
         daily_quests_time + 1200 секунд (20 минут) < текущего unix времени
     """
+    if not await exists(message):
+        return
     async with aiosqlite.connect("db.db") as db:
         async with db.execute(
             "SELECT "
@@ -91,7 +95,7 @@ async def complete_daily_quests(message: Message):
             await message.answer(
                 "Вы выполнили поручения и получили "
                 f"{standard_wish_reward} судьбоносных встреч и "
-               f"{event_wish_reward} переплетающих судьб"
+                f"{event_wish_reward} переплетающих судьб"
             )
         else:
             await message.answer(

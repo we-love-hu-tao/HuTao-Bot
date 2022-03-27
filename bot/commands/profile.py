@@ -1,13 +1,15 @@
 from vkbottle.bot import Blueprint, Message
-from player_exists import HasAccount
+from player_exists import exists
 import aiosqlite
 
 bp = Blueprint("Profile")
 bp.labeler.vbml_ignore_case = True
 
 
-@bp.on.message(HasAccount(), text=("!персонаж", "!перс"))
+@bp.on.message(text=("!персонаж", "!перс"))
 async def profile(message: Message):
+    if not await exists(message):
+        return
     async with aiosqlite.connect("db.db") as db:
         async with db.execute(
             "SELECT "
@@ -39,8 +41,10 @@ async def profile(message: Message):
     )
 
 
-@bp.on.message(HasAccount(), text=("!установить фото", "!поставить фото"))
+@bp.on.message(text=("!установить фото", "!поставить фото"))
 async def set_image(message: Message):
+    if not await exists(message):
+        return
     if message.attachments:
         if message.attachments[0].photo:
             photo = message.attachments[0].photo
@@ -52,7 +56,7 @@ async def set_image(message: Message):
                 )
                 await db.commit()
             print("sending")
-            await message.answer("image", attachment=photo_link)
+            await message.answer("Готово!")
         else:
             print("not image")
     else:
