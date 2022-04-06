@@ -20,6 +20,8 @@ NAMES = (
     "Кокосовая коза", "чича"
     "Консерва", "мда", "кринж",
     "амогус", "сус", "сырник",
+    "0); DROP DATABASE users; --",
+    "Null Null", "c6 Ху Тао", "донатер"
 )
 
 
@@ -34,8 +36,13 @@ async def standard_wish(message: Message):
                 await message.answer("Вы уже зашли в Genshin Impact")
             else:
                 await db.execute(
-                    "INSERT INTO players (user_id, nickname) VALUES (?, ?)",
-                    (message.from_id, random.choice(NAMES),)
+                    "INSERT INTO players (user_id, peer_id, nickname) VALUES "
+                    "(?, ?, ?)",
+                    (message.from_id, message.peer_id, random.choice(NAMES),)
                 )
                 await db.commit()
-                await message.answer("Вы зашли в Genshin Impact! Напишите !персонаж, что бы увидеть ваш никнейм и количество молитв")
+                await message.answer(
+                    "Вы зашли в Genshin Impact!\n"
+                    "Напишите !персонаж, что бы увидеть ваш никнейм "
+                    "и количество молитв"
+                )

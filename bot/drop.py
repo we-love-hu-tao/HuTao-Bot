@@ -20,7 +20,7 @@ normal_standard_weapons = {
     "Дубина переговоров": {
         "type": "weapon",
         "rarity": 3,
-        "picture": "photo-193964161_457239022",
+        "picture": "photo-193964161_457239088",
     },
     "Меч драконьей крови": {"type": "weapon", "rarity": 3, "picture": ""},
     "Металлическая тень": {
@@ -150,13 +150,13 @@ rare_standard_characters = {
     "Нин Гуан": {
         "type": "character",
         "rarity": 4,
-        "picture": "",
+        "picture": "photo-193964161_457239032",
         "not_in_banner": False,
     },
     "Ноэлль": {
         "type": "character",
         "rarity": 4,
-        "picture": "",
+        "picture": "photo-193964161_457239033",
         "not_in_banner": False,
     },
     "Розария": {
@@ -216,7 +216,7 @@ rare_standard_characters = {
     "Фишль": {
         "type": "character",
         "rarity": 4,
-        "picture": "",
+        "picture": "photo-193964161_457239031",
         "not_in_banner": False,
     },
     "Чун Юнь": {
