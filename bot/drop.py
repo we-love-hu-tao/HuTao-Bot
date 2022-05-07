@@ -8,7 +8,7 @@ normal_standard_weapons = {
     "Лук ворона": {
         "type": "weapon",
         "rarity": 3,
-        "picture": "photo-193964161_457239047",
+        "picture": "photo-193964161_457239093",
     },
     "Меч небесного всадника": {
         "type": "weapon",
@@ -57,10 +57,10 @@ rare_standard_weapons = {
     "Церемониальный лук": {"type": "weapon", "rarity": 4, "picture": ""},
     "Драконий рык": {"type": "weapon", "rarity": 4, "picture": ""},
     "Меч-флейта": {"type": "weapon", "rarity": 4, "picture": ""},
-    "Меч Фавония": {"type": "weapon", "rarity": 4, "picture": ""},
+    "Меч Феврония": {"type": "weapon", "rarity": 4, "picture": ""},
     "Церемониальный меч": {"type": "weapon", "rarity": 4, "picture": ""},
     "Дождерез": {"type": "weapon", "rarity": 4, "picture": ""},
-    "Двуручный меч Фавония": {
+    "Двуручный меч Феврония": {
         "type": "weapon",
         "rarity": 4,
         "picture": "photo-193964161_457239046",
@@ -72,7 +72,7 @@ rare_standard_weapons = {
         "picture": "",
     },
     "Гроза драконов": {"type": "weapon", "rarity": 4, "picture": ""},
-    "Копьё Фавония": {"type": "weapon", "rarity": 4, "picture": ""},
+    "Копьё Феврония": {"type": "weapon", "rarity": 4, "picture": ""},
     "Кодекс Феврония": {"type": "weapon", "rarity": 4, "picture": ""},
     "Око сознания": {"type": "weapon", "rarity": 4, "picture": ""},
     "Песнь странника": {
@@ -266,6 +266,12 @@ legendary_standard_characters = {
 }
 
 legendary_event_characters = {
+    "Ху Тао": {
+        "type": "character",
+        "rarity": 5,
+        "picture": "photo-193964161_457239045",
+        "event": "moment_of_bloom",
+    },
     "Кэ Цин": {
         "type": "character",
         "rarity": 5,
@@ -343,12 +349,6 @@ legendary_event_characters = {
         "rarity": 5,
         "picture": "",
         "event": "farewell_of_snezhnaya",
-    },
-    "Ху Тао": {
-        "type": "character",
-        "rarity": 5,
-        "picture": "photo-193964161_457239045",
-        "event": "moment_of_bloom",
     },
     "Чжун Ли": {
         "type": "character",

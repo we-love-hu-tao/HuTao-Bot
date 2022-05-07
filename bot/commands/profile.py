@@ -33,11 +33,10 @@ async def profile(message: Message):
 
     await message.answer(
         f"Ник: {nickname}\nСтандартных молитв: {standard_wishes}\nМолитв "
-        f"события: {event_wishes}\n\nОткрытых стандартных молитв без 5 "
-        f"звездочного предмета: {legendary_standard_guarantee}\n\nОткрытых "
-        " ивентовых молитв без 5 звездочного предмета:"
-        f"{legendary_event_guarantee}",
-        attachment=photo_link
+        f"события: {event_wishes}\n\nСтандартных круток без 5 звездочного "
+        f"предмета: {legendary_standard_guarantee}\n\nИвентовых круток без 5 "
+        f"звездочного предмета:{legendary_event_guarantee}",
+        attachment=photo_link,
     )
 
 
@@ -55,7 +54,6 @@ async def set_image(message: Message):
                     (photo_link, message.from_id),
                 )
                 await db.commit()
-            print("sending")
             await message.answer("Готово!")
         else:
             print("not image")

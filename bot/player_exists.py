@@ -9,7 +9,6 @@ async def exists(event: Message) -> bool:
             (event.from_id,),
         ) as cur:
             result = await cur.fetchone()
-    print(result)
     if result:
         if result[0] != 1:
             return True
