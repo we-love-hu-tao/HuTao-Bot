@@ -1,6 +1,6 @@
 from vkbottle.bot import Blueprint, Message
 from player_exists import exists
-import aiosqlite
+import asyncpg
 
 bp = Blueprint("Profile")
 bp.labeler.vbml_ignore_case = True
@@ -8,54 +8,35 @@ bp.labeler.vbml_ignore_case = True
 
 @bp.on.message(text=("!персонаж", "!перс"))
 async def profile(message: Message):
-    if not await exists(message):
-        return
-    async with aiosqlite.connect("db.db") as db:
-        async with db.execute(
-            "SELECT "
-            "nickname, "
-            "photo_link, "
-            "standard_wishes, "
-            "event_wishes, "
-            "legendary_rolls_standard, "
-            "legendary_rolls_event "
-            "FROM players WHERE user_id=(?)",
-            (message.from_id,),
-        ) as cur:
-            result = await cur.fetchone()
+    async with asyncpg.create_pool(
+        user="postgres", database="genshin_bot", passfile="pgpass.conf"
+    ) as pool:
+        async with pool.acquire() as db:
+            if not await exists(message, db):
+                return
+            result = await db.fetchrow(
+                "SELECT "
+                "nickname, "
+                "primogems, "
+                "standard_wishes, "
+                "event_wishes, "
+                "legendary_rolls_standard, "
+                "legendary_rolls_event "
+                "FROM players WHERE user_id=$1 and peer_id=$2",
+                message.from_id, message.peer_id
+            )
 
-    nickname = result[0]
-    photo_link = result[1]
-    standard_wishes = result[2]
-    event_wishes = result[3]
-    legendary_standard_guarantee = result[4]
-    legendary_event_guarantee = result[5]
+    print(result)
+    nickname = result["nickname"]
+    primogems = result["primogems"]
+    standard_wishes = result["standard_wishes"]
+    event_wishes = result["event_wishes"]
+    legendary_standard_guarantee = result["legendary_rolls_standard"]
+    legendary_event_guarantee = result["legendary_rolls_event"]
 
     await message.answer(
-        f"Ник: {nickname}\nСтандартных молитв: {standard_wishes}\nМолитв "
-        f"события: {event_wishes}\n\nСтандартных круток без 5 звездочного "
-        f"предмета: {legendary_standard_guarantee}\n\nИвентовых круток без 5 "
-        f"звездочного предмета:{legendary_event_guarantee}",
-        attachment=photo_link,
+        f"Ник: {nickname}\nПримогемы: {primogems}\nСтандартных молитв: "
+        f"{standard_wishes}\nМолитв события: {event_wishes}\n\nГарант в "
+        f"стандартном баннере: {legendary_standard_guarantee}\n\nГарант в "
+        f"ивентовом баннере: {legendary_event_guarantee}"
     )
-
-
-@bp.on.message(text=("!установить фото", "!поставить фото"))
-async def set_image(message: Message):
-    if not await exists(message):
-        return
-    if message.attachments:
-        if message.attachments[0].photo:
-            photo = message.attachments[0].photo
-            photo_link = "photo" + str(photo.owner_id) + "_" + str(photo.id)
-            async with aiosqlite.connect("db.db") as db:
-                await db.execute(
-                    "UPDATE players SET photo_link=(?) WHERE user_id=(?)",
-                    (photo_link, message.from_id),
-                )
-                await db.commit()
-            await message.answer("Готово!")
-        else:
-            print("not image")
-    else:
-        await message.answer("Вы не прикрепили картинку!")

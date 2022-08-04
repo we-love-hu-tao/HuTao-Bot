@@ -1,5 +1,5 @@
 from vkbottle.bot import Blueprint, Message
-import aiosqlite
+import asyncpg
 import random
 
 bp = Blueprint("Start command")
@@ -21,26 +21,29 @@ NAMES = (
     "Консерва", "мда", "кринж",
     "амогус", "сус", "сырник",
     "0); DROP DATABASE users; --",
-    "Null Null", "c6 Ху Тао", "донатер"
+    "Null Null", "c6 Ху Тао", "донатер",
+    "Богдан"
 )
 
 
 @bp.on.message(text="!начать")
 async def standard_wish(message: Message):
-    async with aiosqlite.connect("db.db") as db:
-        async with db.execute(
-            "SELECT user_id FROM players WHERE user_id=(?)",
-            (message.from_id,)
-        ) as cursor:
-            if await cursor.fetchone():
+    async with asyncpg.create_pool(
+        user="postgres", database="genshin_bot", passfile="pgpass.conf"
+    ) as pool:
+        async with pool.acquire() as db:
+            is_exists = await db.fetchrow(
+                "SELECT user_id FROM players WHERE user_id=$1 AND peer_id=$2",
+                message.from_id, message.peer_id
+            )
+            if is_exists is not None:
                 await message.answer("Вы уже зашли в Genshin Impact")
             else:
                 await db.execute(
                     "INSERT INTO players (user_id, peer_id, nickname) VALUES "
-                    "(?, ?, ?)",
-                    (message.from_id, message.peer_id, random.choice(NAMES),)
+                    "($1, $2, $3)",
+                    message.from_id, message.peer_id, random.choice(NAMES)
                 )
-                await db.commit()
                 await message.answer(
                     "Вы зашли в Genshin Impact!\n"
                     "Напишите !персонаж, что бы увидеть ваш никнейм "

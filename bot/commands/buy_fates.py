@@ -1,0 +1,71 @@
+from vkbottle.bot import Blueprint, Message
+from player_exists import exists
+import asyncpg
+
+bp = Blueprint("Fates shop")
+bp.labeler.vbml_ignore_case = True
+
+
+@bp.on.message(text=("!магазин", "!shop"))
+async def shop(message: Message):
+    if not await exists(message):
+        return
+    await message.answer(
+        "Добро пожаловать в магазин паймон!\n"
+        "Цена молитв - 160 примогемов"
+    )
+
+
+@bp.on.message(text="!купить молитвы <fate_type> <amount:int>")
+async def buy_fates(message: Message, fate_type, amount: int):
+    async with asyncpg.create_pool(
+        user="postgres", database="genshin_bot", passfile="pgpass.conf"
+    ) as pool:
+        async with pool.acquire() as db:
+            if not await exists(message, pool):
+                return
+            if amount <= 0:
+                await message.answer("Ты пьяный?")
+                return
+
+            primogems = await db.fetchrow(
+                "SELECT primogems FROM players WHERE user_id=$1 AND peer_id=$2",
+                message.from_id, message.peer_id,
+            )
+            if primogems[0] >= 160 * amount:
+                if fate_type == "стандарт":
+                    await db.execute(
+                        "UPDATE players SET primogems=primogems-$1, "
+                        "standard_wishes=standard_wishes+$2 WHERE user_id=$3 AND "
+                        "peer_id=$4",
+                        160 * amount, amount, message.from_id, message.peer_id,
+                    )
+                    await message.answer(
+                        f"Вы купили {amount} стандартных молитв за "
+                        f"{amount*160} примогемов!"
+                    )
+                elif fate_type == "ивент":
+                    await db.execute(
+                        "UPDATE players SET primogems=primogems-$1, "
+                        "event_wishes=event_wishes+$2 WHERE user_id=$3 AND "
+                        "peer_id=$4",
+                        160 * amount, amount, message.from_id, message.peer_id,
+                    )
+                    await message.answer(
+                        f"Вы купили {amount} ивентовых молитв за "
+                        f"{amount*160} примогемов!"
+                    )
+                else:
+                    await message.answer("Неа, таких молитв не существует")
+
+            else:
+                await message.answer(
+                    f"Вам не хватает примогемов, {amount} молитв стоят "
+                    f"{amount*160} примогемов!"
+                )
+
+
+# ? | 2 этих хендлера можно объединить в 1,
+# ? | если слова "ивентовые" и "стандартные"
+# ? | сделать переменной, после чего
+# ? | проверять, чем являются эти переменные
