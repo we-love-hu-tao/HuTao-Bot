@@ -4,15 +4,16 @@ from variables import HELP_LINK
 bp = Blueprint("Invite event")
 
 
-@bp.on.message(action="chat_invite_user")   # ! Works when any person joins to the chat, need fix
+@bp.on.message(action="chat_invite_user")
 async def invite_event_reaction(message: Message):
-    await message.answer(
-        "Добро пожаловать в Тейват!\n"
-        "Теперь мне необходимо дать права на чтение сообщений "
-        "и админку для корректной работы!\n"
-        "Статья со всеми командами:\n"
-        + HELP_LINK
-    )
+    if message.action.member_id == -193964161:
+        await message.answer(
+            "Добро пожаловать в Тейват!\n"
+            "Теперь мне необходимо дать права на чтение сообщений "
+            "и админку для корректной работы!\n"
+            "Статья со всеми командами:\n"
+            + HELP_LINK
+        )
 
 
 @bp.on.message(text="!помощь")
