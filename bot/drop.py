@@ -454,7 +454,6 @@ legendary_event_characters = {
     },
     "Чжун Ли": {
         "_id": 15,
-
         "type": "character",
         "rarity": 5,
         "picture": "",
@@ -469,7 +468,6 @@ legendary_event_characters = {
     },
     "Эола": {
         "_id": 17,
-
         "type": "character",
         "rarity": 5,
         "picture": "",
@@ -477,12 +475,10 @@ legendary_event_characters = {
     },
     "Яэ Мико": {
         "_id": 18,
-
         "type": "character",
         "rarity": 5,
         "picture": "",
         "event": "everbloom_violet",
-
     },
     "Паймон": {
         "_id": 19,
