@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 from vkbottle.bot import Blueprint, Message
 from player_exists import exists
 import create_pool
@@ -70,8 +69,8 @@ async def complete_daily_quests(message: Message):
             message.from_id, message.peer_id
         )
 
-            started_time: int = result[0]
-            doing_quest: int = result[1]
+        started_time: int = result[0]
+        doing_quest: int = result[1]
 
         # 1200 - 20 минут
         if doing_quest and started_time + 1200 < int(time.time()):
@@ -84,12 +83,12 @@ async def complete_daily_quests(message: Message):
                 primogems_reward, message.from_id,
             )
 
-                await message.answer(
-                    "Вы выполнили поручения и получили "
-                    f"{primogems_reward} примогемов!"
-                )
-            else:
-                await message.answer(
-                    "Еще не прошло 20 минут или сегодня вы уже выполнили все "
-                    "поручения!"
-                )
+            await message.answer(
+                "Вы выполнили поручения и получили "
+                f"{primogems_reward} примогемов!"
+            )
+        else:
+            await message.answer(
+                "Еще не прошло 20 минут или сегодня вы уже выполнили все "
+                "поручения!"
+            )

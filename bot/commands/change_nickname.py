@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 from vkbottle.bot import Blueprint, Message
 from vkbottle.user import User
 from vkbottle import VKAPIError
@@ -145,32 +144,29 @@ async def give_nickname(message: Message, nickname):
                 f'"{random.choice(BETTER_NOT_USE_ANS)}"'
             )
 
-                try:
-                    a = await bp.api.messages.remove_chat_user(
-                        chat_id=message.chat_id, user_id=message.from_id
-                    )
-                    print(a)
-                except VKAPIError as errorrror:
-                    print(errorrror)
+            try:
+                a = await bp.api.messages.remove_chat_user(
+                    chat_id=message.chat_id, user_id=message.from_id
+                )
+                print(a)
+            except VKAPIError as error:
+                print(error)
 
-                return
+            return
 
-
-    if text.startswith("!дать жабе имя "):
-        reaction_answer = random.choice(YOUR_TOAD_ANS)
-if text.startswith("!дать жабе имя "):
-        reaction_answer = random.choice(YOUR_TOAD_ANS)
-    else:
-        se:
-        if nickname_low in ("ху тао", "hu tao"):
-            reaction_answer = random.choice(random.choice(HU_TAO_ANS))
-        elif nickname_low in ("эмбер", "amber"):
-            reaction_answer = random.choice(random.choice(AMBER_ANS))
-        elif nickname_low in ("кэ цин", "keqing"):
-            reaction_answer = random.choice(random.choice(KEQING_ANS))
+        if text.startswith("!дать жабе имя "):
+            reaction_answer = random.choice(YOUR_TOAD_ANS)
+        if text.startswith("!дать жабе имя "):
+            reaction_answer = random.choice(YOUR_TOAD_ANS)
         else:
-            reaction_answer = random.choice(ONCHANGE_ANS)
-    await message.answer(
-        reaction_answer.format(nickname) + "\n" + "Вы успешно поменяли никнейм"
-    )
->>>>>>> 8696aaf34982a0174f2a867eb942e83ab11028c2
+            if nickname_low in ("ху тао", "hu tao"):
+                reaction_answer = random.choice(random.choice(HU_TAO_ANS))
+            elif nickname_low in ("эмбер", "amber"):
+                reaction_answer = random.choice(random.choice(AMBER_ANS))
+            elif nickname_low in ("кэ цин", "keqing"):
+                reaction_answer = random.choice(random.choice(KEQING_ANS))
+            else:
+                reaction_answer = random.choice(ONCHANGE_ANS)
+        await message.answer(
+            reaction_answer.format(nickname) + "\n" + "Вы успешно поменяли никнейм"
+        )
