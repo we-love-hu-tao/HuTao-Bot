@@ -1,13 +1,19 @@
-import sqlite3 as sq
-import time
+import asyncpg
+import asyncio
 
-conn = sq.connect("db.db")
-cur = conn.cursor()
 
-# айди Тимура Богданова - 322615766
-#cur.execute("UPDATE players SET event_wishes=10, standard_wishes=10 WHERE user_id=322615766");conn.commit()
-#cur.execute("DELETE FROM players WHERE user_id=511633362");conn.commit()
-#cur.execute("ALTER TABLE players ADD photo_link TEXT");conn.commit()
-#a = cur.execute("SELECT rolls_standard from players WHERE user_id=322615766");a=a.fetchone();print(a)
-#a = cur.execute("SELECT EXISTS (SELECT * FROM players WHERE user_id=322615766)");a=a.fetchone();print(a)
+async def main():
+    async with asyncpg.create_pool(
+        user="postgres", database="genshin_bot", passfile="pgpass.conf"
+    ) as pool:
+        async with pool.acquire() as pool:
+            history_type = "event_rolls_history"
+            from_id = 322615766
+            peer_id = 2000000003
+            result = await pool.fetchrow(
+                "SELECT $1 FROM players WHERE user_id=$2 AND peer_id=$3",
+                history_type, from_id, peer_id
+            )
+            print(result)
 
+asyncio.run(main())
