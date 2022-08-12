@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 from vkbottle.bot import Bot
 from vkbottle import load_blueprints_from_package
 import create_pool

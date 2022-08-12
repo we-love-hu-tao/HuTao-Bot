@@ -1,4 +1,6 @@
+<<<<<<< HEAD
 from vkbottle.bot import Blueprint, Message
+from variables import EVENT_BANNER
 from variables import EVENT_BANNER
 
 bp = Blueprint("Banners command")

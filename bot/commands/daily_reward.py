@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 from vkbottle.bot import Blueprint, Message
 from player_exists import exists
 import create_pool
