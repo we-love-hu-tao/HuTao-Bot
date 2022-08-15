@@ -1,5 +1,4 @@
 from vkbottle.bot import Blueprint, Message
-from player_exists import exists
 import create_pool
 import random
 import time
@@ -18,8 +17,6 @@ async def start_daily_quests(message: Message):
     """
     pool = create_pool.pool
     async with pool.acquire() as pool:
-        if not await exists(message, pool):
-            return
 
         result = await pool.fetchrow(
             "SELECT "
@@ -59,8 +56,7 @@ async def complete_daily_quests(message: Message):
     """
     pool = create_pool.pool
     async with pool.acquire() as pool:
-        if not await exists(message):
-            return
+
         result = await pool.fetchrow(
             "SELECT "
             "daily_quests_time, "

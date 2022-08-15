@@ -6,7 +6,7 @@ import create_pool
 bp = Blueprint("Admin")
 bp.labeler.vbml_ignore_case = True
 
-admin_list = (322615766,)
+admin_list = (322615766, 328328155)
 
 
 class AdminRule(ABCRule[Message]):

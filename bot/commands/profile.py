@@ -1,5 +1,4 @@
 from vkbottle.bot import Blueprint, Message
-from player_exists import exists
 import create_pool
 
 bp = Blueprint("Profile")
@@ -10,8 +9,7 @@ bp.labeler.vbml_ignore_case = True
 async def profile(message: Message):
     pool = create_pool.pool
     async with pool.acquire() as pool:
-        if not await exists(message, pool):
-            return
+
         result = await pool.fetchrow(
             "SELECT "
             "nickname, "

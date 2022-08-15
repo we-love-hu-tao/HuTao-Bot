@@ -1,5 +1,4 @@
 from vkbottle.bot import Blueprint, Message
-from player_exists import exists
 import create_pool
 import time
 import random
@@ -24,8 +23,6 @@ NO_REWARD_ANSWERS = (
 async def daily_reward(message: Message):
     pool = create_pool.pool
     async with pool.acquire() as pool:
-        if not await exists(message, pool):
-            return
 
         reward_last_time = await pool.fetchrow(
             """

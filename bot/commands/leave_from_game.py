@@ -1,5 +1,4 @@
 from vkbottle.bot import Blueprint, Message
-from player_exists import exists
 import create_pool
 
 bp = Blueprint("Leave")
@@ -19,8 +18,6 @@ async def leave_from_game_question(message: Message):
 async def leave_from_game(message: Message):
     pool = create_pool.pool
     async with pool.acquire() as pool:
-        if not await exists(message):
-            return
 
         await pool.execute(
             "DELETE FROM players WHERE user_id=$1 AND peer_id=$2",

@@ -1,4 +1,5 @@
 from vkbottle.bot import Message
+from vkbottle import BaseMiddleware
 import create_pool
 
 
@@ -23,5 +24,17 @@ async def exists(event: Message, pool=None) -> bool:
                 "Для начала нужно зайти в Genshin Impact командой !начать"
             )
     else:
-        await event.answer("нет (разбан у [id322615766|меня]).")
+        await event.answer(
+            "нет (разбан у [id322615766|меня])."
+        )
     return False
+
+
+class PlayerExists(BaseMiddleware[Message]):
+    def __init__(self, event, view):
+        super().__init__(event, view)
+
+    async def post(self):
+        pool = create_pool.pool
+        if self.event.text != "!начать":  # 2000000014 - id только тру челики
+            exists(Message, pool)  # Message не работает

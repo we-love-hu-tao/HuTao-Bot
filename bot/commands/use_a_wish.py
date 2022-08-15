@@ -1,7 +1,6 @@
 from vkbottle.bot import Blueprint, Message
 from vkbottle_types.objects import UsersUserFull
 from typing import Literal
-from player_exists import exists
 from variables import (
     EVENT_BANNER,
     THREE_STAR,
@@ -408,8 +407,7 @@ CASES = "first_name_dat, last_name_dat, first_name_gen, last_name_gen"
 async def standard_wish(message: Message):
     pool = create_pool.pool
     async with pool.acquire() as pool:
-        if not await exists(message, pool):
-            return
+
         info = await message.get_user(False, fields=CASES)
         wish = Wish(message, info, pool)
         if await wish.check_standard():
@@ -422,8 +420,7 @@ async def standard_wish(message: Message):
 async def ten_standard_wishes(message: Message):
     pool = create_pool.pool
     async with pool.acquire() as pool:
-        if not await exists(message, pool):
-            return
+
         info = await message.get_user(False, fields=CASES)
         wish = Wish(message, info, pool)
         if await wish.check_standard(10):
@@ -436,8 +433,7 @@ async def ten_standard_wishes(message: Message):
 async def event_wish(message: Message):
     pool = create_pool.pool
     async with pool.acquire() as pool:
-        if not await exists(message, pool):
-            return
+
         info = await message.get_user(False, fields=CASES)
         wish = Wish(message, info, pool)
         if await wish.check_event():
@@ -450,8 +446,7 @@ async def event_wish(message: Message):
 async def ten_event_wishes(message: Message):
     pool = create_pool.pool
     async with pool.acquire() as pool:
-        if not await exists(message, pool):
-            return
+
         info = await message.get_user(False, fields=CASES)
         wish = Wish(message, info, pool)
         if await wish.check_event(10):

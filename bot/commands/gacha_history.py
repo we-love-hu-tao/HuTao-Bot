@@ -1,5 +1,4 @@
 from vkbottle.bot import Blueprint, Message
-from player_exists import exists
 from datetime import datetime
 from typing import Literal
 import create_pool
@@ -33,8 +32,6 @@ async def get_last_history(
 async def gacha_history(message: Message, banner_type: Literal["стандарт", "ивент"]):
     pool = create_pool.pool
     async with pool.acquire() as pool:
-        if not await exists(message, pool):
-            return
 
         if banner_type == "стандарт":
             raw_history = await get_last_history(pool, message, "standard")

@@ -1,7 +1,6 @@
 from vkbottle.bot import Blueprint, Message
 from vkbottle.user import User
 from vkbottle import VKAPIError
-from player_exists import exists
 import random
 import create_pool
 
@@ -114,8 +113,6 @@ async def check_for_swear(nickname: str):
 async def give_nickname(message: Message, nickname):
     pool = create_pool.pool
     async with pool.acquire() as pool:
-        if not await exists(message, pool):
-            return
         text = message.text.lower()
         nickname_low = nickname.lower()
 
