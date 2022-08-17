@@ -9,6 +9,7 @@ from variables import (
     FOUR_STAR_TEN,
     FIVE_STAR_TEN,
 )
+from player_exists import exists
 import create_pool
 import asyncio
 import drop
@@ -405,6 +406,8 @@ CASES = "first_name_dat, last_name_dat, first_name_gen, last_name_gen"
 
 @bp.on.chat_message(text="!помолиться стандарт")
 async def standard_wish(message: Message):
+    if not await exists(message):
+        return
     pool = create_pool.pool
     async with pool.acquire() as pool:
         info = await message.get_user(False, fields=CASES)
@@ -417,6 +420,8 @@ async def standard_wish(message: Message):
 
 @bp.on.chat_message(text="!помолиться стандарт 10")
 async def ten_standard_wishes(message: Message):
+    if not await exists(message):
+        return
     pool = create_pool.pool
     async with pool.acquire() as pool:
         info = await message.get_user(False, fields=CASES)
@@ -429,6 +434,8 @@ async def ten_standard_wishes(message: Message):
 
 @bp.on.chat_message(text=("!помолиться событие", "!помолиться ивент"))
 async def event_wish(message: Message):
+    if not await exists(message):
+        return
     pool = create_pool.pool
     async with pool.acquire() as pool:
         info = await message.get_user(False, fields=CASES)
@@ -441,6 +448,8 @@ async def event_wish(message: Message):
 
 @bp.on.chat_message(text=("!помолиться событие 10", "!помолиться ивент 10"))
 async def ten_event_wishes(message: Message):
+    if not await exists(message):
+        return
     pool = create_pool.pool
     async with pool.acquire() as pool:
         info = await message.get_user(False, fields=CASES)

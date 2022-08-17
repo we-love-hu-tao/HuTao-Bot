@@ -1,4 +1,5 @@
 from vkbottle.bot import Blueprint, Message
+from player_exists import exists
 import create_pool
 
 bp = Blueprint("Leave")
@@ -7,6 +8,8 @@ bp.labeler.vbml_ignore_case = True
 
 @bp.on.chat_message(text="!удалить геншин")
 async def leave_from_game_question(message: Message):
+    if not await exists(message):
+        return
     await message.answer(
         "Вы точно хотите удалить геншин?\n"
         "После этого ваш аккаунт удалится.\n"
@@ -16,6 +19,8 @@ async def leave_from_game_question(message: Message):
 
 @bp.on.chat_message(text="!точно удалить геншин")
 async def leave_from_game(message: Message):
+    if not await exists(message):
+        return
     pool = create_pool.pool
     async with pool.acquire() as pool:
         await pool.execute(

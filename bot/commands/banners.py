@@ -1,5 +1,6 @@
 from vkbottle.bot import Blueprint, Message
 from variables import EVENT_BANNER
+from player_exists import exists
 
 bp = Blueprint("Banners command")
 bp.labeler.vbml_ignore_case = True
@@ -16,11 +17,15 @@ EVENT_BANNERS = {
 }
 
 
-@bp.on.chat_message(command="ив баннер")
+@bp.on.chat_message(text="!ив баннер")
 async def show_event_banner(message: Message):
+    if not exists(message):
+        return
     await message.answer(attachment=EVENT_BANNERS[EVENT_BANNER])
 
 
-@bp.on.chat_message(command="ст баннер")
+@bp.on.chat_message(text="!ст баннер")
 async def show_standard_banner(message: Message):
+    if not exists(message):
+        return
     await message.answer(attachment="photo-193964161_457239097")

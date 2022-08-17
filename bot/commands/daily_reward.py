@@ -1,4 +1,5 @@
 from vkbottle.bot import Blueprint, Message
+from player_exists import exists
 import create_pool
 import time
 import random
@@ -21,8 +22,11 @@ NO_REWARD_ANSWERS = (
 
 @bp.on.chat_message(text=("!забрать награду", "!получить награду", "!награда"))
 async def daily_reward(message: Message):
+    if not exists(message):
+        return
     pool = create_pool.pool
     async with pool.acquire() as pool:
+
         reward_last_time = await pool.fetchrow(
             """
             SELECT
@@ -52,6 +56,7 @@ async def daily_reward(message: Message):
 
                 await message.answer(random.choice(REWARD_ANSWERS).format(reward))
             else:
+                # Капец чел невезучий, ничего не получил
                 await message.answer(random.choice(NO_REWARD_ANSWERS))
         else:
             await message.answer("Вы уже попытались найти примогемы, попробуйте завтра!")
