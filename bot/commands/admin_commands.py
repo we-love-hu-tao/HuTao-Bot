@@ -30,10 +30,10 @@ async def list_user_chat(message: Message, mention):
     return to_send
 
 
-@bp.on.message(AdminRule(), text=[
+@bp.on.message(AdminRule(), text=(
     "+примогемы <amount:int>",
     "+примогемы <amount:int> <mention> <peer_id:int>"
-])
+))
 async def give_wish(
     message: Message,
     amount: int,

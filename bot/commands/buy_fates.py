@@ -5,7 +5,7 @@ bp = Blueprint("Fates shop")
 bp.labeler.vbml_ignore_case = True
 
 
-@bp.on.chat_message(text=("!магазин", "!shop"))
+@bp.on.chat_message(command=("магазин", "shop"))
 async def shop(message: Message):
     await message.answer(
         "Добро пожаловать в магазин паймон!\n"

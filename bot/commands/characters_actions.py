@@ -9,7 +9,6 @@ bp.labeler.vbml_ignore_case = True
 async def list_chatacters(message: Message):
     pool = create_pool.pool
     async with pool.acquire() as pool:
-
         """
         В базе данных будет ряд "characters" с типом jsonb, в котором будет
         список json'ов в таком виде:

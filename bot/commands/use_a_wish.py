@@ -407,7 +407,6 @@ CASES = "first_name_dat, last_name_dat, first_name_gen, last_name_gen"
 async def standard_wish(message: Message):
     pool = create_pool.pool
     async with pool.acquire() as pool:
-
         info = await message.get_user(False, fields=CASES)
         wish = Wish(message, info, pool)
         if await wish.check_standard():
@@ -420,7 +419,6 @@ async def standard_wish(message: Message):
 async def ten_standard_wishes(message: Message):
     pool = create_pool.pool
     async with pool.acquire() as pool:
-
         info = await message.get_user(False, fields=CASES)
         wish = Wish(message, info, pool)
         if await wish.check_standard(10):
@@ -433,7 +431,6 @@ async def ten_standard_wishes(message: Message):
 async def event_wish(message: Message):
     pool = create_pool.pool
     async with pool.acquire() as pool:
-
         info = await message.get_user(False, fields=CASES)
         wish = Wish(message, info, pool)
         if await wish.check_event():
@@ -446,7 +443,6 @@ async def event_wish(message: Message):
 async def ten_event_wishes(message: Message):
     pool = create_pool.pool
     async with pool.acquire() as pool:
-
         info = await message.get_user(False, fields=CASES)
         wish = Wish(message, info, pool)
         if await wish.check_event(10):

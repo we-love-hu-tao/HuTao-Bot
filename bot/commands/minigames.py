@@ -17,7 +17,6 @@ async def start_daily_quests(message: Message):
     """
     pool = create_pool.pool
     async with pool.acquire() as pool:
-
         result = await pool.fetchrow(
             "SELECT "
             "daily_quests_time, "
@@ -56,7 +55,6 @@ async def complete_daily_quests(message: Message):
     """
     pool = create_pool.pool
     async with pool.acquire() as pool:
-
         result = await pool.fetchrow(
             "SELECT "
             "daily_quests_time, "

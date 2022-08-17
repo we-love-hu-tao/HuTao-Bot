@@ -9,7 +9,6 @@ bp.labeler.vbml_ignore_case = True
 async def profile(message: Message):
     pool = create_pool.pool
     async with pool.acquire() as pool:
-
         result = await pool.fetchrow(
             "SELECT "
             "nickname, "

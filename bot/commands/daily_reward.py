@@ -23,7 +23,6 @@ NO_REWARD_ANSWERS = (
 async def daily_reward(message: Message):
     pool = create_pool.pool
     async with pool.acquire() as pool:
-
         reward_last_time = await pool.fetchrow(
             """
             SELECT

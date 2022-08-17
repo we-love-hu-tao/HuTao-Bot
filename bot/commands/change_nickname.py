@@ -1,6 +1,7 @@
 from vkbottle.bot import Blueprint, Message
 from vkbottle.user import User
 from vkbottle import VKAPIError
+from variables import GROUP_ID
 import random
 import create_pool
 
@@ -129,7 +130,7 @@ async def give_nickname(message: Message, nickname):
                 message.from_id
             )
             await user.api.groups.ban(
-                group_id=193964161,
+                group_id=GROUP_ID,
                 owner_id=message.from_id,
                 comment="Оскорбление важного персонажа [bot]",
                 comment_visible=1,

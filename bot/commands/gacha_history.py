@@ -32,7 +32,6 @@ async def get_last_history(
 async def gacha_history(message: Message, banner_type: Literal["стандарт", "ивент"]):
     pool = create_pool.pool
     async with pool.acquire() as pool:
-
         if banner_type == "стандарт":
             raw_history = await get_last_history(pool, message, "standard")
         elif banner_type == "ивент":
