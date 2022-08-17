@@ -1,4 +1,10 @@
-from vkbottle.bot import Blueprint, Message
+from vkbottle.bot import Blueprint, Message, MessageEvent, rules
+from vkbottle import (
+    Keyboard,
+    KeyboardButtonColor,
+    Callback,
+    GroupEventType
+)
 from datetime import datetime
 from typing import Literal
 from player_exists import exists
@@ -36,9 +42,11 @@ async def gacha_history(message: Message, banner_type: Literal["стандарт
     pool = create_pool.pool
     async with pool.acquire() as pool:
         if banner_type == "стандарт":
-            raw_history = await get_last_history(pool, message, "standard")
+            banner_type = "standard"
+            raw_history = await get_last_history(pool, message, banner_type)
         elif banner_type == "ивент":
-            raw_history = await get_last_history(pool, message, "event")
+            banner_type = "event"
+            raw_history = await get_last_history(pool, message, banner_type)
         else:
             return "Но такого типа баннера не существует (пока что)!"
 
@@ -72,4 +80,56 @@ async def gacha_history(message: Message, banner_type: Literal["стандарт
     else:
         return "Вы еще ничего не выбивали!"
 
-    return history
+    keyboard = (
+        Keyboard(one_time=False, inline=True)
+        .add(Callback("Назад", payload={"banner_type": banner_type, "direction": "back", "offset": 0}), color=KeyboardButtonColor.NEGATIVE)
+        .add(Callback("Вперед", payload={"banner_type": banner_type, "direction": "forward", "offset": 0}), color=KeyboardButtonColor.POSITIVE)
+        .get_json()
+    )
+    await message.answer(history, keyboard=keyboard)
+
+
+@bp.on.raw_event(
+    GroupEventType.MESSAGE_EVENT,
+    MessageEvent,
+    rules.PayloadMapRule([
+        ("banner_type", str),
+        ("direction", str),
+        ("offset", int)
+    ])
+)
+async def gacha_history_forward(event: MessageEvent):
+    pool = create_pool.pool
+    banner_type = event.get_payload_json()["banner_type"]
+    async with pool.acquire() as pool:
+        raw_history = await get_last_history(pool, event, banner_type, 10)  # ! AttributeError: 'MessageEventMin' object has no attribute 'from_id'
+
+    if len(raw_history) > 0:
+        history = "Последние 10 дропов:\n"              
+        for roll in raw_history:
+            drop_type = getattr(drop, roll["type"])
+            for item in drop_type.items():
+                if item[0] != "_type":
+                    if item[1]["_id"] == roll["item_id"]:
+                        name = item[0]
+                        break
+
+            drop_type = roll["type"]
+
+            drop_emoji = ""
+            if drop_type in weapons_type:
+                drop_emoji = "&#128481;"
+            elif drop_type in characters_type:
+                drop_emoji = "&#129485;"
+            pulled_time = datetime.utcfromtimestamp(
+                roll["time"]
+            ).strftime('%H:%M:%S - %d-%m-%Y')
+            history += (
+                f"{drop_emoji} {name}\n"
+                f"Время: {pulled_time} (GMT+3)\n"
+                "-------------\n"
+            )
+    else:
+        event.edit_message("Вы еще ничего не выбивали!")
+
+    await event.edit_message(history)
