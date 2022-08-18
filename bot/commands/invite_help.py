@@ -19,13 +19,14 @@ async def invite_event_reaction(message: Message):
 
 @bp.on.message(text="!помощь")
 async def help_handler(message: Message):
-    return (
+    await message.answer(
         "Основные команыды:\n"
         "!начать - создать профиль\n"
         "!перс - просмотреть персонажа\n"
         "!установить ник [никнейм] - устанавливает ник для вашего персонажа\n"
         "Все остальные команды можно посмотреть в статье:\n"
-        + HELP_LINK
+        + HELP_LINK,
+        attachment="photo-193964161_457239344"
     )
 
 
