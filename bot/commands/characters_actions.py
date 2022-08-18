@@ -8,7 +8,7 @@ bp.labeler.vbml_ignore_case = True
 
 @bp.on.chat_message(text=["!персы", "!персонажи", "!мои персонажы"])
 async def list_chatacters(message: Message):
-    if not exists(message):
+    if not await exists(message):
         return
     pool = create_pool.pool
     async with pool.acquire() as pool:

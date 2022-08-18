@@ -19,13 +19,13 @@ EVENT_BANNERS = {
 
 @bp.on.chat_message(text="!ив баннер")
 async def show_event_banner(message: Message):
-    if not exists(message):
+    if not await exists(message):
         return
     await message.answer(attachment=EVENT_BANNERS[EVENT_BANNER])
 
 
 @bp.on.chat_message(text="!ст баннер")
 async def show_standard_banner(message: Message):
-    if not exists(message):
+    if not await exists(message):
         return
     await message.answer(attachment="photo-193964161_457239097")

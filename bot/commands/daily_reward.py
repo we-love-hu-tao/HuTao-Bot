@@ -22,7 +22,7 @@ NO_REWARD_ANSWERS = (
 
 @bp.on.chat_message(text=("!забрать награду", "!получить награду", "!награда"))
 async def daily_reward(message: Message):
-    if not exists(message):
+    if not await exists(message):
         return
     pool = create_pool.pool
     async with pool.acquire() as pool:

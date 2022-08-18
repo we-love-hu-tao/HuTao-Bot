@@ -1,5 +1,6 @@
 from vkbottle.bot import Blueprint, Message
 from vkbottle_types.objects import UsersUserFull
+from loguru import logger
 from typing import Literal
 from variables import (
     EVENT_BANNER,
@@ -78,21 +79,13 @@ class Wish:
         }
 
         new_drop = str(new_drop).replace("'", '"')
-        print(new_drop)
+        logger.debug(new_drop)
 
-        # ? возможно ли эти 2 запроса совместить в 1?
-        if banner_type == "standard":
-            await self.pool.execute(
-                "UPDATE players SET standard_rolls_history=standard_rolls_history "
-                "|| $1 ::jsonb WHERE user_id=$2 AND peer_id=$3",
-                new_drop, self.user_id, self.peer_id
-            )
-        elif banner_type == "event":
-            await self.pool.execute(
-                "UPDATE players SET event_rolls_history=event_rolls_history "
-                "|| $1 ::jsonb WHERE user_id=$2 AND peer_id=$3",
-                new_drop, self.user_id, self.peer_id
-            )
+        await self.pool.execute(
+            f"UPDATE players SET {banner_type}_rolls_history=$1 || {banner_type}_rolls_history "
+            "::jsonb WHERE user_id=$2 AND peer_id=$3",
+            new_drop, self.user_id, self.peer_id
+        )
 
     async def reset_rolls_count(
         self,
@@ -253,6 +246,12 @@ class Wish:
             chance = random.random()
             prob5 = rate5 + max(0, (counter5_standard-pity5) * 10 * rate5)
             prob4 = rate4 + max(0, (counter4_standard-pity4) * 10 * rate4)
+            logger.debug("---------------------")
+            logger.debug(f"Counter 5 standard: {counter5_standard}")
+            logger.debug(f"Counter 4 standard: {counter4_standard}")
+            logger.debug(f"Prob5: {prob5}")
+            logger.debug(f"Prob4: {prob4}")
+            logger.debug("---------------------")
             if chance < prob5:
                 await self.reset_rolls_count(item_type="legendary")
                 await self.increase_rolls_count(item_type="rare")
@@ -285,6 +284,12 @@ class Wish:
             chance = random.random()
             prob5 = rate5 + max(0, (counter5_event-pity5) * 10 * rate5)
             prob4 = rate4 + max(0, (counter4_event-pity4) * 10 * rate4)
+            logger.debug("---------------------")
+            logger.debug(f"Counter 5 event: {counter5_event}")
+            logger.debug(f"Counter 4 event: {counter4_event}")
+            logger.debug(f"Prob5: {prob5}")
+            logger.debug(f"Prob4: {prob4}")
+            logger.debug("---------------------")
 
             if chance < prob5:
                 # 5 звездочный персонаж
@@ -339,30 +344,30 @@ class Wish:
 
         item_drop = await self.roll(roll_type)
         item_type = item_drop[1]["type"]
-        rarity = item_drop[1]["rarity"]
+        item_rarity = item_drop[1]["rarity"]
         name = item_drop[0]
         picture = item_drop[1]["picture"]
 
-        edit_msg_id = await self.choose_gif(rarity)
+        edit_msg_id = await self.choose_gif(item_rarity)
         await asyncio.sleep(6.0)
 
         if item_type == "weapon":
             await bp.api.messages.edit(
                 self.peer_id,
                 f"[id{self.user_id}|{self.full_name_dat}] выпало оружие "
-                f"{name} ({'★' * rarity})!",
+                f"{name} ({'★' * item_rarity})!",
                 conversation_message_id=edit_msg_id,
                 attachment=picture,
-                disable_mentions=(True if rarity < 4 else False)
+                disable_mentions=(True if item_rarity < 4 else False)
             )
         elif item_type == "character":
             await bp.api.messages.edit(
                 self.peer_id,
                 f"[id{self.user_id}|{self.full_name_dat}] выпал персонаж "
-                f"{name} ({'★' * rarity})!",
+                f"{name} ({'★' * item_rarity})!",
                 conversation_message_id=edit_msg_id,
                 attachment=picture,
-                disable_mentions=(True if rarity < 4 else False)
+                disable_mentions=(True if item_rarity < 4 else False)
             )
 
     async def use_ten_wishes(self, roll_type: Literal["standard", "event"]):
@@ -381,8 +386,8 @@ class Wish:
             item_rarity = item_drops[i][1]["rarity"]
             if item_rarity == 5:
                 five_star = True
-
             item_name = item_drops[i][0]
+
             if item_type == "weapon":
                 output += (
                     f"Выпало оружие {item_name} ({'★' * item_rarity})!\n"
@@ -393,12 +398,17 @@ class Wish:
                 )
 
         if five_star:
-            await self.choose_gif(5, True)
+            edit_msg_id = await self.choose_gif(5, True)
         else:
-            await self.choose_gif(4, True)
+            edit_msg_id = await self.choose_gif(4, True)
 
         await asyncio.sleep(6.0)
-        await self.message.answer(output, disable_mentions=True)
+        await bp.api.messages.edit(
+            self.peer_id,
+            output,
+            conversation_message_id=edit_msg_id,
+            disable_mentions=(True if item_rarity < 4 else False)
+        )
 
 
 CASES = "first_name_dat, last_name_dat, first_name_gen, last_name_gen"

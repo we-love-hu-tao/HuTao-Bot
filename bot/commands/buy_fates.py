@@ -8,7 +8,7 @@ bp.labeler.vbml_ignore_case = True
 
 @bp.on.chat_message(text=("!магазин", "!shop"))
 async def shop(message: Message):
-    if not exists(message):
+    if not await exists(message):
         return
     await message.answer(
         "Добро пожаловать в магазин паймон!\n"
@@ -19,7 +19,7 @@ async def shop(message: Message):
 @bp.on.chat_message(text="!купить молитвы <fate_type> <amount:int>")
 async def buy_fates(message: Message, fate_type, amount: int):
     pool = create_pool.pool
-    if not exists(message):
+    if not await exists(message):
         return
     async with pool.acquire() as pool:
         if amount <= 0:

@@ -1,6 +1,7 @@
 from vkbottle.bot import Blueprint, Message
 from vkbottle.user import User
 from vkbottle import VKAPIError
+from loguru import logger
 from variables import GROUP_ID
 from player_exists import exists
 import random
@@ -80,7 +81,7 @@ AMBER_ANS = (
 
 
 async def change_nickname(user_id: int, peer_id: int, nickname: str, pool):
-    print("setting nickname")
+    logger.debug("setting nickname")
     await pool.execute(
         "UPDATE players SET nickname=$1 WHERE user_id=$2 AND peer_id=$3",
         nickname, user_id, peer_id,
@@ -88,18 +89,18 @@ async def change_nickname(user_id: int, peer_id: int, nickname: str, pool):
 
 
 async def check_for_swear(nickname: str):
-    print("checking for swears")
+    logger.debug("checking for swears")
     for swear in CUSTOM_SWEARS:
         if swear in nickname:
-            print("swear found, this guy is cringe (custom swear)")
+            logger.debug("swear found, this guy is cringe (custom swear)")
             return True
 
     for character in PROTECTED_CHAR:
         for swear in POSSIBLE_SWEARS:
             if f"{character} {swear}" in nickname:
-                print("swear found, this guy is cringe (standard swear)")
+                logger.debug("swear found, this guy is cringe (standard swear)")
                 return True
-    print("swears not found, this guy is amazing")
+    logger.debug("swears not found, this guy is amazing")
     return False
 
 
@@ -113,7 +114,7 @@ async def check_for_swear(nickname: str):
     )
 )
 async def give_nickname(message: Message, nickname):
-    if not exists(message):
+    if not await exists(message):
         return
     pool = create_pool.pool
     async with pool.acquire() as pool:
@@ -150,9 +151,9 @@ async def give_nickname(message: Message, nickname):
                 a = await bp.api.messages.remove_chat_user(
                     chat_id=message.chat_id, user_id=message.from_id
                 )
-                print(a)
+                logger.debug(a)
             except VKAPIError as error:
-                print(error)
+                logger.error(error)
 
             return
 
