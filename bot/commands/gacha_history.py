@@ -45,7 +45,7 @@ async def get_last_history(
     )
     if raw_history is not None:
         if offset > 0:
-            raw_history = json.loads(raw_history[history_type])[offset:offset+offset]
+            raw_history = json.loads(raw_history[history_type])[offset:offset+5]
         else:
             raw_history = json.loads(raw_history[history_type])[:5]
 
@@ -156,7 +156,7 @@ async def gacha_history_move(event: MessageEvent):
                     payload={
                         "banner_type": banner_type,
                         "direction": "forward",
-                        "offset": 0
+                        "offset": -5
                     }),
                     color=KeyboardButtonColor.POSITIVE)
                 .get_json()
