@@ -1,3 +1,4 @@
+import sys
 
 # ! Так как формула уровней в геншине еще неизвестна,
 # ! пока что у каждого уровня будет определенное
@@ -70,3 +71,16 @@ def exp_to_level(exp: int):
     for level, exp_to_level in rank_levels_exp.items():
         if exp < exp_to_level:
             return level
+
+
+def get_default_header():
+    python_version = sys.version_info
+
+    return {
+        "User-Agent": "Genshin-Impact-VK-Bot/{version} (Python {major}.{minor}.{micro})".format(
+            version=0.1,
+            major=python_version.major,
+            minor=python_version.minor,
+            micro=python_version.micro
+        )
+    }
