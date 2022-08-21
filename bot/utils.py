@@ -68,6 +68,7 @@ rank_levels_exp = {
 
 
 def exp_to_level(exp: int):
+    # ! NOT IMPLEMENTED
     for level, exp_to_level in rank_levels_exp.items():
         if exp < exp_to_level:
             return level

@@ -81,7 +81,9 @@ AMBER_ANS = (
 
 
 async def change_nickname(user_id: int, peer_id: int, nickname: str, pool):
-    logger.debug("setting nickname")
+    logger.info(
+        f'Устанавливание никнейма "{nickname}" пользователю {user_id} в беседе {peer_id}'
+    )
     await pool.execute(
         "UPDATE players SET nickname=$1 WHERE user_id=$2 AND peer_id=$3",
         nickname, user_id, peer_id,
@@ -92,15 +94,15 @@ async def check_for_swear(nickname: str):
     logger.debug("checking for swears")
     for swear in CUSTOM_SWEARS:
         if swear in nickname:
-            logger.debug("swear found, this guy is cringe (custom swear)")
+            logger.info(f'В никнейме "{nickname}" нашлось особое оскорбление: {swear}')
             return True
 
     for character in PROTECTED_CHAR:
         for swear in POSSIBLE_SWEARS:
             if f"{character} {swear}" in nickname:
-                logger.debug("swear found, this guy is cringe (standard swear)")
+                logger.info(f'В никнейме "{nickname}" нашлось обычное оскорбление: {swear}')
                 return True
-    logger.debug("swears not found, this guy is amazing")
+    logger.info(f'В никнейме "{nickname}" не нашлось оскорблений')
     return False
 
 
@@ -108,7 +110,6 @@ async def check_for_swear(nickname: str):
     text=(
         "!установить имя <nickname>",
         "!установить ник <nickname>",
-        "!ник <nickname>",
         "!ник <nickname>",
         "!дать жабе имя <nickname>",
     )
@@ -130,10 +131,12 @@ async def give_nickname(message: Message, nickname):
                 await message.answer("В нике не может быть больше 35 символов (включая пробел)")
                 return
         else:
+            logger.info(f'Бан пользователя {message.from_id} за оскорбление персонажа (БД)')
             await pool.execute(
                 "UPDATE players SET banned=1 WHERE user_id=$1",
                 message.from_id
             )
+            logger.info(f'Бан пользователя {message.from_id} за оскорбление персонажа (группа)')
             await user.api.groups.ban(
                 group_id=GROUP_ID,
                 owner_id=message.from_id,
@@ -148,12 +151,17 @@ async def give_nickname(message: Message, nickname):
             )
 
             try:
-                a = await bp.api.messages.remove_chat_user(
+                logger.info(
+                    f'Попытка забанить пользователя {message.from_id} в беседе {message.peer_id}'
+                )
+                await bp.api.messages.remove_chat_user(
                     chat_id=message.chat_id, user_id=message.from_id
                 )
-                logger.debug(a)
             except VKAPIError as error:
-                logger.error(error)
+                logger.info(
+                    f'К сожалению, забанить пользователя {message.from_id} '
+                    f'в беседе {message.peer_id} не получилось, ошибка: {error}'
+                )
 
             return
 

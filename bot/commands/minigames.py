@@ -1,5 +1,6 @@
 from vkbottle.bot import Blueprint, Message
 from player_exists import exists
+from loguru import logger
 import create_pool
 import random
 import time
@@ -31,6 +32,7 @@ async def start_daily_quests(message: Message):
         doing_quest: int = result[1]
 
         if daily_quests_time + 86400 < int(time.time()) and doing_quest is False:
+            logger.info(f"{message.from_id} начал поручения в беседе {message.peer_id}")
             await pool.execute(
                 "UPDATE players SET "
                 "daily_quests_time=$1, "
@@ -74,6 +76,7 @@ async def complete_daily_quests(message: Message):
         # 1200 - 20 минут
         if doing_quest and started_time + 1200 < int(time.time()):
             primogems_reward = random.randint(160, 1600)
+            logger.info(f"{message.from_id} закончил поручения в беседе {message.peer_id}")
             await pool.execute(
                 "UPDATE players SET "
                 "doing_quest=false, "

@@ -1,5 +1,6 @@
 from vkbottle.bot import Blueprint, Message
 from player_exists import exists
+from loguru import logger
 import create_pool
 import time
 import random
@@ -48,6 +49,9 @@ async def daily_reward(message: Message):
             if random.random() * 100 < 90:
                 # Выдаем ежедневную награду игроку
                 reward = random.randint(160, 1600)
+                logger.info(
+                    f"{message.from_id} получил {reward} примогемов в беседе {message.peer_id}"
+                )
                 await pool.execute(
                     "UPDATE players SET primogems=primogems+$1 "
                     "WHERE user_id=$2 AND peer_id=$3",

@@ -2,6 +2,7 @@ from vkbottle.bot import Blueprint, Message
 from vkbottle.http import AiohttpClient
 from loguru import logger
 from player_exists import exists
+from utils import get_default_header
 import create_pool
 
 bp = Blueprint("Profile")
@@ -73,8 +74,10 @@ async def genshin_info(message: Message, UID: int = None):
 
     try:
         player_info = await http_client.request_json(
-            f"https://enka.network/u/{UID}/__data.json"
+            f"https://enka.network/u/{UID}/__data.json",
+            headers=get_default_header()
         )
+        logger.info(f"https://enka.network/u/{UID}/__data.json вернул это: {player_info}")
     except Exception as e:
         logger.error(e)
         return (

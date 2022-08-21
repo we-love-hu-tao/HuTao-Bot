@@ -3,6 +3,7 @@ from vkbottle import GroupEventType, GroupTypes
 from loguru import logger
 import create_pool
 
+# ! NOT IMPLEMENTED
 
 bp = Blueprint("On post like primogems reward")
 

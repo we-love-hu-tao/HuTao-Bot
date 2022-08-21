@@ -1,5 +1,6 @@
 from vkbottle.bot import Blueprint, Message
 from vkbottle.dispatch.rules import ABCRule
+from loguru import logger
 from typing import Optional
 import create_pool
 
@@ -58,6 +59,7 @@ async def give_wish(
             mention_id, peer_id
         )
         if is_exists is not None:
+            logger.info(f"Добавление пользователю {mention_id} {amount} примогемов")
             await pool.execute(
                 "UPDATE players SET primogems=primogems+$1 WHERE user_id=$2 AND peer_id=$3",
                 amount, mention_id, peer_id
@@ -77,6 +79,7 @@ async def ban_user(message: Message, mention):
             mention_id
         )
         if is_exists is None:
+            logger.info(f"Бан пользователя {mention_id}")
             await pool.execute(
                 "INSERT INTO banned (user_id) VALUES ($1)",
                 mention_id,
@@ -98,6 +101,7 @@ async def unban_user(message: Message, mention):
             mention_id
         )
         if is_exists is not None:
+            logger.info(f"Разбан пользователя {mention_id}")
             await pool.execute(
                 "DELETE FROM banned WHERE user_id=$1",
                 mention_id,

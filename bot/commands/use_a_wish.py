@@ -79,8 +79,8 @@ class Wish:
         }
 
         new_drop = str(new_drop).replace("'", '"')
-        logger.debug(new_drop)
 
+        logger.info(f"Добавление в историю этого дропа: {new_drop}")
         await self.pool.execute(
             f"UPDATE players SET {banner_type}_rolls_history=$1 || {banner_type}_rolls_history "
             "::jsonb WHERE user_id=$2 AND peer_id=$3",
@@ -246,12 +246,14 @@ class Wish:
             chance = random.random()
             prob5 = rate5 + max(0, (counter5_standard-pity5) * 10 * rate5)
             prob4 = rate4 + max(0, (counter4_standard-pity4) * 10 * rate4)
-            logger.debug("---------------------")
-            logger.debug(f"Counter 5 standard: {counter5_standard}")
-            logger.debug(f"Counter 4 standard: {counter4_standard}")
-            logger.debug(f"Prob5: {prob5}")
-            logger.debug(f"Prob4: {prob4}")
-            logger.debug("---------------------")
+            logger.info(
+                "Выбор случайного стандартного предмета для "
+                f"игрока {self.user_id} в беседе {self.peer_id}"
+            )
+            logger.info(f"Счетчик 5 звездочного стандартного предмета: {counter5_standard}")
+            logger.info(f"Счетчик 4 звездочного стандартного предмета: {counter4_standard}")
+            logger.info(f"Шанс на 5 звездочный предмет: {prob5}")
+            logger.info(f"Шанс на 4 звездочный предмет: {prob4}")
             if chance < prob5:
                 await self.reset_rolls_count(item_type="legendary")
                 await self.increase_rolls_count(item_type="rare")
@@ -284,12 +286,14 @@ class Wish:
             chance = random.random()
             prob5 = rate5 + max(0, (counter5_event-pity5) * 10 * rate5)
             prob4 = rate4 + max(0, (counter4_event-pity4) * 10 * rate4)
-            logger.debug("---------------------")
-            logger.debug(f"Counter 5 event: {counter5_event}")
-            logger.debug(f"Counter 4 event: {counter4_event}")
-            logger.debug(f"Prob5: {prob5}")
-            logger.debug(f"Prob4: {prob4}")
-            logger.debug("---------------------")
+            logger.info(
+                "Выбор случайного ивентового предмета для "
+                f"игрока {self.user_id} в беседе {self.peer_id}"
+            )
+            logger.info(f"Счетчик 5 звездочного ивентового предмета: {counter5_standard}")
+            logger.info(f"Счетчик 4 звездочного ивентового предмета: {counter4_standard}")
+            logger.info(f"Шанс на 5 звездочный предмет: {prob5}")
+            logger.info(f"Шанс на 4 звездочный предмет: {prob4}")
 
             if chance < prob5:
                 # 5 звездочный персонаж

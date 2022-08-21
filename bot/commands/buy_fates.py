@@ -1,5 +1,6 @@
 from vkbottle.bot import Blueprint, Message
 from player_exists import exists
+from loguru import logger
 import create_pool
 
 bp = Blueprint("Fates shop")
@@ -32,6 +33,10 @@ async def buy_fates(message: Message, fate_type, amount: int):
         )
         if primogems[0] >= 160 * amount:
             if fate_type == "стандарт":
+                logger.info(
+                    f"Начисление пользователю {message.from_id} в беседе "
+                    f"{message.peer_id} {amount} стандартных молитв"
+                )
                 await pool.execute(
                     "UPDATE players SET primogems=primogems-$1, "
                     "standard_wishes=standard_wishes+$2 WHERE user_id=$3 AND "
@@ -43,6 +48,10 @@ async def buy_fates(message: Message, fate_type, amount: int):
                     f"{amount*160} примогемов!"
                 )
             elif fate_type == "ивент":
+                logger.info(
+                    f"Начисление пользователю {message.from_id} в беседе "
+                    f"{message.peer_id} {amount} ивентовых молитв"
+                )
                 await pool.execute(
                     "UPDATE players SET primogems=primogems-$1, "
                     "event_wishes=event_wishes+$2 WHERE user_id=$3 AND "
@@ -54,7 +63,7 @@ async def buy_fates(message: Message, fate_type, amount: int):
                     f"{amount*160} примогемов!"
                 )
             else:
-                await message.answer("Неа, таких молитв не существует")
+                await message.answer("Неа, таких молитв не существует!")
 
         else:
             await message.answer(

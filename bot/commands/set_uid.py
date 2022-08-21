@@ -2,6 +2,7 @@ from vkbottle.bot import Blueprint, Message
 from vkbottle.http import AiohttpClient
 from player_exists import exists
 from loguru import logger
+from utils import get_default_header
 import create_pool
 
 bp = Blueprint("Set player in-game UID")
@@ -15,7 +16,8 @@ async def change_ingame_uid(message: Message, UID: int):
     http_client = AiohttpClient()
     try:
         player_info = await http_client.request_json(
-            f"https://enka.network/u/{UID}/__data.json"
+            f"https://enka.network/u/{UID}/__data.json",
+            headers=get_default_header()
         )
     except Exception as e:
         logger.error(e)
@@ -42,6 +44,6 @@ async def change_ingame_uid(message: Message, UID: int):
         )
 
     return (
-        f"Вы успешно установили UID игрока \"{nickname}\" "
-        f"(AR: {adv_rank})"
+        f'Вы успешно установили UID игрока "{nickname}" '
+        f'(AR: {adv_rank})'
     )
