@@ -1,6 +1,7 @@
 from vkbottle.bot import Blueprint, Message
 from player_exists import exists
 from loguru import logger
+from utils import give_exp
 import create_pool
 import time
 import random
@@ -48,17 +49,20 @@ async def daily_reward(message: Message):
 
             if random.random() * 100 < 90:
                 # Выдаем ежедневную награду игроку
-                reward = random.randint(160, 1600)
+                reward_primogems = random.randint(160, 1600)
+                reward_experience = random.randint(500, 1000)
                 logger.info(
-                    f"{message.from_id} получил {reward} примогемов в беседе {message.peer_id}"
+                    f"{message.from_id} получил {reward_primogems} "
+                    f"примогемов в беседе {message.peer_id}"
                 )
                 await pool.execute(
-                    "UPDATE players SET primogems=primogems+$1 "
+                    "UPDATE players SET primogems=primogems+$1 ",
                     "WHERE user_id=$2 AND peer_id=$3",
-                    reward, message.from_id, message.peer_id
+                    reward_primogems, message.from_id, message.peer_id
                 )
+                await give_exp(reward_experience, message.from_id, message.peer_id)
 
-                await message.answer(random.choice(REWARD_ANSWERS).format(reward))
+                await message.answer(random.choice(REWARD_ANSWERS).format(reward_primogems))
             else:
                 # Капец чел невезучий, ничего не получил
                 await message.answer(random.choice(NO_REWARD_ANSWERS))

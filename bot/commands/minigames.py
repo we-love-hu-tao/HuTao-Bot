@@ -1,6 +1,7 @@
 from vkbottle.bot import Blueprint, Message
 from player_exists import exists
 from loguru import logger
+from utils import give_exp
 import create_pool
 import random
 import time
@@ -76,18 +77,20 @@ async def complete_daily_quests(message: Message):
         # 1200 - 20 минут
         if doing_quest and started_time + 1200 < int(time.time()):
             primogems_reward = random.randint(160, 1600)
+            experience_reward = random.randint(1200, 1700)
             logger.info(f"{message.from_id} закончил поручения в беседе {message.peer_id}")
             await pool.execute(
                 "UPDATE players SET "
                 "doing_quest=false, "
-                "primogems=primogems+$1 "
-                "WHERE user_id=$2 ",
-                primogems_reward, message.from_id,
+                "primogems=primogems+$1, "
+                "WHERE user_id=$3 ",
+                primogems_reward, experience_reward, message.from_id,
             )
+            await give_exp(experience_reward, message.from_id, message.peer_id)
 
             await message.answer(
-                "Вы выполнили поручения и получили "
-                f"{primogems_reward} примогемов!"
+                "Вы выполнили поручения, а также получили "
+                f"{primogems_reward} примогемов и {experience_reward} опыта!"
             )
         else:
             await message.answer(

@@ -2,7 +2,7 @@ from vkbottle.bot import Blueprint, Message
 from vkbottle.http import AiohttpClient
 from loguru import logger
 from player_exists import exists
-from utils import get_default_header
+from utils import get_default_header, exp_to_level
 import create_pool
 
 bp = Blueprint("Profile")
@@ -18,6 +18,7 @@ async def profile(message: Message):
         result = await pool.fetchrow(
             "SELECT "
             "nickname, "
+            "experience, "
             "primogems, "
             "standard_wishes, "
             "event_wishes, "
@@ -28,17 +29,21 @@ async def profile(message: Message):
             message.from_id, message.peer_id
         )
 
-    nickname = result["nickname"]
-    primogems = result["primogems"]
-    standard_wishes = result["standard_wishes"]
-    event_wishes = result["event_wishes"]
-    legendary_standard_guarantee = result["legendary_rolls_standard"]
-    legendary_event_guarantee = result["legendary_rolls_event"]
-    UID = result["uid"]
+    nickname = result['nickname']
+    experience = result['experience']
+    primogems = result['primogems']
+    standard_wishes = result['standard_wishes']
+    event_wishes = result['event_wishes']
+    legendary_standard_guarantee = result['legendary_rolls_standard']
+    legendary_event_guarantee = result['legendary_rolls_event']
+    UID = result['uid']
+
+    level = exp_to_level(experience)
 
     return (
         f"&#128100; Ник: {nickname}\n"
         f"&#129689; Примогемы: {primogems}\n"
+        f"&#128200; Уровень: {level}\n"
         f"&#127852; Стандартных молитв: {standard_wishes}\n"
         f"&#127846; Молитв события: {event_wishes}\n\n"
 
@@ -63,7 +68,7 @@ async def genshin_info(message: Message, UID: int = None):
             )
         logger.info(f"SQL запрос вернул это: {UID}")
 
-        if UID["uid"] is None:
+        if UID['uid'] is None:
             return (
                 "Вы не установили свой UID! "
                 "Его можно установить с помощью команды \"!установить айди <UID>\""

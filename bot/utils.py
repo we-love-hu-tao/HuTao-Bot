@@ -1,4 +1,5 @@
 import sys
+import create_pool
 
 # ! Так как формула уровней в геншине еще неизвестна,
 # ! пока что у каждого уровня будет определенное
@@ -74,6 +75,26 @@ def exp_to_level(exp: int):
         if exp < exp_to_level:
             return level-1
     return 60
+
+
+async def give_exp(new_exp: int, user_id: int, peer_id: int):
+    pool = create_pool.pool
+    async with pool.acquire() as pool:
+        exp = await pool.fetchrow(
+            "SELECT experience FROM players WHERE user_id=$1 AND peer_id=$2",
+            user_id, peer_id
+        )
+        if exp_to_level(exp["experience"]) < 60:
+            await pool.execute(
+                "UPDATE players SET experience=experience+$1 WHERE user_id=$2 AND peer_id=$3",
+                new_exp, user_id, peer_id
+            )
+
+        if exp["experience"] > rank_levels_exp[60]:
+            await pool.execute(
+                "UPDATE players SET experience=$1 WHERE user_id=$2 AND peer_id=$3",
+                rank_levels_exp[60], user_id, peer_id
+            )
 
 
 def get_default_header():

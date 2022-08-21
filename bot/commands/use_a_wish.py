@@ -11,6 +11,7 @@ from variables import (
     FIVE_STAR_TEN,
 )
 from player_exists import exists
+from utils import give_exp
 import create_pool
 import asyncio
 import drop
@@ -280,6 +281,7 @@ class Wish:
             random_item = random.choice(list(type_rarity.items())[1:])
 
             await self.add_to_history("standard", type_rarity["_type"], random_item[1]["_id"])
+            await give_exp(random.randint(10, 80), self.user_id, self.peer_id)
             return random_item
 
         elif banner_type == "event":
@@ -338,6 +340,7 @@ class Wish:
                 random_item = random.choice(list(type_rarity.items())[1:])
 
             await self.add_to_history("event", type_rarity["_type"], random_item[1]["_id"])
+            await give_exp(random.randint(50, 120), self.user_id, self.peer_id)
             return random_item
 
     async def use_wish(self, roll_type):
