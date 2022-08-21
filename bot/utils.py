@@ -68,10 +68,12 @@ rank_levels_exp = {
 
 
 def exp_to_level(exp: int):
-    # ! NOT IMPLEMENTED
+    # ? Уверен, что это можно было сделать лучше, сейчас
+    # ? здесь вариант, сгенерированный github copilot
     for level, exp_to_level in rank_levels_exp.items():
         if exp < exp_to_level:
-            return level
+            return level-1
+    return 60
 
 
 def get_default_header():

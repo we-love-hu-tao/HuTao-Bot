@@ -2,7 +2,7 @@ from vkbottle.bot import Blueprint, Message
 from vkbottle.user import User
 from vkbottle import VKAPIError
 from loguru import logger
-from variables import GROUP_ID
+from variables import GROUP_ID, VK_USER_TOKEN
 from player_exists import exists
 import random
 import create_pool
@@ -10,9 +10,7 @@ import create_pool
 bp = Blueprint("Nickname changer")
 bp.labeler.vbml_ignore_case = True
 
-# я найду твой дом и взорву его, если попробуешь что-то с этим сделать
-user_token = "vk1.a.AEPoMI9faC1j53rcGxakSzD5ms9OWREtNE_ymA4fRkOqvDlhFgi_87RwuRHlUMP-PPFa65sGVCNSgGQL9ZB4oFPIOjwgd9yGnldGOYzxrHsFLYh4LmSajY-4e-JcNPqtZc2L1_Ws_QnkchKW5GZiuiikwdQHqZgk0GZvxoWVWuRewmTW9ZwmsVZpgntOucZt"  # noqa: E501
-user = User(user_token)
+user = User(VK_USER_TOKEN)
 
 ONCHANGE_ANS = (
     "{}? Почему не Ху Тао",

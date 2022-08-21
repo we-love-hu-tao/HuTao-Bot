@@ -1,12 +1,12 @@
 from vkbottle.bot import Bot
 from vkbottle import load_blueprints_from_package
-from variables import VK_TOKEN
+from variables import VK_GROUP_TOKEN
 import create_pool
 import asyncio
 
 
 if __name__ == "__main__":
-    bot = Bot(token=VK_TOKEN)
+    bot = Bot(token=VK_GROUP_TOKEN)
 
     for bp in load_blueprints_from_package("commands"):
         bp.load(bot)

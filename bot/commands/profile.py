@@ -45,7 +45,7 @@ async def profile(message: Message):
         f"&#10133; Гарант в стандартном баннере: {legendary_standard_guarantee}\n"
         f"&#10133; Гарант в ивентовом баннере: {legendary_event_guarantee}\n\n"
 
-        f"&#128100; Айди в Genshin Impact: {UID}"
+        f"&#128100; Айди в Genshin Impact: {UID if UID else 'не установлен!'}"
     )
 
 
@@ -61,8 +61,9 @@ async def genshin_info(message: Message, UID: int = None):
                 "SELECT uid FROM players WHERE user_id=$1 AND peer_id=$2",
                 message.from_id, message.peer_id
             )
+        logger.info(f"SQL запрос вернул это: {UID}")
 
-        if UID is None:
+        if UID["uid"] is None:
             return (
                 "Вы не установили свой UID! "
                 "Его можно установить с помощью команды \"!установить айди <UID>\""
