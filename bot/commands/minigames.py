@@ -82,11 +82,12 @@ async def complete_daily_quests(message: Message):
             await pool.execute(
                 "UPDATE players SET "
                 "doing_quest=false, "
-                "primogems=primogems+$1, "
-                "WHERE user_id=$3 ",
-                primogems_reward, experience_reward, message.from_id,
+                "primogems=primogems+$1 "
+                "WHERE user_id=$2 "
+                "AND peer_id=$3",
+                primogems_reward, message.from_id, message.peer_id
             )
-            await give_exp(experience_reward, message.from_id, message.peer_id)
+            await give_exp(experience_reward, message.from_id, message.peer_id, bp.api)
 
             await message.answer(
                 "Вы выполнили поручения, а также получили "

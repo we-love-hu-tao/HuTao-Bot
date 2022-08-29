@@ -7,7 +7,7 @@ bp.labeler.vbml_ignore_case = True
 
 @bp.on.message(action="chat_invite_user")
 async def invite_event_reaction(message: Message):
-    if message.action.member_id != -GROUP_ID:
+    if message.action.member_id == -GROUP_ID:
         return (
             "Добро пожаловать в Тейват!\n"
             "Теперь мне необходимо дать права на чтение сообщений "

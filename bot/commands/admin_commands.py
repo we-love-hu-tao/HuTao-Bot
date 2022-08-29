@@ -2,6 +2,7 @@ from vkbottle.bot import Blueprint, Message
 from vkbottle.dispatch.rules import ABCRule
 from loguru import logger
 from typing import Optional
+from utils import give_exp
 import create_pool
 
 bp = Blueprint("Admin")
@@ -65,6 +66,43 @@ async def give_wish(
                 amount, mention_id, peer_id
             )
             return f"[id{mention_id}|Этому пользователю] было добавлено {amount} примогемов"
+        else:
+            return "Такого пользователя нет в игре!"
+
+
+@bp.on.message(AdminRule(), text=(
+    "+уровень <amount:int>",
+    "+уровень <amount:int> <mention> <peer_id>" 
+))
+async def give_level(
+    message: Message,
+    amount: int,
+    mention: Optional[str] = None,
+    peer_id: Optional[int] = None
+):
+    if mention is not None:
+        mention_id = int(mention.split("|")[0][1:].replace("id", ""))
+    else:
+        mention_id = message.from_id
+
+    if peer_id is None:
+        peer_id = message.peer_id
+    else:
+        if peer_id < 2000000000:
+            peer_id += 2000000000
+
+    pool = create_pool.pool
+    async with pool.acquire() as pool:
+        is_exists = await pool.fetchrow(
+            "SELECT user_id FROM players WHERE user_id=$1 AND peer_id=$2",
+            mention_id, peer_id
+        )
+        if is_exists is not None:
+            logger.info(f"Добавление пользователю {mention_id} {amount} experience")
+
+            await give_exp(amount, mention_id, peer_id, bp.api)
+
+            return f"[id{mention_id}|Этому пользователю] было добавлено {amount} experience!"
         else:
             return "Такого пользователя нет в игре!"
 

@@ -11,7 +11,7 @@ from variables import (
     FIVE_STAR_TEN,
 )
 from player_exists import exists
-from utils import give_exp
+from utils import give_exp, give_character
 import create_pool
 import asyncio
 import drop
@@ -280,8 +280,16 @@ class Wish:
 
             random_item = random.choice(list(type_rarity.items())[1:])
 
-            await self.add_to_history("standard", type_rarity["_type"], random_item[1]["_id"])
-            await give_exp(random.randint(10, 80), self.user_id, self.peer_id)
+            if random_item[1]["type"] == "character":
+                await give_character(
+                    self.user_id, self.peer_id, type_rarity["_type"], random_item[1]["_id"]
+                )
+            await self.add_to_history(
+                "standard", type_rarity["_type"], random_item[1]["_id"]
+            )
+            await give_exp(
+                random.randint(10, 80), self.user_id, self.peer_id, bp.api
+            )
             return random_item
 
         elif banner_type == "event":
@@ -339,8 +347,12 @@ class Wish:
             else:
                 random_item = random.choice(list(type_rarity.items())[1:])
 
+            if random_item[1]["type"] == "character":
+                await give_character(
+                    self.user_id, self.peer_id, type_rarity["_type"], random_item[1]["_id"]
+                )
             await self.add_to_history("event", type_rarity["_type"], random_item[1]["_id"])
-            await give_exp(random.randint(50, 120), self.user_id, self.peer_id)
+            await give_exp(random.randint(50, 120), self.user_id, self.peer_id, bp.api)
             return random_item
 
     async def use_wish(self, roll_type):
