@@ -1,6 +1,7 @@
 from vkbottle.bot import Blueprint, Message
 from player_exists import exists
 from loguru import logger
+from variables import STANDARD_VARIANTS, EVENT_VARIANTS
 import create_pool
 
 bp = Blueprint("Fates shop")
@@ -11,7 +12,7 @@ bp.labeler.vbml_ignore_case = True
 async def shop(message: Message):
     if not await exists(message):
         return
-    await message.answer(
+    return (
         "Добро пожаловать в магазин паймон!\n"
         "Цена молитв - 160 примогемов"
     )
@@ -32,7 +33,7 @@ async def buy_fates(message: Message, fate_type, amount: int):
             message.from_id, message.peer_id,
         )
         if primogems[0] >= 160 * amount:
-            if fate_type == "стандарт":
+            if fate_type in STANDARD_VARIANTS:
                 logger.info(
                     f"Начисление пользователю {message.from_id} в беседе "
                     f"{message.peer_id} {amount} стандартных молитв"
@@ -47,7 +48,7 @@ async def buy_fates(message: Message, fate_type, amount: int):
                     f"Вы купили {amount} стандартных молитв за "
                     f"{amount*160} примогемов!"
                 )
-            elif fate_type == "ивент":
+            elif fate_type in EVENT_VARIANTS:
                 logger.info(
                     f"Начисление пользователю {message.from_id} в беседе "
                     f"{message.peer_id} {amount} ивентовых молитв"

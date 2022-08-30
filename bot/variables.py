@@ -6,6 +6,9 @@ GROUP_ID = 193964161
 HELP_LINK = "https://vk.com/@we_love_hu_tao-start"
 EVENT_BANNER = "sparkling_steps"
 
+STANDARD_VARIANTS = ('ст', 'стандарт')
+EVENT_VARIANTS = ('ив', 'ивент', 'событие')
+
 # Анимации молитв
 THREE_STAR = "video-193964161_456239017"
 FOUR_STAR = "video-193964161_456239018"

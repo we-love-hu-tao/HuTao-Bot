@@ -9,6 +9,8 @@ from variables import (
     FIVE_STAR,
     FOUR_STAR_TEN,
     FIVE_STAR_TEN,
+    STANDARD_VARIANTS,
+    EVENT_VARIANTS,
 )
 from player_exists import exists
 from utils import give_exp, give_character
@@ -283,8 +285,8 @@ class Wish:
                 "Выбор случайного ивентового предмета для "
                 f"игрока {self.user_id} в беседе {self.peer_id}"
             )
-            logger.info(f"Счетчик 5 звездочного ивентового предмета: {counter5_standard}")
-            logger.info(f"Счетчик 4 звездочного ивентового предмета: {counter4_standard}")
+            logger.info(f"Счетчик 5 звездочного ивентового предмета: {counter5_event}")
+            logger.info(f"Счетчик 4 звездочного ивентового предмета: {counter4_event}")
             logger.info(f"Шанс на 5 звездочный предмет: {prob5}")
             logger.info(f"Шанс на 4 звездочный предмет: {prob4}")
 
@@ -322,7 +324,20 @@ class Wish:
                 # Увеличение числа для получения гаранта
                 await self.increase_rolls_count("event")
                 type_rarity = drop.normal_standard_weapons
+
+            if type_rarity == drop.legendary_standard_characters:
+                await self.pool.execute(
+                    "UPDATE players SET event_char_guarantee=true "
+                    "WHERE user_id=$1 AND peer_id=$2",
+                    self.user_id, self.peer_id
+                )
+
             if type_rarity == drop.legendary_event_characters:
+                await self.pool.execute(
+                    "UPDATE players SET event_char_guarantee=false "
+                    "WHERE user_id=$1 AND peer_id=$2",
+                    self.user_id, self.peer_id
+                )
                 for character in type_rarity.items():
                     if character[0] != "_type":
                         if character[1]["event"] == EVENT_BANNER:
@@ -362,7 +377,7 @@ class Wish:
             await bp.api.messages.edit(
                 self.peer_id,
                 f"[id{self.user_id}|{self.full_name_dat}] выпало оружие "
-                f"{name} ({'&#11088;' * item_rarity})!",
+                f"{name} {'&#11088;' * item_rarity}!",
                 conversation_message_id=edit_msg_id,
                 attachment=picture,
                 disable_mentions=(True if item_rarity < 4 else False)
@@ -371,7 +386,7 @@ class Wish:
             await bp.api.messages.edit(
                 self.peer_id,
                 f"[id{self.user_id}|{self.full_name_dat}] выпал персонаж "
-                f"{name} ({'&#11088;' * item_rarity})!",
+                f"{name} {'&#11088;' * item_rarity}!",
                 conversation_message_id=edit_msg_id,
                 attachment=picture,
                 disable_mentions=(True if item_rarity < 4 else False)
@@ -397,11 +412,11 @@ class Wish:
 
             if item_type == "weapon":
                 output += (
-                    f"&#11088; &#128481;: {item_name} ({'★' * item_rarity})!\n"
+                    f"{'&#11088;' * item_rarity} &#128481;: {item_name}\n"
                 )
             elif item_type == "character":
                 output += (
-                    f"&#11088; &#129485;: {item_name} ({'★' * item_rarity})!\n"
+                    f"{'&#11088;' * item_rarity} &#129485;: {item_name}\n"
                 )
 
         if five_star:
@@ -409,7 +424,7 @@ class Wish:
         else:
             edit_msg_id = await self.choose_gif(4, True)
 
-        await asyncio.sleep(6.0)
+        await asyncio.sleep(6.1)
         await bp.api.messages.edit(
             self.peer_id,
             output,
@@ -424,7 +439,7 @@ EVENT_VARIANTS = ('ив', 'ивент', 'событие')
 
 
 @bp.on.chat_message(text='!помолиться <banner_type> 10')
-async def wishes_ten_use(message: Message, banner_type: Literal['стандарт', 'ивент']):
+async def wishes_ten_use(message: Message, banner_type):
     if not await exists(message):
         return
     pool = create_pool.pool
@@ -445,11 +460,12 @@ async def wishes_ten_use(message: Message, banner_type: Literal['стандар�
         if await wish.check_wishes_count(banner_type=banner_type, min_=10):
             await wish.use_ten_wishes(banner_type)
         else:
-            await message.answer(f"Вам не хватает {fail_text} круток!")
-
-
+            await message.answer(
+                f'У вас нет {fail_text} круток!\nИх можно купить с '
+                f'помощью команды "!купить молитвы {banner_type} <число>"'
+            ) 
 @bp.on.chat_message(text='!помолиться <banner_type>')
-async def wishes_use(message: Message, banner_type: Literal['стандарт', 'ивент']):
+async def wishes_use(message: Message, banner_type):
     if not await exists(message):
         return
     pool = create_pool.pool
@@ -470,4 +486,7 @@ async def wishes_use(message: Message, banner_type: Literal['стандарт', 
         if await wish.check_wishes_count(banner_type=banner_type):
             await wish.use_wish(banner_type)
         else:
-            await message.answer(f"У вас нет {fail_text} круток!")
+            await message.answer(
+                f'У вас нет {fail_text} круток!\nИх можно купить с '
+                f'помощью команды "!купить молитвы {banner_type} <число>"'
+            )

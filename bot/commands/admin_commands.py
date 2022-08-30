@@ -149,3 +149,16 @@ async def unban_user(message: Message, mention):
             )
         else:
             await message.answer("этот человек, к счастью не забанен")
+
+
+@bp.on.message(AdminRule(), text="!sql <!>")
+async def sql_request(message: Message):
+    sql_request = message.text[5:]
+    logger.debug(sql_request)
+    pool = create_pool.pool
+    async with pool.acquire() as pool:
+        try:
+            result = await pool.fetch(sql_request)
+        except Exception as e:
+            return f"Ошибка: {e}"
+    return f"SQL запрос вернул это: {result}"

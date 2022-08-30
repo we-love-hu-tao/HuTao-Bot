@@ -96,6 +96,14 @@ async def give_exp(new_exp: int, user_id: int, peer_id: int, api):
                 new_exp, user_id, peer_id
             )
             if current_level < new_level:
+                new_rolls = None
+                if new_level % 10 == 0:
+                    await pool.execute(
+                        "UPDATE players SET event_wishes=event_wishes+5 "
+                        "WHERE user_id=$1 AND peer_id=$2",
+                        user_id, peer_id
+                    )
+                    new_rolls = "\n+5 ивентовых молитв!"
                 nickname = await pool.fetchrow(
                     "SELECT nickname FROM players WHERE user_id=$1 AND peer_id=$2",
                     user_id, peer_id
@@ -106,7 +114,7 @@ async def give_exp(new_exp: int, user_id: int, peer_id: int, api):
                     random_id=0,
                     message=(
                         f"У игрока [id{user_id}|{nickname}] повысился "
-                        f"ранг приключений! Теперь он {new_level}"
+                        f"ранг приключений! Теперь он {new_level} {new_rolls if new_rolls is not None else ''}"
                     )
                 )
 
