@@ -137,39 +137,37 @@ async def give_character(
             user_id, peer_id
         )
         characters = json.loads(characters["characters"])
-        character_exists = False
 
         for character in characters:
-            logger.debug(character["_type"])
-            logger.debug(character_type)
-            logger.debug(character["_id"])
-            logger.debug(character_id)
-            logger.debug(character["const"])
-            if character["_type"] == character_type and character["_id"] == character_id:
-                character_exists = True
-                if character["const"] == 6:
+            if character['_type'] == character_type and character['_id'] == character_id:
+                if character['const'] == 6:
                     await give_primogems(20, user_id, peer_id)
                 else:
-                    character["const"] += 1
+                    character['const'] += 1
+                    characters = str(json.dumps(characters)).replace("'", '"')
+                    await pool.execute(
+                        "UPDATE players SET characters=$1::jsonb "
+                        "WHERE user_id=$2 AND peer_id=$3",
+                        characters, user_id, peer_id
+                    )
                 return
 
-        if character_exists is False:
-            new_character = {
-                "_type": character_type,
-                "_id": character_id,
-                "date": int(time.time()),
-                "const": 0,
-                "exp": 0,
-                "weapon_item_id": 0
-            }
-            new_character = str(new_character).replace("'", '"')
+        new_character = {
+            "_type": character_type,
+            "_id": character_id,
+            "date": int(time.time()),
+            "const": 0,
+            "exp": 0,
+            "weapon_item_id": 0
+        }
+        new_character = str(new_character).replace("'", '"')
 
-            logger.info(f"Добавление нового персонажа: {new_character}")
-            await pool.execute(
-                "UPDATE players SET characters=$1 || characters "
-                "::jsonb WHERE user_id=$2 AND peer_id=$3",
-                new_character, user_id, peer_id
-            )
+        logger.info(f"Добавление нового персонажа: {new_character}")
+        await pool.execute(
+            "UPDATE players SET characters=$1 || characters "
+            "::jsonb WHERE user_id=$2 AND peer_id=$3",
+            new_character, user_id, peer_id
+        )
 
 
 def get_default_header():

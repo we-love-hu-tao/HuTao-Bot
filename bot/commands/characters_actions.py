@@ -73,7 +73,6 @@ async def list_chatacters(message: Message):
             "------------------\n"
         )
 
-
     return new_msg
 
 
@@ -93,7 +92,6 @@ async def character_info(message: Message, char_name):
     characters = json.loads(characters["characters"])
     for character in characters:
         character_type = character["_type"]
-        character_id = character["_id"]
 
         drop_type = getattr(drop, character_type)
         for item in drop_type.items():
@@ -120,5 +118,3 @@ async def character_info(message: Message, char_name):
         f"Созвездие: {constellation}\n"
         f"Опыт: {experience}"
     )
-
-

@@ -362,7 +362,7 @@ class Wish:
             await bp.api.messages.edit(
                 self.peer_id,
                 f"[id{self.user_id}|{self.full_name_dat}] выпало оружие "
-                f"{name} ({'★' * item_rarity})!",
+                f"{name} ({'&#11088;' * item_rarity})!",
                 conversation_message_id=edit_msg_id,
                 attachment=picture,
                 disable_mentions=(True if item_rarity < 4 else False)
@@ -371,7 +371,7 @@ class Wish:
             await bp.api.messages.edit(
                 self.peer_id,
                 f"[id{self.user_id}|{self.full_name_dat}] выпал персонаж "
-                f"{name} ({'★' * item_rarity})!",
+                f"{name} ({'&#11088;' * item_rarity})!",
                 conversation_message_id=edit_msg_id,
                 attachment=picture,
                 disable_mentions=(True if item_rarity < 4 else False)
@@ -397,11 +397,11 @@ class Wish:
 
             if item_type == "weapon":
                 output += (
-                    f"Выпало оружие {item_name} ({'★' * item_rarity})!\n"
+                    f"&#11088; &#128481;: {item_name} ({'★' * item_rarity})!\n"
                 )
             elif item_type == "character":
                 output += (
-                    f"Выпал персонаж {item_name} ({'★' * item_rarity})!\n"
+                    f"&#11088; &#129485;: {item_name} ({'★' * item_rarity})!\n"
                 )
 
         if five_star:
