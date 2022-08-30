@@ -11,6 +11,11 @@ import asyncio
 # TODO: использовать какое-нибудь апи / брать с вики по геншину)
 
 if __name__ == "__main__":
+    log_path = ".logs/"
+    if not path.exists(log_path):
+        mkdir(log_path)
+    logger.add("logs/file_{time}.log", level="INFO", rotation="2 MB")
+
     bot = Bot(token=VK_GROUP_TOKEN)
 
     for bp in load_blueprints_from_package("commands"):
@@ -18,10 +23,5 @@ if __name__ == "__main__":
 
     loop = asyncio.get_event_loop_policy().get_event_loop()
     loop.run_until_complete(create_pool.init())
-
-    log_path = ".logs/"
-    if not path.exists(log_path):
-        mkdir(log_path)
-    logger.add("logs/file_{time}.log")
 
     bot.run_forever()

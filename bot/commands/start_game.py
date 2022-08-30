@@ -40,8 +40,8 @@ async def standard_wish(message: Message):
         else:
             new_nickname = random.choice(NAMES)
             logger.info(
-                f"Пользователь {message.from_id} создал аккаунт в беседе {message.peer_id}\n"
-                f"Случайный никнейм: {new_nickname}"
+                f"Пользователь {message.from_id} создал аккаунт в беседе {message.peer_id}, "
+                f"случайный никнейм: {new_nickname}"
             )
             await pool.execute(
                 "INSERT INTO players (user_id, peer_id, nickname) VALUES "
