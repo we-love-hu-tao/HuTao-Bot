@@ -34,9 +34,11 @@ class Wish:
         self.full_name_gen = info.first_name_gen + " " + info.last_name_gen
         self.pool = pool
 
-    async def check_wishes_count(self, banner_type, min_=1) -> bool:
+    async def check_wishes_count(
+        self, banner_type: Literal['standard', 'event'], min_: int = 1
+    ) -> bool:
         """
-        Проверяет, есть ли у игрока стандартное желание
+        Проверяет, есть ли у игрока желание
         """
         count = await self.pool.fetchrow(
             f"SELECT {banner_type}_wishes FROM players WHERE user_id=$1 AND peer_id=$2",
@@ -261,9 +263,6 @@ class Wish:
 
             random_item = random.choice(list(type_rarity.items())[1:])
 
-            await self.add_to_history("standard", type_rarity["_type"], random_item[1]["_id"])
-            await give_exp(random.randint(10, 80), self.user_id, self.peer_id)
-
             if random_item[1]["type"] == "character":
                 await give_character(
                     self.user_id, self.peer_id, type_rarity["_type"], random_item[1]["_id"]
@@ -335,8 +334,13 @@ class Wish:
                 await give_character(
                     self.user_id, self.peer_id, type_rarity["_type"], random_item[1]["_id"]
                 )
-            await self.add_to_history("event", type_rarity["_type"], random_item[1]["_id"])
-            await give_exp(random.randint(50, 120), self.user_id, self.peer_id, bp.api)
+
+            await self.add_to_history(
+                "event", type_rarity["_type"], random_item[1]["_id"]
+            )
+            await give_exp(
+                random.randint(50, 120), self.user_id, self.peer_id, bp.api
+            )
             return random_item
 
     async def use_wish(self, roll_type):
@@ -352,7 +356,7 @@ class Wish:
         picture = item_drop[1]["picture"]
 
         edit_msg_id = await self.choose_gif(item_rarity)
-        await asyncio.sleep(5.9)
+        await asyncio.sleep(6.0)
 
         if item_type == "weapon":
             await bp.api.messages.edit(
@@ -410,50 +414,60 @@ class Wish:
             self.peer_id,
             output,
             conversation_message_id=edit_msg_id,
-            disable_mentions=(True if item_rarity < 4 else False)
+            disable_mentions=(True if item_rarity < 5 else False)
         )
 
 
 CASES = "first_name_dat, last_name_dat, first_name_gen, last_name_gen"
+STANDARD_VARIANTS = ('ст', 'стандарт')
+EVENT_VARIANTS = ('ив', 'ивент', 'событие')
 
 
-@bp.on.chat_message(text=("помолиться <banner_type>"))
+@bp.on.chat_message(text='!помолиться <banner_type> 10')
+async def wishes_ten_use(message: Message, banner_type: Literal['стандарт', 'ивент']):
+    if not await exists(message):
+        return
+    pool = create_pool.pool
+    async with pool.acquire() as pool:
+        fail_text = None
+        if banner_type in STANDARD_VARIANTS:
+            banner_type = "standard"
+            fail_text = "стандартных"
+        elif banner_type in EVENT_VARIANTS:
+            banner_type = "event"
+            fail_text = "ивентовых"
+        else:
+            return "Таких молитв не существует (пока что)!"
+
+        info = await message.get_user(False, fields=CASES)
+        wish = Wish(message, info, pool)
+
+        if await wish.check_wishes_count(banner_type=banner_type, min_=10):
+            await wish.use_ten_wishes(banner_type)
+        else:
+            await message.answer(f"Вам не хватает {fail_text} круток!")
+
+
+@bp.on.chat_message(text='!помолиться <banner_type>')
 async def wishes_use(message: Message, banner_type: Literal['стандарт', 'ивент']):
     if not await exists(message):
         return
     pool = create_pool.pool
     async with pool.acquire() as pool:
-
-        if banner_type == "стандарт":
-            banner = "standard"
-        elif banner_type in ("событие", "ивент"):
-            banner = "event"
+        fail_text = None
+        if banner_type in STANDARD_VARIANTS:
+            banner_type = "standard"
+            fail_text = "стандартных"
+        elif banner_type in EVENT_VARIANTS:
+            banner_type = "event"
+            fail_text = "ивентовых"
+        else:
+            return "Таких молитв не существует (пока что)!"
 
         info = await message.get_user(False, fields=CASES)
         wish = Wish(message, info, pool)
 
-        if await wish.check_wishes_count(banner_type=banner):
-            await wish.use_wish(banner)
+        if await wish.check_wishes_count(banner_type=banner_type):
+            await wish.use_wish(banner_type)
         else:
-            await message.answer(f"У вас нет {banner_type} круток!")
-
-
-@bp.on.chat_message(text=("помолиться <banner_type> 10"))
-async def wishes_use_10(message: Message, banner_type: Literal['стандарт', 'ивент']):
-    if not await exists(message):
-        return
-    pool = create_pool.pool
-    async with pool.acquire() as pool:
-
-        if banner_type == "стандарт":
-            banner = "standard"
-        elif banner_type in ("событие", "ивент"):
-            banner = "event"
-
-        info = await message.get_user(False, fields=CASES)
-        wish = Wish(message, info, pool)
-
-        if await wish.check_wishes_count(banner_type=banner, min_=10):
-            await wish.use_ten_wishes(banner)
-        else:
-            await message.answer(f"Вам не хватает {banner_type} круток!")
+            await message.answer(f"У вас нет {fail_text} круток!")
