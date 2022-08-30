@@ -72,7 +72,7 @@ async def give_wish(
 
 @bp.on.message(AdminRule(), text=(
     "+уровень <amount:int>",
-    "+уровень <amount:int> <mention> <peer_id>" 
+    "+уровень <amount:int> <mention> <peer_id>"
 ))
 async def give_level(
     message: Message,

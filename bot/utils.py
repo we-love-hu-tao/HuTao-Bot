@@ -1,4 +1,3 @@
-from vkbottle.bot import Message
 from loguru import logger
 import time
 import json
@@ -105,7 +104,10 @@ async def give_exp(new_exp: int, user_id: int, peer_id: int, api):
                 await api.messages.send(
                     peer_id=peer_id,
                     random_id=0,
-                    message=f"У игрока [id{user_id}|{nickname}] повысился ранг приключений! Теперь он {new_level}"
+                    message=(
+                        f"У игрока [id{user_id}|{nickname}] повысился "
+                        f"ранг приключений! Теперь он {new_level}"
+                    )
                 )
 
         if exp["experience"] > rank_levels_exp[60]:
@@ -118,10 +120,10 @@ async def give_exp(new_exp: int, user_id: int, peer_id: int, api):
 async def give_primogems(amount, user_id, peer_id):
     pool = create_pool.pool
     async with pool.acquire() as pool:
-        logger.info(f"Добавление пользователю {mention_id} {amount} примогемов")
+        logger.info(f"Добавление пользователю {user_id} {amount} примогемов")
         await pool.execute(
             "UPDATE players SET primogems=primogems+$1 WHERE user_id=$2 AND peer_id=$3",
-            amount, mention_id, peer_id
+            amount, user_id, peer_id
         )
 
 
@@ -138,6 +140,11 @@ async def give_character(
         character_exists = False
 
         for character in characters:
+            logger.debug(character["_type"])
+            logger.debug(character_type)
+            logger.debug(character["_id"])
+            logger.debug(character_id)
+            logger.debug(character["const"])
             if character["_type"] == character_type and character["_id"] == character_id:
                 character_exists = True
                 if character["const"] == 6:
@@ -159,10 +166,10 @@ async def give_character(
 
             logger.info(f"Добавление нового персонажа: {new_character}")
             await pool.execute(
-                f"UPDATE players SET characters=$1 || characters "
+                "UPDATE players SET characters=$1 || characters "
                 "::jsonb WHERE user_id=$2 AND peer_id=$3",
                 new_character, user_id, peer_id
-            ) 
+            )
 
 
 def get_default_header():
