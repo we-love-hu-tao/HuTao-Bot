@@ -418,7 +418,7 @@ CASES = "first_name_dat, last_name_dat, first_name_gen, last_name_gen"
 
 
 @bp.on.chat_message(text=("помолиться <banner_type>"))
-async def wishes_use(message: Message, banner_type):
+async def wishes_use(message: Message, banner_type: Literal['стандарт', 'ивент']):
     if not await exists(message):
         return
     pool = create_pool.pool

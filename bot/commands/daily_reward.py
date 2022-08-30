@@ -30,12 +30,8 @@ async def daily_reward(message: Message):
     async with pool.acquire() as pool:
 
         reward_last_time = await pool.fetchrow(
-            """
-            SELECT
-            reward_last_time
-            FROM players WHERE user_id=$1 AND
-            peer_id=$2
-            """,
+            "SELECT reward_last_time FROM players "
+            "WHERE user_id=$1 AND peer_id=$2",
             message.from_id, message.peer_id
         )
 
@@ -56,11 +52,11 @@ async def daily_reward(message: Message):
                     f"примогемов в беседе {message.peer_id}"
                 )
                 await pool.execute(
-                    "UPDATE players SET primogems=primogems+$1 ",
+                    "UPDATE players SET primogems=primogems+$1 "
                     "WHERE user_id=$2 AND peer_id=$3",
                     reward_primogems, message.from_id, message.peer_id
                 )
-                await give_exp(reward_experience, message.from_id, message.peer_id)
+                await give_exp(reward_experience, message.from_id, message.peer_id, bp.api)
 
                 await message.answer(random.choice(REWARD_ANSWERS).format(reward_primogems))
             else:

@@ -64,17 +64,46 @@ YOUR_TOAD_ANS = (
 HU_TAO_ANS = (
     "Лучшие глаза всего Тейвата",
     "Без неё, этого бота бы не существовало",
+    "Когда кто-то спрашивает, в чем смысл жизни, сразу можно понять, что этот человек еще не видел её",
+    "Геншин был бы худшей гачи игрой в мире, если бы в ней не было её",
     "Настоящий пиро архонт"
+)
+
+TIMUR_ANS = (
+    "&#129320;",
+    "Как же я хочу заснуть, а проснуться в Тейвате, рядом с ритуальным бюро Ваншэн..."
 )
 
 KEQING_ANS = (
     "Настоящий электро архонт",
+    "Ножки &#128563;&#128563;",
     "Её реран будет."
 )
 
 AMBER_ANS = (
-    "Гораздо лучше всяких там Дион и Фишль",
+    "Возможно я стану чаще играть в геншин, если хойоверсв её баффнут",
+    "Её мейнеры прекрасные люди",
     "На одном уровне с Ёимией"
+)
+
+YOIMIYA_ANS = (
+    "МА-ТЕ-РИ-А-ЛЫ!",
+    "4 стрелы - все в голубя"
+)
+
+KOKOMI_ANS = (
+    "Настоящий гидро архонт (лучше Барбары)",
+    "+100 энергии"
+)
+
+AYAKA_ANS = (
+    "Её мейнеры самые токсичные люди на планете",
+    "Аятао канон?????"
+)
+
+QIQI_ANS = (
+    "&#128128;",
+    "&#9760;"
 )
 
 
@@ -160,22 +189,29 @@ async def give_nickname(message: Message, nickname):
                     f'К сожалению, забанить пользователя {message.from_id} '
                     f'в беседе {message.peer_id} не получилось, ошибка: {error}'
                 )
+                return "А, еще, просьба к администратору беседы - выдайте мне пожалуйста админку, что бы я мог нормально работать (точно никак не связано с предыдущими событиями)"
 
             return
 
         if text.startswith("!дать жабе имя "):
             reaction_answer = random.choice(YOUR_TOAD_ANS)
-        if text.startswith("!дать жабе имя "):
-            reaction_answer = random.choice(YOUR_TOAD_ANS)
         else:
-            if nickname_low in ("ху тао", "hu tao"):
-                reaction_answer = random.choice(random.choice(HU_TAO_ANS))
+            if nickname_low in ("ху тао", "хутава", "hu tao", "hutao"):
+                reaction_answer = random.choice(HU_TAO_ANS)
+            elif nickname_low in ("тимур", "богданов"):
+                reaction_answer = random.choice(TIMUR_ANS)
             elif nickname_low in ("эмбер", "amber"):
-                reaction_answer = random.choice(random.choice(AMBER_ANS))
-            elif nickname_low in ("кэ цин", "keqing"):
-                reaction_answer = random.choice(random.choice(KEQING_ANS))
+                reaction_answer = random.choice(AMBER_ANS)
+            elif nickname_low in ("кэ цин", "кека", "keqing"):
+                reaction_answer = random.choice(KEQING_ANS)
+            elif nickname_low in ("ёимия", "еимия", "yoimiya"):
+                reaction_answer = random.choice(YOIMIYA_ANS)
+            elif nickname_low in ("кокоми", "kokomi"):
+                reaction_answer = random.choice(KOKOMI_ANS)
+            elif nickname_low in ("аяка", "ayaka"):
+                reaction_answer = random.choice(AYAKA_ANS)
+            elif nickname_low in ("ци-ци", "ци ци", "цици", "чича", "qiqi"):
+                reaction_answer = random.choice(QIQI_ANS)
             else:
                 reaction_answer = random.choice(ONCHANGE_ANS)
-        await message.answer(
-            reaction_answer.format(nickname) + "\n" + "Вы успешно поменяли никнейм"
-        )
+        return reaction_answer.format(nickname) + "\n" + "Вы успешно поменяли никнейм"

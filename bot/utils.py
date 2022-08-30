@@ -1,3 +1,7 @@
+from vkbottle.bot import Message
+from loguru import logger
+import time
+import json
 import sys
 import create_pool
 
@@ -77,24 +81,88 @@ def exp_to_level(exp: int):
     return 60
 
 
-async def give_exp(new_exp: int, user_id: int, peer_id: int):
+async def give_exp(new_exp: int, user_id: int, peer_id: int, api):
     pool = create_pool.pool
     async with pool.acquire() as pool:
         exp = await pool.fetchrow(
             "SELECT experience FROM players WHERE user_id=$1 AND peer_id=$2",
             user_id, peer_id
         )
-        if exp_to_level(exp["experience"]) < 60:
+        current_exp = exp["experience"]
+        current_level = exp_to_level(current_exp)
+        new_level = exp_to_level(current_exp+new_exp)
+        if current_level < 60:
             await pool.execute(
                 "UPDATE players SET experience=experience+$1 WHERE user_id=$2 AND peer_id=$3",
                 new_exp, user_id, peer_id
             )
+            if current_level < new_level:
+                nickname = await pool.fetchrow(
+                    "SELECT nickname FROM players WHERE user_id=$1 AND peer_id=$2",
+                    user_id, peer_id
+                )
+                nickname = nickname["nickname"]
+                await api.messages.send(
+                    peer_id=peer_id,
+                    random_id=0,
+                    message=f"У игрока [id{user_id}|{nickname}] повысился ранг приключений! Теперь он {new_level}"
+                )
 
         if exp["experience"] > rank_levels_exp[60]:
             await pool.execute(
                 "UPDATE players SET experience=$1 WHERE user_id=$2 AND peer_id=$3",
                 rank_levels_exp[60], user_id, peer_id
             )
+
+
+async def give_primogems(amount, user_id, peer_id):
+    pool = create_pool.pool
+    async with pool.acquire() as pool:
+        logger.info(f"Добавление пользователю {mention_id} {amount} примогемов")
+        await pool.execute(
+            "UPDATE players SET primogems=primogems+$1 WHERE user_id=$2 AND peer_id=$3",
+            amount, mention_id, peer_id
+        )
+
+
+async def give_character(
+    user_id, peer_id, character_type, character_id
+):
+    pool = create_pool.pool
+    async with pool.acquire() as pool:
+        characters = await pool.fetchrow(
+            "SELECT characters FROM players WHERE user_id=$1 AND peer_id=$2",
+            user_id, peer_id
+        )
+        characters = json.loads(characters["characters"])
+        character_exists = False
+
+        for character in characters:
+            if character["_type"] == character_type and character["_id"] == character_id:
+                character_exists = True
+                if character["const"] == 6:
+                    await give_primogems(20, user_id, peer_id)
+                else:
+                    character["const"] += 1
+                return
+
+        if character_exists is False:
+            new_character = {
+                "_type": character_type,
+                "_id": character_id,
+                "date": int(time.time()),
+                "const": 0,
+                "exp": 0,
+                "weapon_item_id": 0
+            }
+            new_character = str(new_character).replace("'", '"')
+
+            logger.info(f"Добавление нового персонажа: {new_character}")
+            await pool.execute(
+                f"UPDATE players SET characters=$1 || characters "
+                "::jsonb WHERE user_id=$2 AND peer_id=$3",
+                new_character, user_id, peer_id
+            ) 
 
 
 def get_default_header():
