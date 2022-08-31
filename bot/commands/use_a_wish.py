@@ -450,15 +450,15 @@ async def use_a_wish(message: Message, banner_type):
             banner_type = "event"
             fail_text = "ивентовых"
         else:
-            return f"{banner_type} молитв не существует (пока что)!"
+            return f"{banner_type} молитв не существует, уебище, ливни с позором нахуй (!удалить геншин)!"
 
         info = await message.get_user(False, fields=CASES)
         wish = Wish(message, info, pool)
 
-        if message.text[-1] != 0:    #если чел 1 крутит
+        if message.text.split()[-1] != 10:    # если чел 1 крутит
             if await wish.check_wishes_count(banner_type=banner_type):
                 await wish.use_wish(banner_type)
-        elif message.text[-1] == 0:  #если чел 10 крутит
+        elif message.text.split()[-1] == 10:  # если чел 10 крутит
             if await wish.check_wishes_count(banner_type=banner_type, min_=10):
                 await wish.use_ten_wishes(banner_type)
         else:
