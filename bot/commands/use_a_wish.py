@@ -434,12 +434,10 @@ class Wish:
 
 
 CASES = "first_name_dat, last_name_dat, first_name_gen, last_name_gen"
-STANDARD_VARIANTS = ('ст', 'стандарт')
-EVENT_VARIANTS = ('ив', 'ивент', 'событие')
 
 
-@bp.on.chat_message(text='!помолиться <banner_type> 10')
-async def wishes_ten_use(message: Message, banner_type):
+@bp.on.chat_message(text=('!помолиться <banner_type> 10', '!помолиться <banner_type>'))
+async def use_a_wish(message: Message, banner_type):
     if not await exists(message):
         return
     pool = create_pool.pool
@@ -452,39 +450,17 @@ async def wishes_ten_use(message: Message, banner_type):
             banner_type = "event"
             fail_text = "ивентовых"
         else:
-            return "Таких молитв не существует (пока что)!"
+            return f"{banner_type} молитв не существует (пока что)!"
 
         info = await message.get_user(False, fields=CASES)
         wish = Wish(message, info, pool)
 
-        if await wish.check_wishes_count(banner_type=banner_type, min_=10):
-            await wish.use_ten_wishes(banner_type)
-        else:
-            await message.answer(
-                f'У вас нет {fail_text} круток!\nИх можно купить с '
-                f'помощью команды "!купить молитвы {banner_type} <число>"'
-            ) 
-@bp.on.chat_message(text='!помолиться <banner_type>')
-async def wishes_use(message: Message, banner_type):
-    if not await exists(message):
-        return
-    pool = create_pool.pool
-    async with pool.acquire() as pool:
-        fail_text = None
-        if banner_type in STANDARD_VARIANTS:
-            banner_type = "standard"
-            fail_text = "стандартных"
-        elif banner_type in EVENT_VARIANTS:
-            banner_type = "event"
-            fail_text = "ивентовых"
-        else:
-            return "Таких молитв не существует (пока что)!"
-
-        info = await message.get_user(False, fields=CASES)
-        wish = Wish(message, info, pool)
-
-        if await wish.check_wishes_count(banner_type=banner_type):
-            await wish.use_wish(banner_type)
+        if message.text[-1] != 0:    #если чел 1 крутит
+            if await wish.check_wishes_count(banner_type=banner_type):
+                await wish.use_wish(banner_type)
+        elif message.text[-1] == 0:  #если чел 10 крутит
+            if await wish.check_wishes_count(banner_type=banner_type, min_=10):
+                await wish.use_ten_wishes(banner_type)
         else:
             await message.answer(
                 f'У вас нет {fail_text} круток!\nИх можно купить с '
