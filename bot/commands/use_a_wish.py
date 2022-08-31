@@ -450,7 +450,7 @@ async def use_a_wish(message: Message, banner_type):
             banner_type = "event"
             fail_text = "ивентовых"
         else:
-            return f"{banner_type} молитв не существует, уебище, ливни с позором нахуй (!удалить геншин)!"
+            return f"{banner_type} молитв не существует (пока что)!"
 
         info = await message.get_user(False, fields=CASES)
         wish = Wish(message, info, pool)
