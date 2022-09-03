@@ -13,7 +13,7 @@ from variables import (
     EVENT_VARIANTS,
 )
 from player_exists import exists
-from utils import give_exp, give_character
+from utils import give_exp, give_character, give_weapon
 import create_pool
 import asyncio
 import drop
@@ -265,12 +265,20 @@ class Wish:
 
             random_item = random.choice(list(type_rarity.items())[1:])
 
-            if random_item[1]["type"] == "character":
+            if random_item[1]['type'] == "character":
                 await give_character(
-                    self.user_id, self.peer_id, type_rarity["_type"], random_item[1]["_id"]
+                    self.user_id, self.peer_id, type_rarity['_type'], random_item[1]['_id']
                 )
+            elif random_item[1]['type'] == "weapon":
+                await give_weapon(
+                    self.user_id,
+                    self.peer_id,
+                    getattr(drop, type_rarity['_type']),
+                    random_item[1]['_id']
+                )
+
             await self.add_to_history(
-                "standard", type_rarity["_type"], random_item[1]["_id"]
+                "standard", type_rarity['_type'], random_item[1]['_id']
             )
             await give_exp(
                 random.randint(10, 80), self.user_id, self.peer_id, bp.api
@@ -345,13 +353,24 @@ class Wish:
             else:
                 random_item = random.choice(list(type_rarity.items())[1:])
 
-            if random_item[1]["type"] == "character":
+            # TODO: можно объединить эти 2 функции, give_character и give_weapon
+            if random_item[1]['type'] == "character":
                 await give_character(
-                    self.user_id, self.peer_id, type_rarity["_type"], random_item[1]["_id"]
+                    self.user_id,
+                    self.peer_id,
+                    type_rarity['_type'],
+                    random_item[1]['_id']
+                )
+            elif random_item[1]['type'] == "weapon":
+                await give_weapon(
+                    self.user_id,
+                    self.peer_id,
+                    getattr(drop, type_rarity['_type']),
+                    random_item[1]['_id']
                 )
 
             await self.add_to_history(
-                "event", type_rarity["_type"], random_item[1]["_id"]
+                "event", type_rarity['_type'], random_item[1]['_id']
             )
             await give_exp(
                 random.randint(50, 120), self.user_id, self.peer_id, bp.api
@@ -455,13 +474,21 @@ async def use_a_wish(message: Message, banner_type):
         info = await message.get_user(False, fields=CASES)
         wish = Wish(message, info, pool)
 
-        if message.text.split()[-1] != 10:    # если чел 1 крутит
+        enough_wishes = True
+        if message.text.split()[-1] != "10":
+            # 1 крутка
             if await wish.check_wishes_count(banner_type=banner_type):
                 await wish.use_wish(banner_type)
-        elif message.text.split()[-1] == 10:  # если чел 10 крутит
+            else:
+                enough_wishes = False
+        elif message.text.split()[-1] == "10":
+            # 10 круток
             if await wish.check_wishes_count(banner_type=banner_type, min_=10):
                 await wish.use_ten_wishes(banner_type)
-        else:
+            else:
+                enough_wishes = False
+
+        if not enough_wishes:
             await message.answer(
                 f'У вас нет {fail_text} круток!\nИх можно купить с '
                 f'помощью команды "!купить молитвы {banner_type} <число>"'

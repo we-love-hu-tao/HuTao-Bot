@@ -3,6 +3,7 @@ from vkbottle.dispatch.rules import ABCRule
 from loguru import logger
 from typing import Optional
 from utils import give_exp
+import subprocess
 import create_pool
 
 bp = Blueprint("Admin")
@@ -162,3 +163,15 @@ async def sql_request(message: Message):
         except Exception as e:
             return f"Ошибка: {e}"
     return f"SQL запрос вернул это: {result}"
+
+
+@bp.on.message(AdminRule(), text="!execute <!>")
+async def execute_shell_command(message: Message):
+    if message.from_id != 322615766:
+        return "а тебе зачем?"
+
+    cmd_command = message.text[9:]
+    command_output = subprocess.run(["powershell", "-Command", cmd_command], capture_output=True)
+    if command_output.returncode != 0:
+        return f"Ошибка: {command_output.stderr}"
+    return f"Команда вернула это: {command_output.stdout.decode('utf-8')}"

@@ -8,7 +8,11 @@ import create_pool
 bp = Blueprint("Set player in-game UID")
 
 
-@bp.on.chat_message(text=("!установить айди <UID:int>", "!поменять айди <UID:int>"))
+@bp.on.chat_message(text=(
+    "!установить айди <UID:int>",
+    "!поменять айди <UID:int>",
+    "!айди <UID:int>"
+))
 async def change_ingame_uid(message: Message, UID: int):
     if not await exists(message):
         return

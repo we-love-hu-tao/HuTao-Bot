@@ -9,6 +9,7 @@ from datetime import datetime
 from typing import Union, Literal
 from player_exists import exists
 from loguru import logger
+from utils import get_drop
 import create_pool
 import json
 import drop
@@ -56,14 +57,12 @@ async def raw_history_to_normal(raw_history: dict):
     if len(raw_history) > 0:
         history = ""
         for roll in raw_history:
-            drop_type = getattr(drop, roll["type"])
-            for item in drop_type.items():
-                if item[0] != "_type":
-                    if item[1]["_id"] == roll["item_id"]:
-                        name = item[0]
-                        break
+            drop_type = getattr(drop, roll['type'])
+            item = get_drop(drop_type, roll['item_id'])
 
-            drop_type = roll["type"]
+            name = item['drop_name']
+            rarity = item['drop_rarity']
+            drop_type = roll['type']
 
             drop_emoji = ""
             if drop_type in weapons_type:
@@ -72,10 +71,10 @@ async def raw_history_to_normal(raw_history: dict):
                 drop_emoji = "&#129485;"
 
             pulled_time = datetime.utcfromtimestamp(
-                roll["time"]
+                roll['time']
             ).strftime('%H:%M:%S - %d-%m-%Y')
             history += (
-                f"{drop_emoji} {name}\n"
+                f"{drop_emoji} {name} {'&#11088;' * rarity}\n"
                 f"Время: {pulled_time} (GMT+3)\n"
                 "-------------\n"
             )
@@ -104,7 +103,7 @@ async def gacha_history(message: Message, banner_type: Literal["стандарт
     if history is None:
         return "Вы еще ничего не выбивали!"
     else:
-        history = "Последние 5 дропов:\n"+history
+        history = history
 
     keyboard = (
         Keyboard(one_time=False, inline=True)
@@ -187,7 +186,6 @@ async def gacha_history_move(event: MessageEvent):
     else:
         logger.debug(raw_history)
         history = await raw_history_to_normal(raw_history)
-        history = "5 дропов:\n"+history
 
     keyboard = (
             Keyboard(one_time=False, inline=True)

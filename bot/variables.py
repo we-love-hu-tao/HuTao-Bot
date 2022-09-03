@@ -4,10 +4,10 @@ VK_USER_TOKEN = "vk1.a.AEPoMI9faC1j53rcGxakSzD5ms9OWREtNE_ymA4fRkOqvDlhFgi_87Rwu
 GROUP_ID = 193964161
 
 HELP_LINK = "https://vk.com/@we_love_hu_tao-start"
-EVENT_BANNER = "sparkling_steps"
+EVENT_BANNER = "moment_of_bloom"
 
-STANDARD_VARIANTS = ('ст', 'стандарт')
-EVENT_VARIANTS = ('ив', 'ивент', 'событие')
+STANDARD_VARIANTS = ('ст', 'стандарт', 'standard')
+EVENT_VARIANTS = ('ив', 'ивент', 'событие', 'event')
 
 # Анимации молитв
 THREE_STAR = "video-193964161_456239017"
