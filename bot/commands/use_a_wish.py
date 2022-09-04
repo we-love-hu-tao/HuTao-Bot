@@ -162,6 +162,15 @@ class Wish:
                     self.user_id, self.peer_id
                 )
 
+    async def increase_rolls_stats(
+        self, wish_type: Literal["standard", "event"] = "standard", times=1
+    ):
+        await self.pool.execute(
+            f"UPDATE players SET total_{wish_type}_rolls=total_{wish_type}_rolls+$1 WHERE "
+            "user_id=$2 AND peer_id=$3",
+            times, self.user_id, self.peer_id
+        )
+
     async def choose_gif(self, rarity: int, ten=False) -> int:
         if rarity == 3:
             # 3 star gif
@@ -382,6 +391,7 @@ class Wish:
         Использует молитву
         """
         await self.decrease_wish(roll_type, 1)
+        await self.increase_rolls_stats(roll_type)
 
         item_drop = await self.roll(roll_type)
         item_type = item_drop[1]["type"]
@@ -415,6 +425,7 @@ class Wish:
         """
         Использует 10 молитв
         """
+        await self.increase_rolls_stats(roll_type, 10)
         item_drops = []
         output = f"Результаты [id{self.user_id}|{self.full_name_gen}]\n"
         five_star = False

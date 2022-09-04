@@ -30,11 +30,14 @@ def format_characters(characters: dict, rarity: int = 5):
 
         if char_name == "Ху Тао":
             if ending == ".":
-                new_message += f"\n{char_name} (с{char_const}){ending}"
+                new_message += f"\n\n{char_name} (с{char_const}){ending}"
             else:
-                new_message += f"{char_name} (с{char_const}){ending}\n"
-
-        new_message += f"{char_name} (с{char_const}){ending}"
+                if character == characters[0]:
+                    new_message += f"{char_name} (с{char_const}){ending}\n\n"
+                else:
+                    new_message += f"\n\n{char_name} (с{char_const}){ending}\n\n"
+        else:
+            new_message += f"{char_name} (с{char_const}){ending}"
 
     if new_message == f"Персонажи ({'&#11088;' * rarity}):\n":
         new_message += "Пока пусто!"

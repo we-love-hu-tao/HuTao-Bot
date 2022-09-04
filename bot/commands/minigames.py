@@ -1,13 +1,31 @@
 from vkbottle.bot import Blueprint, Message
 from player_exists import exists
 from loguru import logger
-from utils import give_exp
+from utils import give_exp, exp_to_level
 import create_pool
 import random
 import time
 
 bp = Blueprint("Minigames")
 bp.labeler.vbml_ignore_case = True
+
+
+def count_quests_time(exp):
+    player_level = exp_to_level(exp)
+    if player_level == 60:
+        quest_time = 60
+    elif player_level > 45:
+        quest_time = 240
+    elif player_level > 35:
+        quest_time = 420
+    elif player_level > 20:
+        quest_time = 600
+    elif player_level > 10:
+        quest_time = 900
+    else:
+        quest_time = 1200
+
+    return quest_time
 
 
 @bp.on.chat_message(text="!начать поручения")
@@ -25,12 +43,13 @@ async def start_daily_quests(message: Message):
         result = await pool.fetchrow(
             "SELECT "
             "daily_quests_time, "
-            "doing_quest "
+            "doing_quest, "
+            "experience "
             "FROM players WHERE user_id=$1 AND peer_id=$2",
             message.from_id, message.peer_id
         )
-        daily_quests_time: int = result[0]
-        doing_quest: int = result[1]
+        daily_quests_time: int = result['daily_quests_time']
+        doing_quest: int = result['doing_quest']
 
         if daily_quests_time + 86400 < int(time.time()) and doing_quest is False:
             logger.info(f"{message.from_id} начал поручения в беседе {message.peer_id}")
@@ -41,9 +60,12 @@ async def start_daily_quests(message: Message):
                 "WHERE user_id=$2 AND peer_id=$3",
                 int(time.time()), message.from_id, message.peer_id,
             )
+
+            quest_time = count_quests_time(result['experience'])
             await message.answer(
                 "Вы начали выполнять поручения. "
-                "Возвращайтесь через 20 минут!"
+                f"Возвращайтесь через {int(quest_time/60)} минут"
+                f"{'у' if quest_time/60 == 1.0 else 'ы' if quest_time/60 < 5.0 else ''}!"
             )
         else:
             await message.answer(
@@ -66,35 +88,42 @@ async def complete_daily_quests(message: Message):
         result = await pool.fetchrow(
             "SELECT "
             "daily_quests_time, "
-            "doing_quest "
+            "doing_quest, "
+            "experience "
             "FROM players WHERE user_id=$1 AND peer_id=$2",
             message.from_id, message.peer_id
         )
 
-        started_time: int = result[0]
-        doing_quest: int = result[1]
+        started_time: int = result['daily_quests_time']
+        doing_quest: int = result['doing_quest']
 
-        # 1200 - 20 минут
-        if doing_quest and started_time + 1200 < int(time.time()):
-            primogems_reward = random.randint(160, 1600)
-            experience_reward = random.randint(1200, 1700)
-            logger.info(f"{message.from_id} закончил поручения в беседе {message.peer_id}")
-            await pool.execute(
-                "UPDATE players SET "
-                "doing_quest=false, "
-                "primogems=primogems+$1 "
-                "WHERE user_id=$2 "
-                "AND peer_id=$3",
-                primogems_reward, message.from_id, message.peer_id
-            )
-            await give_exp(experience_reward, message.from_id, message.peer_id, bp.api)
+        quest_time = count_quests_time(result['experience'])
 
-            await message.answer(
-                "Вы выполнили поручения, а также получили "
-                f"{primogems_reward} примогемов и {experience_reward} опыта!"
-            )
+        if started_time + quest_time < int(time.time()):
+            if doing_quest:
+                primogems_reward = random.randint(160, 1600)
+                experience_reward = random.randint(1200, 1700)
+                logger.info(f"{message.from_id} закончил поручения в беседе {message.peer_id}")
+                await pool.execute(
+                    "UPDATE players SET "
+                    "doing_quest=false, "
+                    "primogems=primogems+$1 "
+                    "WHERE user_id=$2 "
+                    "AND peer_id=$3",
+                    primogems_reward, message.from_id, message.peer_id
+                )
+                await give_exp(experience_reward, message.from_id, message.peer_id, bp.api)
+
+                await message.answer(
+                    "Вы выполнили поручения, а также получили "
+                    f"{primogems_reward} примогемов и {experience_reward} опыта!"
+                )
+            else:
+                await message.answer(
+                    "Вы не начали поручения/уже выполнили их!"
+                )
         else:
             await message.answer(
-                "Еще не прошло 20 минут или сегодня вы уже выполнили все "
-                "поручения!"
+                "Вы сможете закончить поручения только через "
+                f"{int((started_time+quest_time-int(time.time()))/60)} минут!"
             )

@@ -97,8 +97,19 @@ KOKOMI_ANS = (
     "+100 энергии"
 )
 
+KLEE_ANS = (
+    "Прыг-скок-бомба",
+    "24 часа убегаем от Джинн"
+)
+
+YANFEI_ANS = (
+    "Objection!",
+    "Hold It!",
+    "Take That!"
+)
+
 AYAKA_ANS = (
-    "Её мейнеры самые токсичные люди на планете",
+    "240 дней мерзлоты",
     "Аятао канон?????"
 )
 
@@ -201,21 +212,26 @@ async def give_nickname(message: Message, nickname):
         if text.startswith("!дать жабе имя "):
             reaction_answer = random.choice(YOUR_TOAD_ANS)
         else:
-            if nickname_low in ("ху тао", "хутава", "hu tao", "hutao"):
+            # ? есть способ лучше?
+            if any(char in nickname_low for char in ("ху тао", "хутава", "hu tao", "hutao")):
                 reaction_answer = random.choice(HU_TAO_ANS)
-            elif nickname_low in ("тимур", "богданов"):
+            elif any(char in nickname_low for char in ("тимур", "богданов")):
                 reaction_answer = random.choice(TIMUR_ANS)
-            elif nickname_low in ("эмбер", "amber"):
+            elif any(char in nickname_low for char in ("эмбер", "amber")):
                 reaction_answer = random.choice(AMBER_ANS)
-            elif nickname_low in ("кэ цин", "кека", "keqing"):
+            elif any(char in nickname_low for char in ("кэ цин", "кека", "keqing")):
                 reaction_answer = random.choice(KEQING_ANS)
-            elif nickname_low in ("ёимия", "еимия", "yoimiya"):
+            elif any(char in nickname_low for char in ("ёимия", "еимия", "yoimiya")):
                 reaction_answer = random.choice(YOIMIYA_ANS)
-            elif nickname_low in ("кокоми", "kokomi"):
+            elif any(char in nickname_low for char in ("кокоми", "kokomi")):
                 reaction_answer = random.choice(KOKOMI_ANS)
-            elif nickname_low in ("аяка", "ayaka"):
+            elif any(char in nickname_low for char in ("кли", "klee")):
+                reaction_answer = random.choice(KLEE_ANS)
+            elif any(char in nickname_low for char in ("янь фей", "yanfei")):
+                reaction_answer = random.choice(YANFEI_ANS)
+            elif any(char in nickname_low for char in ("аяка", "ayaka")):
                 reaction_answer = random.choice(AYAKA_ANS)
-            elif nickname_low in ("ци-ци", "ци ци", "цици", "чича", "qiqi"):
+            elif any(char in nickname_low for char in ("ци-ци", "ци ци", "цици", "чича", "qiqi")):
                 reaction_answer = random.choice(QIQI_ANS)
             else:
                 reaction_answer = random.choice(ONCHANGE_ANS)

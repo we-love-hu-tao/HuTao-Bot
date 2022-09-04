@@ -91,18 +91,23 @@ async def genshin_info(message: Message, UID: int = None):
             "Если же это не так, пожалуйста, сообщите об этой ошибке [id322615766|мне]"
         )
 
-    if len(player_info) == 0:
+    if len(player_info) == 0 and UID is None:
         return (
             "Ээээ... Информацию об этом UID не получилось найти, "
             "похоже этот аккаунт в геншине был забанен/удален\n"
             "(или это ошибка enka.network)"
         )
+    elif len(player_info) == 0 and UID is not None:
+        return "Игрока с таким UID не существует!"
 
     try:
         player_info = player_info['playerInfo']
         nickname = player_info['nickname']
         adv_rank = player_info['level']
-        signature = player_info['signature']
+        try:
+            signature = player_info['signature']
+        except KeyError:
+            signature = "нету"
         world_level = player_info['worldLevel']
     except KeyError as e:
         logger.error(e)
@@ -112,6 +117,6 @@ async def genshin_info(message: Message, UID: int = None):
         f"Айди в Genshin Impact: {UID}\n"
         f"Ник: {nickname}\n"
         f"Ранг приключений: {adv_rank}\n"
-        f"Описание: \"{signature}\"\n"
+        f"Описание: {signature}\n"
         f"Уровень мира: {world_level}"
     )

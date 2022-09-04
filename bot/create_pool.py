@@ -85,6 +85,14 @@ table_players = {
     "inventory": {
         "data_type": "jsonb",
         "default": "'[]'::jsonb"
+    },
+    "total_event_rolls": {
+        "data_type": "integer",
+        "default": "0"
+    },
+    "total_standard_rolls": {
+        "data_type": "integer",
+        "default": "0"
     }
 }
 

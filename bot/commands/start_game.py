@@ -1,5 +1,6 @@
 from vkbottle.bot import Blueprint, Message
 from loguru import logger
+from utils import give_character
 import create_pool
 import random
 
@@ -53,4 +54,36 @@ async def standard_wish(message: Message):
                 "Вы зашли в Genshin Impact!\n"
                 "Напишите !персонаж, что бы увидеть ваш никнейм "
                 "и количество примогемов"
+            )
+
+            # Эмбер
+            await give_character(
+                message.from_id,
+                message.peer_id,
+                "rare_standard_characters",
+                21
+            )
+
+            # Кэйа
+            await give_character(
+                message.from_id,
+                message.peer_id,
+                "rare_standard_characters",
+                6
+            )
+
+            # Лиза
+            await give_character(
+                message.from_id,
+                message.peer_id,
+                "rare_standard_characters",
+                7
+            )
+
+            # Барбара
+            await give_character(
+                message.from_id,
+                message.peer_id,
+                "rare_standard_characters",
+                1
             )
