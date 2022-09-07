@@ -1,4 +1,4 @@
-TEST_MODE = True
+TEST_MODE = False
 
 if not TEST_MODE:
     # кринжбот по Ху Тао
