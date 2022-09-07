@@ -2,7 +2,8 @@ from vkbottle.bot import Blueprint, Message
 from vkbottle.dispatch.rules import ABCRule
 from loguru import logger
 from typing import Optional
-from utils import give_exp
+from utils import give_exp, gen_promocode
+import time
 import subprocess
 import create_pool
 
@@ -150,6 +151,48 @@ async def unban_user(message: Message, mention):
             )
         else:
             await message.answer("этот человек, к счастью не забанен")
+
+
+@bp.on.message(
+    AdminRule(),
+    text=(
+        "!новый промокод <!>",
+        "!новый промокод"
+    )
+)
+async def create_new_promocode(message: Message):
+
+    if len(message.text.split()) == 2:
+        return "!новый промокод <количество> <время (unix time)> <название>"
+
+    try:
+        msg_params = message.text.split()[2:]
+        amount = int(msg_params[0])
+        expire_time = int(msg_params[1])
+        custom_text = msg_params[2]
+
+        if expire_time < int(time.time()) and expire_time != 0:
+            return "Некорректное время!"
+
+        new_promocode = await gen_promocode(
+            amount, expire_time=expire_time, custom_text=custom_text
+        )
+        return f"Промокод {new_promocode} сгенерирован!"
+    except Exception as e:
+        return f"Ошибка: {e}"
+
+
+@bp.on.message(
+    AdminRule(), text="!удалить промокод <promocode_name>"
+)
+async def delete_promocode(message: Message, promocode_name):
+    pool = create_pool.pool
+    async with pool.acquire() as pool:
+        try:
+            await pool.execute("DELETE FROM promocodes WHERE promocode=$1", promocode_name)
+        except Exception:
+            return "Такого промокода не существует!"
+    return "Промокод был удален!"
 
 
 @bp.on.message(AdminRule(), text="!sql <!>")

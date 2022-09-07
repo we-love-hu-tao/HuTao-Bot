@@ -1,10 +1,11 @@
 from vkbottle.bot import Blueprint, Message
-from player_exists import exists
+from loguru import logger
 from datetime import datetime
+from player_exists import exists
 from utils import get_drop
+import json
 import drop
 import create_pool
-import json
 
 bp = Blueprint("Characters list")
 bp.labeler.vbml_ignore_case = True
@@ -128,8 +129,9 @@ async def character_info(message: Message, char_name):
     if char_info is None:
         return "Вы еще не выбили этого персонажа / его не существует!"
 
-    drop_date = char_info["date"]
-    constellation = char_info["const"]
+    drop_date = char_info['date']
+    constellation = char_info['const']
+    logger.info(char_info)
 
     drop_date = datetime.utcfromtimestamp(
         drop_date

@@ -39,18 +39,18 @@ async def like_add(event: GroupTypes.LikeAdd):
         if result is None or len(result) == 0:
             return
 
-        if post_id in result["liked_posts_ids"]:
+        if post_id in result['liked_posts_ids']:
             return
 
         await pool.execute(
             "UPDATE players SET primogems=primogems+50, "
             "liked_posts_ids=array_append(liked_posts_ids, $1) "
             "WHERE user_id=$2 AND peer_id=$3",
-            post_id, user_id, result["peer_id"]
+            post_id, user_id, result['peer_id']
         )
 
     await bp.api.messages.send(
-        peer_id=result["peer_id"],
+        peer_id=result['peer_id'],
         random_id=0,
         message=(
             f"[id{user_id}|{result['nickname']}], спасибо за лайк на пост "

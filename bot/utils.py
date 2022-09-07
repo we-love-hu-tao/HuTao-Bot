@@ -1,4 +1,5 @@
 from loguru import logger
+from random import randint
 import time
 import json
 import sys
@@ -267,6 +268,23 @@ def get_drop(drop_type: dict, drop_id: int) -> dict:
                     "drop_rarity": drop_rarity,
                     "drop_picture": drop_picture,
                 }
+
+
+async def gen_promocode(reward, author_id=0, expire_time=0, custom_text=None) -> str:
+    if custom_text is not None:
+        promocode_text = custom_text
+    else:
+        promocode_text = str(randint(1, 9999999))
+
+    pool = create_pool.pool
+    async with pool.acquire() as pool:
+        await pool.execute(
+            "INSERT INTO promocodes (promocode, author, expire_time, promocode_reward) "
+            "VALUES ($1, $2, $3, $4)",
+            promocode_text, author_id, expire_time, reward
+        )
+
+    return promocode_text
 
 
 def get_default_header():
