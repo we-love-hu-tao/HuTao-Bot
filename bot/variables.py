@@ -13,7 +13,7 @@ else:
 VK_USER_TOKEN = "vk1.a.AEPoMI9faC1j53rcGxakSzD5ms9OWREtNE_ymA4fRkOqvDlhFgi_87RwuRHlUMP-PPFa65sGVCNSgGQL9ZB4oFPIOjwgd9yGnldGOYzxrHsFLYh4LmSajY-4e-JcNPqtZc2L1_Ws_QnkchKW5GZiuiikwdQHqZgk0GZvxoWVWuRewmTW9ZwmsVZpgntOucZt"  # noqa: E501
 
 HELP_LINK = "https://vk.com/@we_love_hu_tao-start"
-EVENT_BANNER = "moment_of_bloom"
+EVENT_BANNER = "drifting_luminescence"
 
 STANDARD_VARIANTS = ('ст', 'стандарт', 'standard')
 EVENT_VARIANTS = ('ив', 'ивент', 'событие', 'event')
