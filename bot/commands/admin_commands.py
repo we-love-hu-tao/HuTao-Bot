@@ -44,10 +44,13 @@ async def give_wish(
     mention: Optional[str] = None,
     peer_id: Optional[int] = None
 ):
-    if mention is not None:
-        mention_id = int(mention.split("|")[0][1:].replace("id", ""))
+    if mention is None:
+        if message.reply_message is None:
+            mention_id = message.from_id
+        else:
+            mention_id = message.reply_message.from_id
     else:
-        mention_id = message.from_id
+        mention_id = int(mention.split("|")[0][1:].replace("id", ""))
 
     if peer_id is None:
         peer_id = message.peer_id
@@ -82,10 +85,13 @@ async def give_level(
     mention: Optional[str] = None,
     peer_id: Optional[int] = None
 ):
-    if mention is not None:
-        mention_id = int(mention.split("|")[0][1:].replace("id", ""))
+    if mention is None:
+        if message.reply_message is None:
+            mention_id = message.from_id
+        else:
+            mention_id = message.reply_message.from_id
     else:
-        mention_id = message.from_id
+        mention_id = int(mention.split("|")[0][1:].replace("id", ""))
 
     if peer_id is None:
         peer_id = message.peer_id
@@ -109,9 +115,15 @@ async def give_level(
             return "Такого пользователя нет в игре!"
 
 
-@bp.on.message(AdminRule(), text="!гнш бан <mention>")
+@bp.on.message(AdminRule(), text=("!гнш бан <mention>", "!гнш бан"))
 async def ban_user(message: Message, mention):
-    mention_id = int(mention.split("|")[0][1:].replace("id", ""))
+    if mention is not None:
+        mention_id = int(mention.split("|")[0][1:].replace("id", ""))
+    else:
+        if message.reply_message is not None:
+            mention_id = message.reply_message.from_id
+        else:
+            await message.answer("так ответь на сообщение")
     pool = create_pool.pool
     async with pool.acquire() as pool:
         is_exists = await pool.fetchrow(
@@ -131,9 +143,15 @@ async def ban_user(message: Message, mention):
             await message.answer("этот человек уже забанен")
 
 
-@bp.on.message(AdminRule(), text="!гнш разбан <mention>")
+@bp.on.message(AdminRule(), text=("!гнш разбан <mention>", "!гнш разбан"))
 async def unban_user(message: Message, mention):
-    mention_id = int(mention.split("|")[0][1:].replace("id", ""))
+    if mention is not None:
+        mention_id = int(mention.split("|")[0][1:].replace("id", ""))
+    else:
+        if message.reply_message is not None:
+            mention_id = message.reply_message.from_id
+        else:
+            await message.answer("так ответь на сообщение")
     pool = create_pool.pool
     async with pool.acquire() as pool:
         is_exists = await pool.fetchrow(
