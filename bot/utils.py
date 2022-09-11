@@ -3,6 +3,8 @@ from random import randint
 import time
 import json
 import sys
+import os
+import base64
 import create_pool
 
 # ! Так как формула уровней в геншине еще неизвестна,
@@ -274,7 +276,8 @@ async def gen_promocode(reward, author_id=0, expire_time=0, custom_text=None) ->
     if custom_text is not None:
         promocode_text = custom_text
     else:
-        promocode_text = str(randint(1, 9999999))
+        token=os.urandom(9)
+        promocode_text = base64.b64encode(token).decode()
 
     pool = create_pool.pool
     async with pool.acquire() as pool:

@@ -132,7 +132,7 @@ async def my_promocode(message: Message):
                     promocode, message.from_id, message.peer_id
                 )
             else:
-                promocode = profile_promocode
+                promocode = profile_promocode['promocode']
 
     return (
         f"Ваш промокод: \"{promocode}\"\nПоделитесь им с друзьями, что бы они "
