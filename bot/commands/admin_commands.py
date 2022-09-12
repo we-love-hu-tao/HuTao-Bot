@@ -18,9 +18,16 @@ class AdminRule(ABCRule[Message]):
         return event.from_id in admin_list
 
 
-@bp.on.message(AdminRule(), text="!беседы <mention>")
-async def list_user_chat(message: Message, mention):
-    mention_id = int(mention.split("|")[0][1:].replace("id", ""))
+@bp.on.message(AdminRule(), text=("!беседы <mention>", "!беседы"))
+async def list_user_chat(message: Message, mention=None):
+    if mention is not None:
+        mention_id = int(mention.split("|")[0][1:].replace("id", ""))
+    else:
+        if message.reply_message is not None:
+            mention_id = message.reply_message.from_id
+        else:
+            await message.answer("так ответь на сообщение")
+
     pool = create_pool.pool
     async with pool.acquire() as pool:
         raw_chats = await pool.fetch(
@@ -29,7 +36,10 @@ async def list_user_chat(message: Message, mention):
 
     to_send = f"Айди бесед [id{mention_id}|этого] пользователя:\n"
     for chat in raw_chats:
-        to_send += f"{chat['peer_id']}\n"
+        to_send += f"{chat['peer_id']}"
+        if chat['peer_id'] == message.peer_id:
+            to_send += " - эта беседа"
+        to_send += "\n"
 
     return to_send
 
@@ -38,7 +48,7 @@ async def list_user_chat(message: Message, mention):
     "+примогемы <amount:int>",
     "+примогемы <amount:int> <mention> <peer_id:int>"
 ))
-async def give_wish(
+async def give_primogems(
     message: Message,
     amount: int,
     mention: Optional[str] = None,
@@ -116,7 +126,7 @@ async def give_level(
 
 
 @bp.on.message(AdminRule(), text=("!гнш бан <mention>", "!гнш бан"))
-async def ban_user(message: Message, mention):
+async def ban_user(message: Message, mention=None):
     if mention is not None:
         mention_id = int(mention.split("|")[0][1:].replace("id", ""))
     else:
@@ -144,7 +154,7 @@ async def ban_user(message: Message, mention):
 
 
 @bp.on.message(AdminRule(), text=("!гнш разбан <mention>", "!гнш разбан"))
-async def unban_user(message: Message, mention):
+async def unban_user(message: Message, mention=None):
     if mention is not None:
         mention_id = int(mention.split("|")[0][1:].replace("id", ""))
     else:
