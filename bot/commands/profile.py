@@ -54,6 +54,30 @@ async def profile(message: Message):
     )
 
 
+@bp.on.chat_message(text=("!баланс", "!крутки", "!примогемы"))
+async def check_balance(message: Message):
+    if not await exists(message):
+        return
+
+    pool = create_pool.pool
+    async with pool.acquire() as pool:
+        total_balance = await pool.fetchrow(
+            "SELECT primogems, event_wishes, standard_wishes "
+            "FROM players WHERE user_id=$1 AND peer_id=$2",
+            message.from_id, message.peer_id
+        )
+
+    primogems = total_balance['primogems']
+    event_wishes = total_balance['event_wishes']
+    standad_wishes = total_balance['standard_wishes']
+
+    return (
+        f"Примогемы: {primogems}\n"
+        f"Ивентовые крутки: {event_wishes}\n"
+        f"Стандартные крутки: {standad_wishes}"
+    )
+
+
 @bp.on.chat_message(text=("!геншин инфо", "!геншин инфо <UID:int>"))
 async def genshin_info(message: Message, UID: int = None):
     if not await exists(message):

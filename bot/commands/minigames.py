@@ -73,7 +73,10 @@ async def start_daily_quests(message: Message):
             )
 
 
-@bp.on.chat_message(text="!закончить поручения")
+@bp.on.chat_message(text=(
+    "!закончить поручения",
+    "!завершить поручения"
+))
 async def complete_daily_quests(message: Message):
     """
     Игрок сможет закончить поручение только если:
