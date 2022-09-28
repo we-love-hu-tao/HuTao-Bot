@@ -28,7 +28,7 @@ async def like_add(event: GroupTypes.LikeAdd):
     user_id = event.object.liker_id
     pool = create_pool.pool
     async with pool.acquire() as pool:
-        add_to = get_peer_id_by_exp(user_id)
+        add_to = await get_peer_id_by_exp(user_id)
         if add_to == 0:
             return
 
@@ -41,10 +41,15 @@ async def like_add(event: GroupTypes.LikeAdd):
         if post_id in result['liked_posts_ids']:
             return
 
+        await pool.execute(
+            "UPDATE players SET liked_posts_ids=array_append(liked_posts_ids, $1) "
+            "WHERE user_id=$2 AND peer_id=$3",
+            post_id, user_id, add_to
+        )
         await give_item(user_id, add_to, PRIMOGEM, 50)
 
     await bp.api.messages.send(
-        peer_id=result['peer_id'],
+        peer_id=add_to,
         random_id=0,
         message=(
             f"[id{user_id}|{result['nickname']}], спасибо за лайк на пост "
