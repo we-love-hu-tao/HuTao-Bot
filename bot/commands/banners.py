@@ -50,6 +50,11 @@ async def format_banners(raw_banner):
             new_msg += f"{'&#11088;' * 5}\n"
             for rateupitem5 in raw_banner['rateUpItems5']:
                 item = resolve_id(rateupitem5, raw_avatars, raw_weapons)
+
+                if item is None:
+                    new_msg += "? Неизвестный предмет\n"
+                    continue
+
                 item_name = textmap[str(item['nameTextMapHash'])]
                 if rateupitem5 > 11100:  # Weapon
                     new_msg += f"&#128481; {item_name}\n"
@@ -61,6 +66,11 @@ async def format_banners(raw_banner):
         new_msg += f"{'&#11088;' * 4}\n"
         for rateupitem4 in raw_banner['rateUpItems4']:
             item = resolve_id(rateupitem4, raw_avatars, raw_weapons)
+
+            if item is None:
+                new_msg += "? Неизвестный предмет\n"
+                continue
+
             item_name = textmap[str(item['nameTextMapHash'])]
             if rateupitem4 > 11100:  # Weapon
                 new_msg += f"&#128481; {item_name}\n"
