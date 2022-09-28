@@ -1,30 +1,33 @@
 from vkbottle.bot import Blueprint, Message
 from player_exists import exists
-from utils import get_drop
-# from loguru import logger
-import create_pool
-import json
-import drop
+from utils import (
+    get_textmap,
+    get_weapon_data,
+    resolve_id,
+    resolve_map_hash,
+    get_inventory,
+)
 
 bp = Blueprint("Use wish")
 bp.labeler.vbml_ignore_case = True
 
 
-def format_inventory(inventory: dict, rarity: int = 5):
+async def format_inventory(inventory: dict, rarity: int = 5):
+    weapon_data = await get_weapon_data()
+    textmap = await get_textmap()
     new_message = f"Оружия ({'&#11088;' * rarity}):\n"
     for item in inventory:
-        if item['rarity'] != rarity:
+        if item['item_type'] != "ITEM_WEAPON":
             continue
+
+        item_excel = resolve_id(item['id'], weapon_data=weapon_data)
+        item_rarity = item_excel['rankLevel']
+
+        if item_rarity != rarity:
+            continue
+
+        item_name = resolve_map_hash(textmap, item_excel['nameTextMapHash'])
         item_count = item['count']
-        item_name = None
-        if item['item_type'] == "weapon":
-            weapon_type = item['weapon']['_type']
-            weapon_id = item['weapon']['_id']
-
-            drop_type = getattr(drop, weapon_type)
-            weapon = get_drop(drop_type, weapon_id)
-
-            item_name = weapon['drop_name']
 
         if item == inventory[-1]:
             ending = "."
@@ -46,33 +49,20 @@ async def inventory_handler(message: Message):
     inventory: jsonb
     [
         {
-            "item_type": "weapon",
-            "rarity": 3,
-            "count": 1,
-            "date": 1662204715,
-            "weapon": {
-                "_type": "normal_standard_weapons",
-                "_id": 7,
-                "exp": 1,
-                "asc": 1,
-            }
+            "item_type": "ITEM_WEAPON",
+            "id": 11101,
+            "count": 1
         },
     ]
     """
-
-    pool = create_pool.pool
-    async with pool.acquire() as pool:
-        inventory = await pool.fetchrow(
-            "SELECT inventory FROM players WHERE user_id=$1 AND peer_id=$2",
-            message.from_id, message.peer_id
-        )
-    inventory = json.loads(inventory['inventory'])
+    inventory = await get_inventory(message.from_id, message.peer_id)
 
     if len(inventory) == 0:
         return "Ваш инвентарь пустой!"
 
-    five_stars = format_inventory(inventory)
-    four_stars = format_inventory(inventory, 4)
-    new_msg = f"{five_stars}\n\n{four_stars}"
+    five_stars = await format_inventory(inventory)
+    four_stars = await format_inventory(inventory, 4)
+    three_stars = await format_inventory(inventory, 3)
+    new_msg = f"{five_stars}\n\n{four_stars}\n\n{three_stars}"
 
     return new_msg

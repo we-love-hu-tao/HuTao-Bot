@@ -1,7 +1,8 @@
 from vkbottle.bot import Blueprint, Message
 from player_exists import exists
 from loguru import logger
-from utils import give_exp, exp_to_level
+from utils import give_exp, give_item, exp_to_level, get_item
+from item_names import PRIMOGEM, ADVENTURE_EXP
 import create_pool
 import random
 import time
@@ -44,7 +45,7 @@ async def start_daily_quests(message: Message):
             "SELECT "
             "daily_quests_time, "
             "doing_quest, "
-            "experience "
+            "inventory "
             "FROM players WHERE user_id=$1 AND peer_id=$2",
             message.from_id, message.peer_id
         )
@@ -61,7 +62,8 @@ async def start_daily_quests(message: Message):
                 int(time.time()), message.from_id, message.peer_id,
             )
 
-            quest_time = count_quests_time(result['experience'])
+            experience = await get_item(ADVENTURE_EXP, message.from_id, message.peer_id)
+            quest_time = count_quests_time(experience['count'])
             await message.answer(
                 "Вы начали выполнять поручения. "
                 f"Возвращайтесь через {int(quest_time/60)} минут"
@@ -92,7 +94,7 @@ async def complete_daily_quests(message: Message):
             "SELECT "
             "daily_quests_time, "
             "doing_quest, "
-            "experience "
+            "inventory "
             "FROM players WHERE user_id=$1 AND peer_id=$2",
             message.from_id, message.peer_id
         )
@@ -100,7 +102,8 @@ async def complete_daily_quests(message: Message):
         started_time: int = result['daily_quests_time']
         doing_quest: int = result['doing_quest']
 
-        quest_time = count_quests_time(result['experience'])
+        experience = await get_item(ADVENTURE_EXP, message.from_id, message.peer_id)
+        quest_time = count_quests_time(experience['count'])
 
         if started_time + quest_time < int(time.time()):
             if doing_quest:
@@ -108,17 +111,15 @@ async def complete_daily_quests(message: Message):
                 experience_reward = random.randint(1200, 1700)
                 logger.info(f"{message.from_id} закончил поручения в беседе {message.peer_id}")
                 await pool.execute(
-                    "UPDATE players SET "
-                    "doing_quest=false, "
-                    "primogems=primogems+$1 "
-                    "WHERE user_id=$2 "
-                    "AND peer_id=$3",
-                    primogems_reward, message.from_id, message.peer_id
+                    "UPDATE players SET doing_quest=false "
+                    "WHERE user_id=$1 AND peer_id=$2",
+                    message.from_id, message.peer_id
                 )
                 await give_exp(experience_reward, message.from_id, message.peer_id, bp.api)
+                await give_item(message.from_id, message.peer_id, PRIMOGEM, primogems_reward)
 
                 await message.answer(
-                    "Вы выполнили поручения, а также получили "
+                    "Сегодня Катерина выплатила вам премию в размере "
                     f"{primogems_reward} примогемов и {experience_reward} опыта!"
                 )
             else:

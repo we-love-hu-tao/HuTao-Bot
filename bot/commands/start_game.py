@@ -1,6 +1,8 @@
 from vkbottle.bot import Blueprint, Message
 from loguru import logger
-from utils import give_character
+from item_names import PRIMOGEM
+from utils import give_avatar, give_item
+import orjson
 import create_pool
 import random
 
@@ -56,34 +58,17 @@ async def standard_wish(message: Message):
                 "и количество примогемов"
             )
 
-            # Эмбер
-            await give_character(
-                message.from_id,
-                message.peer_id,
-                "rare_standard_characters",
-                21
+            await give_item(message.from_id, message.peer_id, PRIMOGEM, 6400)
+            avatars = await pool.fetchrow(
+                "SELECT avatars FROM players WHERE user_id=$1 AND peer_id=$2 ",
+                message.from_id, message.peer_id
             )
-
-            # Кэйа
-            await give_character(
-                message.from_id,
-                message.peer_id,
-                "rare_standard_characters",
-                6
-            )
-
-            # Лиза
-            await give_character(
-                message.from_id,
-                message.peer_id,
-                "rare_standard_characters",
-                7
-            )
-
-            # Барбара
-            await give_character(
-                message.from_id,
-                message.peer_id,
-                "rare_standard_characters",
-                1
+            avatars = orjson.loads(avatars['avatars'])
+            avatars = give_avatar(avatars, 1021)  # Amber
+            avatars = give_avatar(avatars, 1015)  # Kaeya
+            avatars = give_avatar(avatars, 1006)  # Lisa
+            avatars = give_avatar(avatars, 1014)  # Barbara
+            await pool.execute(
+                "UPDATE players SET avatars=$1 ::jsonb WHERE user_id=$2 AND peer_id=$3",
+                orjson.dumps(avatars).decode("utf-8"), message.from_id, message.peer_id
             )

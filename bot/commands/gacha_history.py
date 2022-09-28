@@ -9,10 +9,17 @@ from datetime import datetime
 from typing import Union, Literal
 from player_exists import exists
 from loguru import logger
-from utils import get_drop
+from utils import (
+    color_to_rarity,
+    get_avatar_data,
+    get_textmap,
+    get_weapon_data,
+    resolve_id,
+    resolve_map_hash,
+    check_item_type
+)
+import orjson
 import create_pool
-import json
-import drop
 
 bp = Blueprint("Gacha History")
 bp.labeler.vbml_ignore_case = True
@@ -25,14 +32,24 @@ characters_type = [
 ]
 
 
+def filter_records(records, gacha_type: int):
+    new_records = []
+    for record in records:
+        if record['gacha_type'] == gacha_type:
+            new_records.append(record)
+
+    # Reversing records, because for some reason
+    # first record is the first dropped item
+    new_records.reverse()
+    return new_records
+
+
 async def get_last_history(
     pool,
     message: Union[Message, MessageEvent],
-    banner_type: Literal["standard", "event"],
+    gacha_type,
     offset: int = 0
 ):
-    history_type = f"{banner_type}_rolls_history"
-
     if type(message) == Message:
         user_id = message.from_id
         peer_id = message.peer_id
@@ -40,83 +57,121 @@ async def get_last_history(
         user_id = message.object.user_id
         peer_id = message.object.peer_id
 
-    raw_history = await pool.fetchrow(
-        f"SELECT {history_type} FROM players WHERE user_id=$1 AND peer_id=$2",
+    records = await pool.fetchrow(
+        "SELECT gacha_records FROM players WHERE user_id=$1 AND peer_id=$2",
         user_id, peer_id
     )
-    if raw_history is not None:
+    records = orjson.loads(records['gacha_records'])
+    records = filter_records(records, gacha_type)
+
+    if len(records) > 0:
         if offset > 0:
-            raw_history = json.loads(raw_history[history_type])[offset:offset+5]
+            records = records[offset:offset+5]
         else:
-            raw_history = json.loads(raw_history[history_type])[:5]
+            records = records[:5]
 
-    return raw_history
+    return records
 
 
-async def raw_history_to_normal(raw_history: dict):
-    if len(raw_history) > 0:
-        history = ""
-        for roll in raw_history:
-            drop_type = getattr(drop, roll['type'])
-            item = get_drop(drop_type, roll['item_id'])
+async def raw_history_to_normal(records: dict):
+    textmap = await get_textmap()
+    weapon_data = await get_weapon_data()
+    avatar_data = await get_avatar_data()
 
-            name = item['drop_name']
-            rarity = item['drop_rarity']
-            drop_type = roll['type']
+    history = ""
+    for roll in records:
+        drop_time = roll['time']
+        drop_time = datetime.utcfromtimestamp(
+            drop_time
+        ).strftime('%H:%M:%S - %d-%m-%Y')
 
-            drop_emoji = ""
-            if drop_type in weapons_type:
-                drop_emoji = "&#128481;"
-            elif drop_type in characters_type:
-                drop_emoji = "&#129485;"
+        item_info = resolve_id(roll['item_id'], avatar_data, weapon_data)
+        drop_name = resolve_map_hash(textmap, item_info['nameTextMapHash'])
 
-            pulled_time = datetime.utcfromtimestamp(
-                roll['time']
-            ).strftime('%H:%M:%S - %d-%m-%Y')
-            history += (
-                f"{drop_emoji} {name} {'&#11088;' * rarity}\n"
-                f"Время: {pulled_time} (GMT+3)\n"
-                "-------------\n"
-            )
-    else:
-        return
+        if drop_name is None:
+            drop_name = "Неизвестный предмет"
+
+        if check_item_type(item_info['id']) == 0:
+            drop_rarity = color_to_rarity(item_info['qualityType'])
+            drop_emoji = "&#129485;"
+        else:
+            drop_rarity = item_info['rankLevel']
+            drop_emoji = "&#128481;"
+
+        history += (
+            f"{drop_emoji} {drop_name} {'&#11088;' * drop_rarity}\n"
+            f"Время: {drop_time} (GMT+3)\n"
+            "-------------\n"
+        )
     return history
 
 
-@bp.on.chat_message(text="!история <banner_type>")
-async def gacha_history(message: Message, banner_type: Literal["стандарт", "ивент"]):
+def generate_move_keyboard(
+    gacha_type: int,
+    direction: Literal['forward', 'back', 'both'],
+    offset: int = 0
+):
+    if direction == "forward":
+        direction_text = "Вперед"
+        button_color = KeyboardButtonColor.POSITIVE
+    elif direction == "back":
+        direction_text = "Назад"
+        button_color = KeyboardButtonColor.NEGATIVE
+    else:
+        return (
+            Keyboard(one_time=False, inline=True)
+            .add(Callback(
+                "Назад",
+                payload={
+                    "gacha_type": gacha_type,
+                    "direction": "back",
+                    "offset": offset
+                }),
+                color=KeyboardButtonColor.NEGATIVE)
+            .add(Callback(
+                "Вперед",
+                payload={
+                    "gacha_type": gacha_type,
+                    "direction": "forward",
+                    "offset": offset
+                }),
+                color=KeyboardButtonColor.POSITIVE)
+            .get_json()
+        )
+    keyboard = (
+        Keyboard(one_time=False, inline=True)
+        .add(Callback(
+            direction_text,
+            payload={
+                "gacha_type": gacha_type,
+                "direction": direction,
+                "offset": offset
+            }),
+            color=button_color)
+        .get_json()
+    )
+    return keyboard
+
+
+@bp.on.chat_message(text="!история")
+async def gacha_history(message: Message):
     if not await exists(message):
         return
     pool = create_pool.pool
     async with pool.acquire() as pool:
-        if banner_type == "стандарт":
-            banner_type = "standard"
-            raw_history = await get_last_history(pool, message, banner_type)
-        elif banner_type == "ивент":
-            banner_type = "event"
-            raw_history = await get_last_history(pool, message, banner_type)
-        else:
-            return "Но такого типа баннера не существует (пока что)!"
+        gacha_type = await pool.fetchrow(
+            "SELECT current_banner FROM players WHERE user_id=$1 AND peer_id=$2",
+            message.from_id, message.peer_id
+        )
+        gacha_type = gacha_type['current_banner']
+        raw_history = await get_last_history(pool, message, gacha_type)
+    logger.info(raw_history)
+
+    if raw_history is None or len(raw_history) == 0:
+        return "В выбранном вами баннере вы еще ничего не выбивали!"
 
     history = await raw_history_to_normal(raw_history)
-
-    if history is None:
-        return "Вы еще ничего не выбивали!"
-    else:
-        history = history
-
-    keyboard = (
-        Keyboard(one_time=False, inline=True)
-        .add(Callback(
-            "Вперед",
-            payload={
-                "banner_type": banner_type,
-                "direction": "forward",
-                "offset": 0
-            }),
-            color=KeyboardButtonColor.POSITIVE)
-        .get_json()
-    )
+    keyboard = generate_move_keyboard(gacha_type, "forward")
     await message.answer(history, keyboard=keyboard)
 
 
@@ -124,7 +179,7 @@ async def gacha_history(message: Message, banner_type: Literal["стандарт
     GroupEventType.MESSAGE_EVENT,
     MessageEvent,
     rules.PayloadMapRule([
-        ("banner_type", str),
+        ("gacha_type", int),
         ("direction", str),
         ("offset", int)
     ])
@@ -132,9 +187,9 @@ async def gacha_history(message: Message, banner_type: Literal["стандарт
 async def gacha_history_move(event: MessageEvent):
     pool = create_pool.pool
     payload = event.get_payload_json()
-    banner_type = payload["banner_type"]
-    direction = payload["direction"]
-    offset = payload["offset"]
+    gacha_type = payload['gacha_type']
+    direction = payload['direction']
+    offset = payload['offset']
 
     if direction == "forward":
         offset += 5
@@ -148,64 +203,23 @@ async def gacha_history_move(event: MessageEvent):
         if offset > 0:
             offset -= 5
         else:
-            keyboard = (
-                Keyboard(one_time=False, inline=True)
-                .add(Callback(
-                    "Вперед",
-                    payload={
-                        "banner_type": banner_type,
-                        "direction": "forward",
-                        "offset": -5
-                    }),
-                    color=KeyboardButtonColor.POSITIVE)
-                .get_json()
-            )
+            keyboard = generate_move_keyboard(gacha_type, "forward", -5)
             await event.edit_message(
                 "Вы не можете посмотреть, что вам выпадет в будущем!", keyboard=keyboard
             )
             return
 
     async with pool.acquire() as pool:
-        raw_history = await get_last_history(pool, event, banner_type, offset)
+        raw_history = await get_last_history(pool, event, gacha_type, offset)
 
     if raw_history is None or len(raw_history) == 0:
-        keyboard = (
-            Keyboard(one_time=False, inline=True)
-            .add(Callback(
-                "Назад",
-                payload={
-                    "banner_type": banner_type,
-                    "direction": "back",
-                    "offset": offset
-                }),
-                color=KeyboardButtonColor.NEGATIVE)
-            .get_json()
-        )
-        await event.edit_message("В это время вы ничего не выбили!", keyboard=keyboard)
+        keyboard = generate_move_keyboard(gacha_type, "back", offset)
+        await event.edit_message("В это время вы ничего не выбивали!", keyboard=keyboard)
         return
     else:
         logger.debug(raw_history)
         history = await raw_history_to_normal(raw_history)
 
-    keyboard = (
-            Keyboard(one_time=False, inline=True)
-            .add(Callback(
-                "Назад",
-                payload={
-                    "banner_type": banner_type,
-                    "direction": "back",
-                    "offset": offset
-                }),
-                color=KeyboardButtonColor.NEGATIVE)
-            .add(Callback(
-                "Вперед",
-                payload={
-                    "banner_type": banner_type,
-                    "direction": "forward",
-                    "offset": offset
-                }),
-                color=KeyboardButtonColor.POSITIVE)
-            .get_json()
-        )
+    keyboard = generate_move_keyboard(gacha_type, "both", offset)
 
     await event.edit_message(history, keyboard=keyboard)

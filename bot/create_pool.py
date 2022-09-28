@@ -14,43 +14,7 @@ table_players = {
         "data_type": "text",
         "default": None
     },
-    "primogems": {
-        "data_type": "integer",
-        "default": "4800"
-    },
-    "experience": {
-        "data_type": "integer",
-        "default": "0"
-    },
     "reward_last_time": {
-        "data_type": "integer",
-        "default": "0"
-    },
-    "standard_wishes": {
-        "data_type": "integer",
-        "default": "0"
-    },
-    "event_wishes": {
-        "data_type": "integer",
-        "default": "0"
-    },
-    "event_char_guarantee": {
-        "data_type": "boolean",
-        "default": "false"
-    },
-    "rolls_standard": {
-        "data_type": "integer",
-        "default": "0"
-    },
-    "legendary_rolls_standard": {
-        "data_type": "integer",
-        "default": "0"
-    },
-    "rolls_event": {
-        "data_type": "integer",
-        "default": "0"
-    },
-    "legendary_rolls_event": {
         "data_type": "integer",
         "default": "0"
     },
@@ -62,11 +26,7 @@ table_players = {
         "data_type": "integer",
         "default": "0"
     },
-    "event_rolls_history": {
-        "data_type": "jsonb",
-        "default": "'[]'::jsonb"
-    },
-    "standard_rolls_history": {
+    "gacha_records": {
         "data_type": "jsonb",
         "default": "'[]'::jsonb"
     },
@@ -78,21 +38,13 @@ table_players = {
         "data_type": "ARRAY",
         "default": "ARRAY[]::integer[]"
     },
-    "characters": {
+    "avatars": {
         "data_type": "jsonb",
         "default": "'[]'::jsonb"
     },
     "inventory": {
         "data_type": "jsonb",
         "default": "'[]'::jsonb"
-    },
-    "total_event_rolls": {
-        "data_type": "integer",
-        "default": "0"
-    },
-    "total_standard_rolls": {
-        "data_type": "integer",
-        "default": "0"
     },
     "promocode": {
         "data_type": "text",
@@ -101,16 +53,24 @@ table_players = {
     "has_redeemed_user_promocode": {
         "data_type": "boolean",
         "default": "false"
-    }
+    },
+    "current_banner": {
+        "data_type": "integer",
+        "default": "100"
+    },
+    "gacha_info": {
+        "data_type": "jsonb",
+        "default": "'{}'::jsonb"
+    },
 }
 
 
 async def init():
     global pool
-    logger.info("Создание пулла для базы данных")
+    logger.info("Creating pool for database")
     pool = await asyncpg.create_pool(
         user="postgres",
-        database="genshin_bot",
+        database="hutao_bot",
         passfile="pgpass.conf"
     )
 
@@ -135,7 +95,7 @@ async def init():
 
         for table in tables:
             if len(table) == 0:
-                raise ValueError("Каких-то таблиц не существует, без них бот работать не может")
+                raise ValueError("Some tables doesn't exists, bot can't continue without them!")
 
         player_records = tables[0]
 
@@ -149,7 +109,7 @@ async def init():
 
         if len(unknown_records) > 0:
             logger.warning(
-                "В базе данных обнаружились значения, которых бот не знает:"
+                "There are unknown values in the database:"
             )
             for unknown_record in unknown_records:
                 logger.warning(f"{unknown_record[0]}: {unknown_record[1]}")
@@ -177,47 +137,15 @@ async def init():
                     f"Столбца {column[0]} с типом {column[1]['data_type']} не существует, "
                     "но возможно бот может продолжить без него (но с багами)"
                 )
-                do_change = input("Хотите создать этот столбец? (Y/n) ")
-
-                if do_change == "" or do_change.lower() == "y":
-                    if column[1]['default'] is not None:
-                        await db.execute(
-                            "ALTER TABLE players ADD $1 $2 DEFAULT $3",
-                            column[0], column[1]['data_type'], column[1]['default']
-                        )
-                    else:
-                        await db.execute(
-                            "ALTER TABLE players ADD $1 $2",
-                            column[0], column[1]['data_type']
-                        )
 
             elif not right_type:
                 logger.warning(
                     f"Столбец {column[0]} существует, но с "
                     f"неправильным типом (должен быть {column[1]['data_type']})"
                 )
-                do_change = input("Хотите изменить тип этого столбца? (Y/n) ")
 
-                if do_change == "" or do_change.lower() == "y":
-                    if column[1]['default'] is not None:
-                        await db.execute(
-                            "ALTER TABLE players ALTER COLUMN $1 TYPE $2 DEFAULT $3",
-                            column[0], column[1]['data_type'], column[1]['default']
-                        )
-                    else:
-                        await db.execute(
-                            "ALTER TABLE players ALTER COLUMN $1 TYPE $2",
-                            column[0], column[1]['data_type']
-                        )
             elif not right_default:
                 logger.warning(
                     f"Столбец {column[0]} существует, но с "
                     f"неправильным дефолтным значением (должен быть {column[1]['default']})"
                 )
-                do_change = input("Хотите изменить дефолтное значение этого столбца? (Y/n) ")
-
-                if do_change == "" or do_change.lower() == "y":
-                    await db.execute(
-                        "ALTER TABLE players ALTER COLUMN $1 SET DEFAULT $2",
-                        column[0], column[1]['data_type'], column[1]['default']
-                    )

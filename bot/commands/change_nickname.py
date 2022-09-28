@@ -22,6 +22,8 @@ ONCHANGE_ANS = (
 # ну, теперь тут хотя бы нету оскорбления персонажей
 PROTECTED_CHAR = (
     "ху тао",
+    "ху",
+    "тао"
     "кэ цин",
     "кека",
     "эмбер",
@@ -50,7 +52,6 @@ CUSTOM_SWEARS = (
 BETTER_NOT_USE_ANS = (
     "Ты ишак",
     "Всем всё равно",
-    "Завтра тебя забанят не только тут",
     "Не стоило этого делать",
     "В эту ночь тебе лучше не спать",
 )
@@ -212,8 +213,10 @@ async def give_nickname(message: Message, nickname):
         if text.startswith("!дать жабе имя "):
             reaction_answer = random.choice(YOUR_TOAD_ANS)
         else:
-            # ? есть способ лучше?
-            if any(char in nickname_low for char in ("ху тао", "хутава", "hu tao", "hutao")):
+            # ? Is there a better way to do that?
+            if any(char in nickname_low for char in (
+                "ху тао", "хутава", "hu tao", "hutao", "ху", "тао"
+            )):
                 reaction_answer = random.choice(HU_TAO_ANS)
             elif any(char in nickname_low for char in ("тимур", "богданов")):
                 reaction_answer = random.choice(TIMUR_ANS)

@@ -1,0 +1,5 @@
+vkbottle>=4.3.10
+vkbottle-types>=5.131.146.13
+orjson>=3.8.0
+loguru>=0.6.0
+asyncpg>=0.26.0

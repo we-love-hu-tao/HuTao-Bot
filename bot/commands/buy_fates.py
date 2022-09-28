@@ -1,73 +1,47 @@
 from vkbottle.bot import Blueprint, Message
 from player_exists import exists
-from loguru import logger
 from variables import STANDARD_VARIANTS, EVENT_VARIANTS
+from item_names import PRIMOGEM, INTERTWINED_FATE, ACQUAINT_FATE
+from utils import give_item, get_item
 import create_pool
 
 bp = Blueprint("Fates shop")
 bp.labeler.vbml_ignore_case = True
 
 
-@bp.on.chat_message(text=("!магазин", "!shop"))
-async def shop(message: Message):
-    if not await exists(message):
-        return
-    return (
-        "Добро пожаловать в магазин паймон!\n"
-        "Цена молитв - 160 примогемов"
-    )
-
-
-@bp.on.chat_message(text="!купить молитвы <fate_type> <amount:int>")
+@bp.on.chat_message(text=(
+    "!купить молитвы <fate_type> <amount:int>",
+    "!купить крутки <fate_type> <amount:int>",
+))
 async def buy_fates(message: Message, fate_type, amount: int):
     pool = create_pool.pool
     if not await exists(message):
         return
     async with pool.acquire() as pool:
         if amount <= 0:
-            await message.answer("Ты пьяный?")
-            return
+            return "Ты пьяный?"
 
-        primogems = await pool.fetchrow(
-            "SELECT primogems FROM players WHERE user_id=$1 AND peer_id=$2",
-            message.from_id, message.peer_id,
-        )
-        if primogems[0] >= 160 * amount:
+        if amount >= 999999:
+            return "За раз так много купить нельзя!"
+
+        primogems = await get_item(PRIMOGEM, message.from_id, message.peer_id)
+        wish_type = "стандартных"
+        if primogems['count'] >= 160 * amount:
             if fate_type in STANDARD_VARIANTS:
-                logger.info(
-                    f"Начисление пользователю {message.from_id} в беседе "
-                    f"{message.peer_id} {amount} стандартных молитв"
-                )
-                await pool.execute(
-                    "UPDATE players SET primogems=primogems-$1, "
-                    "standard_wishes=standard_wishes+$2 WHERE user_id=$3 AND "
-                    "peer_id=$4",
-                    160 * amount, amount, message.from_id, message.peer_id,
-                )
-                await message.answer(
-                    f"Вы купили {amount} стандартных молитв за "
-                    f"{amount*160} примогемов!"
-                )
+                await give_item(message.from_id, message.peer_id, ACQUAINT_FATE, amount)
             elif fate_type in EVENT_VARIANTS:
-                logger.info(
-                    f"Начисление пользователю {message.from_id} в беседе "
-                    f"{message.peer_id} {amount} ивентовых молитв"
-                )
-                await pool.execute(
-                    "UPDATE players SET primogems=primogems-$1, "
-                    "event_wishes=event_wishes+$2 WHERE user_id=$3 AND "
-                    "peer_id=$4",
-                    160 * amount, amount, message.from_id, message.peer_id,
-                )
-                await message.answer(
-                    f"Вы купили {amount} ивентовых молитв за "
-                    f"{amount*160} примогемов!"
-                )
+                await give_item(message.from_id, message.peer_id, INTERTWINED_FATE, amount)
+                wish_type = "ивентовых"
             else:
-                await message.answer("Неа, таких молитв не существует!")
+                return "Неа, таких молитв не существует!"
 
+            await give_item(message.from_id, message.peer_id, PRIMOGEM, -(160 * amount))
+            await message.answer(
+                f"Вы купили {amount} {wish_type} молитв за "
+                f"{160 * amount} примогемов!"
+            )
         else:
             await message.answer(
                 f"Вам не хватает примогемов, {amount} молитв стоят "
-                f"{amount*160} примогемов!"
+                f"{160 * amount} примогемов!"
             )

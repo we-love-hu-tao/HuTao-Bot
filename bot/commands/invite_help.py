@@ -33,7 +33,7 @@ async def help_handler(message: Message):
 @bp.on.private_message(text="Начать")
 async def start_private_handler(message: Message):
     """
-    Этот хендлер работает только в лс бота
+    This handler only works in private messages
     """
     return (
         "Что бы я начал работать, меня надо добавить в любую беседу, и выдать "

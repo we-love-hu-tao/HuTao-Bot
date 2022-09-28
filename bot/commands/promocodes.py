@@ -1,6 +1,7 @@
 from vkbottle.bot import Blueprint, Message
+from item_names import PRIMOGEM
 from player_exists import exists
-from utils import gen_promocode, give_primogems
+from utils import gen_promocode, give_item, get_peer_id_by_exp
 from loguru import logger
 import time
 import create_pool
@@ -25,8 +26,8 @@ async def redeem_promocode(message: Message, promocode):
 
         if promocode_query['author'] == message.from_id:
             return (
-                "Это было бы гениально, создать свой промокод и его "
-                "же активировать, но это, к сожалению, невозможно!"
+                "Пока мы живем в 2022, этот человек живет в 2032"
+                "(Вы являетесь владельцем этого кода)"
             )
 
         if (
@@ -48,26 +49,16 @@ async def redeem_promocode(message: Message, promocode):
             if redeemed_user_promocode['has_redeemed_user_promocode']:
                 return "Вы можете использовать только 1 промокод игрока"
 
-            reward_author = await pool.fetchrow(
-                "SELECT peer_id, experience, nickname FROM players WHERE "
-                "user_id=$1 ORDER BY experience DESC",
-                promocode_query['author'],
-            )
+            reward_author = await get_peer_id_by_exp(promocode_query['author'])
 
             if reward_author is None:
                 return "Автор этого промокода - ишак, который удалил свой аккаунт из всех бесед"
 
-            await pool.execute(
-                "UPDATE players SET primogems=primogems+4800 "
-                "WHERE user_id=$1 AND peer_id=$2",
-                promocode_query['author'], reward_author['peer_id']
-            )
+            # Give 4800 primogems to the author of the promocode
+            await give_item(promocode_query['author'], reward_author, PRIMOGEM, 4800)
 
-            await give_primogems(
-                promocode_query['promocode_reward'],
-                message.from_id,
-                message.peer_id
-            )
+            # Give 800 primogems to the person, who entered this promocode
+            await give_item(message.from_id, message.peer_id, PRIMOGEM, 800)
 
             await pool.execute(
                 "UPDATE players SET has_redeemed_user_promocode=true "
@@ -96,11 +87,9 @@ async def redeem_promocode(message: Message, promocode):
             message.from_id, promocode
         )
 
-        await give_primogems(
-            promocode_query['promocode_reward'],
-            message.from_id,
-            message.peer_id
-        )
+    await give_item(
+        message.from_id, message.peer_id, PRIMOGEM, promocode_query['promocode_reward']
+    )
 
     return f"Вы успешно получили {promocode_query['promocode_reward']} примогемов!"
 

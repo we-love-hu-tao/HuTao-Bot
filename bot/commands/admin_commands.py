@@ -2,7 +2,8 @@ from vkbottle.bot import Blueprint, Message
 from vkbottle.dispatch.rules import ABCRule
 from loguru import logger
 from typing import Optional
-from utils import give_exp, gen_promocode
+from utils import give_exp, give_item, gen_promocode
+from item_names import PRIMOGEM
 import time
 import subprocess
 import create_pool
@@ -26,7 +27,7 @@ async def list_user_chat(message: Message, mention=None):
         if message.reply_message is not None:
             mention_id = message.reply_message.from_id
         else:
-            await message.answer("так ответь на сообщение")
+            mention_id = message.from_id
 
     pool = create_pool.pool
     async with pool.acquire() as pool:
@@ -76,10 +77,9 @@ async def give_primogems(
         )
         if is_exists is not None:
             logger.info(f"Добавление пользователю {mention_id} {amount} примогемов")
-            await pool.execute(
-                "UPDATE players SET primogems=primogems+$1 WHERE user_id=$2 AND peer_id=$3",
-                amount, mention_id, peer_id
-            )
+
+            await give_item(mention_id, peer_id, PRIMOGEM, amount)
+
             return f"[id{mention_id}|Этому пользователю] было добавлено {amount} примогемов"
         else:
             return "Такого пользователя нет в игре!"
@@ -87,7 +87,7 @@ async def give_primogems(
 
 @bp.on.message(AdminRule(), text=(
     "+уровень <amount:int>",
-    "+уровень <amount:int> <mention> <peer_id>"
+    "+уровень <amount:int> <mention> <peer_id:int>"
 ))
 async def give_level(
     message: Message,
@@ -116,11 +116,11 @@ async def give_level(
             mention_id, peer_id
         )
         if is_exists is not None:
-            logger.info(f"Добавление пользователю {mention_id} {amount} experience")
+            logger.info(f"Добавление пользователю {mention_id} {amount} опыта")
 
             await give_exp(amount, mention_id, peer_id, bp.api)
 
-            return f"[id{mention_id}|Этому пользователю] было добавлено {amount} experience!"
+            return f"[id{mention_id}|Этому пользователю] было добавлено {amount} опыта!"
         else:
             return "Такого пользователя нет в игре!"
 
@@ -189,7 +189,6 @@ async def unban_user(message: Message, mention=None):
     )
 )
 async def create_new_promocode(message: Message):
-
     if len(message.text.split()) == 2:
         return "!новый промокод <количество> <время (unix time)> <название>"
 
@@ -242,7 +241,6 @@ async def execute_shell_command(message: Message):
         return "а тебе зачем?"
 
     cmd_command = message.text[9:]
-    command_output = subprocess.run(["powershell", "-Command", cmd_command], capture_output=True)
-    if command_output.returncode != 0:
-        return f"Ошибка: {command_output.stderr}"
-    return f"Команда вернула это: {command_output.stdout.decode('utf-8')}"
+    command_output = subprocess.check_output(cmd_command, shell=True).decode("utf-8")
+
+    return f"Вывод: {command_output}"

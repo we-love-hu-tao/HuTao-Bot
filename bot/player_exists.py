@@ -15,8 +15,8 @@ async def exists(event: Message, pool=None) -> bool:
             is_banned = await pool.fetchrow(is_banned_request, event.from_id)
             row = await pool.fetchrow(exists_request, event.from_id, event.peer_id)
 
-    if is_banned is None:  # Если пользователь не забанен
-        if row is not None:  # Если пользователь существует
+    if is_banned is None:    # If user isn't banned
+        if row is not None:  # If user exists
             return True
         else:
             await event.answer(

@@ -36,6 +36,7 @@ async def change_ingame_uid(message: Message, UID: int):
     try:
         nickname = player_info['playerInfo']['nickname']
         adv_rank = player_info['playerInfo']['level']
+        profile_picture = player_info['playerInfo']['profilePicture']
     except KeyError as e:
         logger.error(e)
         return "Похоже, что enka.network изменил свое апи, попробуйте позже"
@@ -47,7 +48,11 @@ async def change_ingame_uid(message: Message, UID: int):
             UID, message.from_id, message.peer_id
         )
 
-    return (
+    text = (
         f'Вы успешно установили UID игрока "{nickname}" '
         f'(AR: {adv_rank})'
     )
+    if profile_picture == 10000046:
+        text += "\nХу Тао на аве, здоровья маме"
+
+    return text

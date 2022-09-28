@@ -6,16 +6,13 @@ from os import path, mkdir
 import create_pool
 import asyncio
 
-# TODO: Генерация изображений с нуля;
-# TODO: Описание предметов (можно попробовать
-# TODO: использовать какое-нибудь апи / брать с вики по геншину);
-# TODO: Создать апи, которое генерирует новые дропы
+# TODO: Image generation (wishes, banners)
 
 if __name__ == "__main__":
     log_path = ".logs/"
     if not path.exists(log_path):
         mkdir(log_path)
-    logger.add("logs/file_{time}.log", level="INFO", rotation="2 MB")
+    logger.add("logs/file_{time}.log", level="INFO", rotation="10 MB")
 
     bot = Bot(token=VK_GROUP_TOKEN)
 
