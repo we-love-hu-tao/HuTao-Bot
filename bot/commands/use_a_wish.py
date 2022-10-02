@@ -354,10 +354,10 @@ class WishNew:
             # Weapon
             return -2
 
-        if item_id >= 10000000 and item_id <= 11000045:
+        if item_id >= 10000000 and item_id <= 11000100:
             item_id = item_id-9999000
 
-        if item_id >= 1002 and item_id <= 1069:
+        if item_id >= 1002 and item_id <= 1100:
             # Avatar
             for item in self.avatars:
                 if item['id'] == item_id:
@@ -601,6 +601,7 @@ class WishNew:
             if item_data is None:
                 raise ValueError(f"New item doesn't exist, returned {new_item}")
             new_items.append(new_item)
+            logger.info(new_item)
 
             # Set item type
             item_const = self.check_avatar_constellation_level(new_item)
