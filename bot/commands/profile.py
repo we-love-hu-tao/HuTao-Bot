@@ -129,7 +129,7 @@ async def genshin_info(message: Message, UID: int = None):
             else:
                 UID = await pool.fetchrow(
                     "SELECT uid FROM players WHERE user_id=$1 AND peer_id=$2",
-                    message.reply_message.from_id, message.reply_message.peer_id
+                    message.reply_message.from_id, message.peer_id
                 )
 
                 if UID is None or UID['uid'] is None:
@@ -139,7 +139,7 @@ async def genshin_info(message: Message, UID: int = None):
                         "\"!установить айди <UID>\""
                     )
                 info_msg += (
-                    "Информация об аккаунте [message.reply_message.from_id|этого] игрока\n\n"
+                    f"Информация об аккаунте [id{message.reply_message.from_id}|этого] игрока\n\n"
                 )
 
             UID = UID['uid']
@@ -172,9 +172,9 @@ async def genshin_info(message: Message, UID: int = None):
     nickname = player_info.get('nickname') or "неизвестный"
     adv_rank = player_info.get('level') or "неизвестный"
     signature = player_info.get('signature') or "нету"
-    world_level = player_info('worldLevel') or "неизвестен"
+    world_level = player_info.get('worldLevel') or "неизвестен"
 
-    profile_picture = player_info['profilePicture']['avatarId']
+    profile_picture = player_info.get('profilePicture')['avatarId']
 
     avatar_data = await get_avatar_data()
     textmap = await get_textmap()
