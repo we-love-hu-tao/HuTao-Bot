@@ -81,7 +81,7 @@ async def raw_history_to_normal(records: dict):
     history = ""
     for roll in records:
         drop_time = roll['time']
-        drop_time = datetime.utcfromtimestamp(
+        drop_time = datetime.fromtimestamp(
             drop_time
         ).strftime('%H:%M:%S - %d-%m-%Y')
 

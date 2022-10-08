@@ -2,7 +2,7 @@ from vkbottle.bot import Blueprint, Message
 from vkbottle.user import User
 from vkbottle import VKAPIError
 from loguru import logger
-from variables import GROUP_ID, VK_USER_TOKEN
+from config import GROUP_ID, VK_USER_TOKEN
 from player_exists import exists
 import random
 import create_pool
@@ -79,11 +79,12 @@ TIMUR_ANS = (
 KEQING_ANS = (
     "Настоящий электро архонт",
     "Ножки &#128563;&#128563;",
-    "Её реран будет."
+    "Её реран будет.",
+    "Её костюм дает +200% к шансу и криту"
 )
 
 AMBER_ANS = (
-    "Возможно я стану чаще играть в геншин, если хойоверсв её баффнут",
+    "Возможно я стану чаще играть в геншин, если хойоверсы её баффнут",
     "Её мейнеры прекрасные люди",
     "На одном уровне с Ёимией"
 )
@@ -171,6 +172,8 @@ async def give_nickname(message: Message, nickname):
                 await message.answer("В нике не может быть больше 35 символов (включая пробел)")
                 return
         else:
+            # There is a swear of protected character in the nickname.
+            # We love our waifus! That's why we are banning this user.
             logger.info(f'Бан пользователя {message.from_id} за оскорбление персонажа (БД)')
             await pool.execute(
                 "INSERT INTO banned (user_id) VALUES ($1)",
@@ -213,7 +216,7 @@ async def give_nickname(message: Message, nickname):
         if text.startswith("!дать жабе имя "):
             reaction_answer = random.choice(YOUR_TOAD_ANS)
         else:
-            # ? Is there a better way to do that?
+            # ? Is there a better way to check that?
             if any(char in nickname_low for char in (
                 "ху тао", "хутава", "hu tao", "hutao", "ху", "тао"
             )):

@@ -54,9 +54,9 @@ async def daily_reward(message: Message):
                 await give_item(message.from_id, message.peer_id, PRIMOGEM, reward_primogems)
                 await give_exp(reward_experience, message.from_id, message.peer_id, bp.api)
 
-                await message.answer(random.choice(REWARD_ANSWERS).format(reward_primogems))
+                return random.choice(REWARD_ANSWERS).format(reward_primogems)
             else:
                 # This guy is super unlucky, he got nothing
-                await message.answer(random.choice(NO_REWARD_ANSWERS))
+                return random.choice(NO_REWARD_ANSWERS)
         else:
-            await message.answer("Вы уже попытались найти примогемы, попробуйте завтра!")
+            return "Вы уже попытались найти примогемы, попробуйте завтра!"

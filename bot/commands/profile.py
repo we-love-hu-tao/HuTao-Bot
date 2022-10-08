@@ -101,6 +101,7 @@ FAV_AVATARS = (
     10000021,  # Amber
     10000049,  # Yoimiya
     10000054,  # Kokomi
+    10000073,  # Nahida
 )
 
 
@@ -109,21 +110,39 @@ async def genshin_info(message: Message, UID: int = None):
     if not await exists(message):
         return
 
+    info_msg = ""
+
     if UID is None:
         pool = create_pool.pool
         async with pool.acquire() as pool:
-            UID = await pool.fetchrow(
-                "SELECT uid FROM players WHERE user_id=$1 AND peer_id=$2",
-                message.from_id, message.peer_id
-            )
+            if message.reply_message is None:
+                UID = await pool.fetchrow(
+                    "SELECT uid FROM players WHERE user_id=$1 AND peer_id=$2",
+                    message.from_id, message.peer_id
+                )
 
-        if UID['uid'] is None:
-            return (
-                "Вы не установили свой UID! "
-                "Его можно установить с помощью команды \"!установить айди <UID>\""
-            )
+                if UID['uid'] is None:
+                    return (
+                        "Вы не установили свой UID! "
+                        "Его можно установить с помощью команды \"!установить айди <UID>\""
+                    )
+            else:
+                UID = await pool.fetchrow(
+                    "SELECT uid FROM players WHERE user_id=$1 AND peer_id=$2",
+                    message.reply_message.from_id, message.reply_message.peer_id
+                )
 
-        UID = UID['uid']
+                if UID is None or UID['uid'] is None:
+                    return (
+                        "Человек, на которого вы ответили, еще не создал аккаунт "
+                        "/ не указал айди, однако он может это сделать, написав "
+                        "\"!установить айди <UID>\""
+                    )
+                info_msg += (
+                    "Информация об аккаунте [message.reply_message.from_id|этого] игрока\n\n"
+                )
+
+            UID = UID['uid']
 
     http_client = AiohttpClient()
 
@@ -149,36 +168,28 @@ async def genshin_info(message: Message, UID: int = None):
     elif len(player_info) == 0 and UID is not None:
         return "Игрока с таким UID не существует!"
 
-    try:
-        player_info = player_info['playerInfo']
-        nickname = player_info['nickname']
-        adv_rank = player_info['level']
-        try:
-            signature = player_info['signature']
-        except KeyError:
-            signature = "нету"
-        try:
-            world_level = player_info['worldLevel']
-        except KeyError:
-            world_level = "неизвестен"
+    player_info = player_info['playerInfo']
+    nickname = player_info.get('nickname') or "неизвестный"
+    adv_rank = player_info.get('level') or "неизвестный"
+    signature = player_info.get('signature') or "нету"
+    world_level = player_info('worldLevel') or "неизвестен"
 
-        profile_picture = player_info['profilePicture']['avatarId']
-    except KeyError as e:
-        logger.error(e)
-        return "Похоже, что enka.network изменил свое апи, попробуйте позже"
+    profile_picture = player_info['profilePicture']['avatarId']
 
     avatar_data = await get_avatar_data()
     textmap = await get_textmap()
     avatar_picture_info = resolve_id(profile_picture, avatar_data)
     avatar_picture_name = resolve_map_hash(textmap, avatar_picture_info['nameTextMapHash'])
 
-    info_msg = (
+    info_msg += (
         f"Айди в Genshin Impact: {UID}\n"
         f"Ник: {nickname}\n"
     )
 
     if profile_picture in FAV_AVATARS:
         info_msg += f"{avatar_picture_name} на аве, здоровья маме\n\n"
+    elif avatar_picture_name is None:
+        info_msg += "На аватарке никого нету (как это возможно?)"
     else:
         info_msg += f"{avatar_picture_name} на аватарке\n\n"
 

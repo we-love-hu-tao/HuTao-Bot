@@ -1,6 +1,5 @@
 from loguru import logger
 from item_names import ADVENTURE_EXP, INTERTWINED_FATE
-from variables import BANNERS
 import re
 import time
 import orjson
@@ -85,6 +84,8 @@ textmap_cache = None
 manual_textmap_cache = None
 banners_cache = None
 avatar_data_cache = None
+avatar_skill_depot_cache = None
+avatar_skill_cache = None
 weapon_data_cache = None
 
 
@@ -134,6 +135,32 @@ async def get_avatar_data():
         avatar_data = orjson.loads(avatar_data)
         avatar_data_cache = avatar_data
         return avatar_data
+
+
+async def get_skill_depot_data():
+    global avatar_skill_depot_cache
+    if avatar_skill_depot_cache is not None:
+        return avatar_skill_depot_cache
+
+    async with aiofiles.open(
+        "resources/AvatarSkillDepotExcelConfigData.json", encoding="UTF8"
+    ) as file:
+        skill_depot_data = await file.read()
+        skill_depot_data = orjson.loads(skill_depot_data)
+        avatar_skill_depot_cache = skill_depot_data
+        return skill_depot_data
+
+
+async def get_skill_excel_data():
+    global avatar_skill_cache
+    if avatar_skill_cache is not None:
+        return avatar_skill_cache
+
+    async with aiofiles.open("resources/AvatarSkillExcelConfigData.json", encoding="UTF8") as file:
+        skill_data = await file.read()
+        skill_data = orjson.loads(skill_data)
+        avatar_skill_cache = skill_data
+        return skill_data
 
 
 async def get_weapon_data():
@@ -198,7 +225,7 @@ async def get_banner_name(gacha_type) -> str:
     banner_name = resolve_map_hash(textmap, name_id)
     if banner_name is None:
         logger.warning(
-            f"Textmap hash doesn't exist, title_path: {title_path}"
+            f"Textmap hash {name_id} doesn't exist, title_path: {title_path}"
         )
         return "Неизвестное имя баннера"
 
@@ -214,19 +241,6 @@ async def get_banner(gacha_type) -> dict:
     for raw_banner in raw_banners:
         if raw_banner['gachaType'] == gacha_type:
             return raw_banner
-
-
-async def get_banner_picture(gacha_type, prefab_path=None):
-    if prefab_path is None:
-        banner = await get_banner(gacha_type)
-        prefab_path = banner['prefabPath'].split('_')[1]
-
-    banner_picture = BANNERS.get(prefab_path)
-    if banner_picture is None:
-        # Returning fallback banner, which is standard banner
-        return BANNERS.get("A022")
-
-    return banner_picture
 
 
 def give_avatar(avatars, avatar_id):
@@ -252,15 +266,28 @@ def color_to_rarity(color_name) -> int:
     return colors.get(color_name)
 
 
+def element_to_banner_bg(element_name):
+    elements = {
+        "electric": "Elect",
+        "fire": "Fire",
+        "grass": "Grass",
+        "ice": "Ice",
+        "rock": "Rock",
+        "water": "Water",
+        "wind": "Wind",
+    }
+    return elements.get(element_name.lower())
+
+
 def check_item_type(item_id) -> int:
     if item_id >= 11101 and item_id <= 15511:
         # Weapon
         return -1
 
-    if item_id >= 10000000 and item_id <= 11000045:
+    if item_id >= 10000000 and item_id <= 11000100:
         item_id = item_id-9999000
 
-    if item_id >= 1002 and item_id <= 1069:
+    if item_id >= 1002 and item_id <= 1100:
         # Avatar
         return 0
 

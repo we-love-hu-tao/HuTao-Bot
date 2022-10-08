@@ -17,13 +17,13 @@ async def buy_fates(message: Message, fate_type, amount: int):
     pool = create_pool.pool
     if not await exists(message):
         return
+
+    if amount <= 0:
+        return "Ты пьяный?"
+    if amount >= 999999:
+        return "За раз так много купить нельзя!"
+
     async with pool.acquire() as pool:
-        if amount <= 0:
-            return "Ты пьяный?"
-
-        if amount >= 999999:
-            return "За раз так много купить нельзя!"
-
         primogems = await get_item(PRIMOGEM, message.from_id, message.peer_id)
         wish_type = "стандартных"
         if primogems['count'] >= 160 * amount:

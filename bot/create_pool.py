@@ -92,6 +92,11 @@ async def init():
                 "SELECT * FROM information_schema.columns WHERE table_name='promocodes'"
             )
         )
+        tables.append(
+            await db.fetch(
+                "SELECT * FROM information_schema.columns WHERE table_name='pictures'"
+            )
+        )
 
         for table in tables:
             if len(table) == 0:

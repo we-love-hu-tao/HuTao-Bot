@@ -64,13 +64,13 @@ async def start_daily_quests(message: Message):
 
             experience = await get_item(ADVENTURE_EXP, message.from_id, message.peer_id)
             quest_time = count_quests_time(experience['count'])
-            await message.answer(
+            return (
                 "Вы начали выполнять поручения. "
                 f"Возвращайтесь через {int(quest_time/60)} минут"
                 f"{'у' if quest_time/60 == 1.0 else 'ы' if quest_time/60 < 5.0 else ''}!"
             )
         else:
-            await message.answer(
+            return (
                 "Вы уже начали поручения или выполнили их!"
             )
 
@@ -118,16 +118,22 @@ async def complete_daily_quests(message: Message):
                 await give_exp(experience_reward, message.from_id, message.peer_id, bp.api)
                 await give_item(message.from_id, message.peer_id, PRIMOGEM, primogems_reward)
 
-                await message.answer(
+                return (
                     "Сегодня Катерина выплатила вам премию в размере "
                     f"{primogems_reward} примогемов и {experience_reward} опыта!"
                 )
             else:
-                await message.answer(
+                return (
                     "Вы не начали поручения/уже выполнили их!"
                 )
         else:
-            await message.answer(
+            seconds_left = started_time+quest_time-int(time.time())
+            minutes_left = int(seconds_left/60)
+            if minutes_left > 0:
+                ending = f"{minutes_left} минут"
+            else:
+                ending = f"{seconds_left} секунд"
+            return (
                 "Вы сможете закончить поручения только через "
-                f"{int((started_time+quest_time-int(time.time()))/60)} минут!"
+                f"{ending}!"
             )

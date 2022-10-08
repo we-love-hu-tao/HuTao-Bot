@@ -1,7 +1,7 @@
 from vkbottle.bot import Blueprint
 from vkbottle.user import User
 from vkbottle import GroupEventType, GroupTypes
-from variables import VK_USER_TOKEN, GROUP_ID
+from config import VK_USER_TOKEN, GROUP_ID
 from time import time
 from item_names import PRIMOGEM
 from utils import get_peer_id_by_exp, give_item
