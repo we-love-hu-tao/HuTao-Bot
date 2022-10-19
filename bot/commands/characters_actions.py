@@ -1,16 +1,11 @@
-from vkbottle.bot import Blueprint, Message
 from datetime import datetime
-from player_exists import exists
-from utils import (
-    get_avatar_data,
-    get_textmap,
-    resolve_id,
-    resolve_map_hash,
-    color_to_rarity,
-    get_avatar_by_name,
-)
-import orjson
+
+import msgspec
+from vkbottle.bot import Blueprint, Message
+
 import create_pool
+from utils import (color_to_rarity, exists, get_avatar_by_name,
+                   get_avatar_data, get_textmap, resolve_id, resolve_map_hash)
 
 bp = Blueprint("Characters list")
 bp.labeler.vbml_ignore_case = True
@@ -75,7 +70,7 @@ async def list_chatacters(message: Message):
             message.from_id, message.peer_id
         )
 
-    avatars = orjson.loads(avatars['avatars'])
+    avatars = msgspec.json.decode(avatars['avatars'])
     if len(avatars) == 0:
         return "У вас еще нету персонажей! Их можно выбить в баннерах"
 

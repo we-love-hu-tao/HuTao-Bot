@@ -1,5 +1,5 @@
-from loguru import logger
 import asyncpg
+from loguru import logger
 
 table_players = {
     "user_id": {

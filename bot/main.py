@@ -1,10 +1,12 @@
-from vkbottle.bot import Bot
-from vkbottle import load_blueprints_from_package
-from config import VK_GROUP_TOKEN
-from loguru import logger
-from os import path, mkdir
-import create_pool
 import asyncio
+from os import mkdir, path
+
+from loguru import logger
+from vkbottle import load_blueprints_from_package
+from vkbottle.bot import Bot
+
+import create_pool
+from config import VK_GROUP_TOKEN
 
 # TODO: Image generation (wishes, banners)
 

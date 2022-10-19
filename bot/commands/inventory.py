@@ -1,12 +1,7 @@
 from vkbottle.bot import Blueprint, Message
-from player_exists import exists
-from utils import (
-    get_textmap,
-    get_weapon_data,
-    resolve_id,
-    resolve_map_hash,
-    get_inventory,
-)
+
+from utils import (exists, get_inventory, get_textmap, get_weapon_data,
+                   resolve_id, resolve_map_hash)
 
 bp = Blueprint("Use wish")
 bp.labeler.vbml_ignore_case = True

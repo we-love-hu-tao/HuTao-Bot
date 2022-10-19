@@ -1,11 +1,13 @@
+import random
+
+from loguru import logger
+from vkbottle import VKAPIError
 from vkbottle.bot import Blueprint, Message
 from vkbottle.user import User
-from vkbottle import VKAPIError
-from loguru import logger
-from config import GROUP_ID, VK_USER_TOKEN
-from player_exists import exists
-import random
+
 import create_pool
+from config import GROUP_ID, VK_USER_TOKEN
+from utils import exists
 
 bp = Blueprint("Nickname changer")
 bp.labeler.vbml_ignore_case = True

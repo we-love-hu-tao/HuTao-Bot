@@ -1,10 +1,12 @@
-from vkbottle.bot import Blueprint, Message
+import random
+
+import msgspec
 from loguru import logger
+from vkbottle.bot import Blueprint, Message
+
+import create_pool
 from item_names import PRIMOGEM
 from utils import give_avatar, give_item
-import orjson
-import create_pool
-import random
 
 bp = Blueprint("Start command")
 bp.labeler.vbml_ignore_case = True
@@ -63,12 +65,12 @@ async def standard_wish(message: Message):
                 "SELECT avatars FROM players WHERE user_id=$1 AND peer_id=$2 ",
                 message.from_id, message.peer_id
             )
-            avatars = orjson.loads(avatars['avatars'])
+            avatars = msgspec.json.decode(avatars['avatars'])
             avatars = give_avatar(avatars, 1021)  # Amber
             avatars = give_avatar(avatars, 1015)  # Kaeya
             avatars = give_avatar(avatars, 1006)  # Lisa
             avatars = give_avatar(avatars, 1014)  # Barbara
             await pool.execute(
                 "UPDATE players SET avatars=$1 ::jsonb WHERE user_id=$2 AND peer_id=$3",
-                orjson.dumps(avatars).decode("utf-8"), message.from_id, message.peer_id
+                msgspec.json.encode(avatars).decode("utf-8"), message.from_id, message.peer_id
             )

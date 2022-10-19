@@ -1,7 +1,9 @@
-from vkbottle.bot import Blueprint, Message
-from utils import get_textmap
 import random
 import re
+
+from vkbottle.bot import Blueprint, Message
+
+from utils import get_textmap
 
 bp = Blueprint("Fun commands")
 bp.labeler.vbml_ignore_case = True

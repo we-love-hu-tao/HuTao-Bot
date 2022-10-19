@@ -1,27 +1,20 @@
-from vkbottle.bot import Blueprint, Message
-from vkbottle.user import User
-from vkbottle.tools import PhotoToAlbumUploader
+import os
+
+import msgspec
 from PIL import Image, ImageDraw, ImageFont
 from PIL.PngImagePlugin import PngImageFile
-from gacha_banner_vars import FALLBACK_ITEMS_5_POOL_1
-from config import VK_USER_TOKEN, GROUP_ID, BANNERS_ALBUM_ID
-from player_exists import exists
-from utils import (
-    get_skill_depot_data,
-    get_skill_excel_data,
-    resolve_id,
-    resolve_map_hash,
-    get_textmap,
-    get_banner,
-    get_banners,
-    get_banner_name,
-    get_weapon_data,
-    get_avatar_data,
-    color_to_rarity,
-    element_to_banner_bg
-)
+from vkbottle.bot import Blueprint, Message
+from vkbottle.tools import PhotoToAlbumUploader
+from vkbottle.user import User
+
 import create_pool
-import os
+from config import BANNERS_ALBUM_ID, GROUP_ID, TEST_MODE, VK_USER_TOKEN
+from gacha_banner_vars import FALLBACK_ITEMS_5_POOL_1
+from models.banner import Banner, BannerType
+from utils import (color_to_rarity, element_to_banner_bg, exists,
+                   get_avatar_data, get_banner, get_banner_name, get_banners,
+                   get_skill_depot_data, get_skill_excel_data, get_textmap,
+                   get_weapon_data, resolve_id, resolve_map_hash)
 
 bp = Blueprint("Banners command")
 bp.labeler.vbml_ignore_case = True
@@ -308,9 +301,12 @@ async def get_element(avatar_info):
 
 
 async def create_banner(gacha_type):
+    if TEST_MODE:  # We don't generate banner, if test mode is true
+        return
+
     # Return cache if exists
-    banner = await get_banner(gacha_type)
-    prefab_path = banner['prefabPath']
+    banner: Banner = await get_banner(gacha_type)
+    prefab_path = banner.prefab_path
     banner_cache = await check_banner_cache(prefab_path)
     if banner_cache is not None:
         return banner_cache['picture_id']
@@ -319,14 +315,14 @@ async def create_banner(gacha_type):
     weapon_data = await get_weapon_data()
     textmap = await get_textmap()
 
-    banner_type = banner['bannerType']
+    banner_type = banner.banner_type
     banner_name = await get_banner_name(gacha_type)
-    rateup5 = banner.get('rateUpItems5')
-    rateup4 = banner.get('rateUpItems4')
+    rateup5 = banner.rate_up_items_5
+    rateup4 = banner.rate_up_items_4
 
     # TODO: How to make this cleaner?
     match banner_type:
-        case "EVENT":
+        case BannerType.EVENT:
             if rateup5 is None or len(rateup5) == 0:
                 # Beginner's banner
                 rateup4 = rateup4[0]
@@ -369,7 +365,7 @@ async def create_banner(gacha_type):
                 banner_picture.draw_event_box()
                 banner_picture.draw_event_name(main_rateup_name, main_rateup_rarity)
 
-        case "WEAPON":
+        case BannerType.WEAPON:
             # Weapon banner
             # TODO: Use rateup 4
             banner_bg = "UI_GachaShowPanel_Bg_Weapon.png"
@@ -391,6 +387,7 @@ async def create_banner(gacha_type):
             banner_picture.draw_weapon_banner_name(banner_name)
             banner_picture.draw_weapon_box()
             banner_picture.draw_weapon_name((rateup1_name, rateup2_name))
+
         case _:
             # Standard banner
             banner_bg = "UI_GachaShowPanel_Bg_Nomal.png"
@@ -430,17 +427,17 @@ async def create_banner(gacha_type):
     return banner_attachment
 
 
-async def format_banners(raw_banner):
+async def format_banners(banner: Banner):
     new_msg = ""
 
     raw_avatars = await get_avatar_data()
     raw_weapons = await get_weapon_data()
     textmap = await get_textmap()
 
-    if raw_banner['gachaType'] != 200:  # Not standard banner
-        if raw_banner['rateUpItems5']:
+    if banner.gacha_type != 200:  # Not standard banner
+        if banner.rate_up_items_5:
             new_msg += f"{'&#11088;' * 5}\n"
-            for rateupitem5 in raw_banner['rateUpItems5']:
+            for rateupitem5 in banner.rate_up_items_5:
                 item = resolve_id(rateupitem5, raw_avatars, raw_weapons)
 
                 if item is None:
@@ -456,7 +453,7 @@ async def format_banners(raw_banner):
             new_msg += "\n"
 
         new_msg += f"{'&#11088;' * 4}\n"
-        for rateupitem4 in raw_banner['rateUpItems4']:
+        for rateupitem4 in banner.rate_up_items_4:
             item = resolve_id(rateupitem4, raw_avatars, raw_weapons)
 
             if item is None:
@@ -475,7 +472,7 @@ async def format_banners(raw_banner):
             item_name = textmap[str(item['nameTextMapHash'])]
             new_msg += f"&#129485; {item_name}\n"
 
-    banners_cache[raw_banner['gachaType']] = new_msg
+    banners_cache[banner.gacha_type] = new_msg
     return new_msg
 
 
@@ -524,14 +521,20 @@ async def show_all_banners(message: Message):
     new_msg = "Список всех баннеров:\n"
 
     raw_banners = await get_banners()
+    decoder = msgspec.json.Decoder(Banner)
+    encoder = msgspec.json.Encoder()
     for raw_banner in raw_banners:
+        # Converting to json
+        banner = encoder.encode(raw_banner)
+        # Converting to `Banner` object
+        banner = decoder.decode(banner)
         try:
-            new_msg += f"{BANNERS_NAMES[raw_banner['gachaType']]}: "
+            new_msg += f"{BANNERS_NAMES[banner.gacha_type]}: "
         except IndexError:
             new_msg += "Неизвестный баннер\n"
             continue
 
-        banner_name = await get_banner_name(raw_banner['gachaType'])
+        banner_name = await get_banner_name(banner.gacha_type)
         new_msg += f"{banner_name}\n"
 
     all_banners_cache = new_msg
@@ -559,7 +562,7 @@ async def choose_banner(message: Message, banner):
             "Могут быть только эти варианты: новичка, ивент, ивент 2, стандарт, оружейный"
         )
 
-    choiced_banner = await get_banner(banners[banner])
+    choiced_banner: Banner = await get_banner(banners[banner])
 
     pool = create_pool.pool
     async with pool.acquire() as pool:
@@ -568,8 +571,8 @@ async def choose_banner(message: Message, banner):
             banners[banner], message.from_id, message.peer_id
         )
 
-    banner_name = await get_banner_name(choiced_banner['gachaType'])
-    banner_attachment = await create_banner(choiced_banner['gachaType'])
+    banner_name = await get_banner_name(choiced_banner.gacha_type)
+    banner_attachment = await create_banner(choiced_banner.gacha_type)
 
     await message.answer(
         f'Вы выбрали баннер "{banner_name}"!',

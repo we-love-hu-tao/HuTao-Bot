@@ -1,7 +1,8 @@
-from vkbottle.bot import Blueprint, Message
-from player_exists import exists
 from loguru import logger
+from vkbottle.bot import Blueprint, Message
+
 import create_pool
+from utils import exists
 
 bp = Blueprint("Leave")
 bp.labeler.vbml_ignore_case = True

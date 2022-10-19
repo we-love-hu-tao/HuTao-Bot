@@ -1,4 +1,5 @@
 from vkbottle.bot import Blueprint, Message
+
 from config import GROUP_ID
 
 bp = Blueprint("Invite event")
