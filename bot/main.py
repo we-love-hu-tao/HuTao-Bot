@@ -8,7 +8,7 @@ from vkbottle.bot import Bot
 import create_pool
 from config import VK_GROUP_TOKEN
 
-# TODO: Image generation (wishes, banners)
+# TODO: Image generation (wishes)
 
 if __name__ == "__main__":
     log_path = "logs/"
@@ -21,7 +21,9 @@ if __name__ == "__main__":
     for bp in load_blueprints_from_package("commands"):
         bp.load(bot)
 
+    # Create asyncpg pool
     loop = asyncio.get_event_loop_policy().get_event_loop()
     loop.run_until_complete(create_pool.init())
 
+    # Run bot
     bot.run_forever()

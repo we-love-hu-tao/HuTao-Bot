@@ -62,6 +62,7 @@ class BannerPicture:
         self.star = Image.open(f"{banners_ui_path}star.png").resize((18, 18))
 
     def add_main_rateup_event(self):
+        """Adds main rateup picture to event banner"""
         self.main_rateup.thumbnail((self.main_rateup.size[0], self.main_rateup.size[1]-75))
 
         bg_w, bg_h = self.bg.size
@@ -71,12 +72,14 @@ class BannerPicture:
         self.bg.paste(self.main_rateup, offset, self.main_rateup)
 
     def add_second_rateup_event(self):
+        """Adds second rateup picture to event banner (4* characters)"""
         self.second_rateup.thumbnail((self.second_rateup.size[0], self.bg.size[1]))
         self.bg.paste(
             self.second_rateup, (self.bg.size[0]-self.second_rateup.size[0], 0), self.second_rateup
         )
 
     def add_main_rateup_weapon(self):
+        """Adds main rateup picture to weapon banner"""
         if len(self.main_rateup) != 2:
             raise ValueError("Incorrect weapon rateup list count")
 
@@ -95,6 +98,7 @@ class BannerPicture:
             y_change += 20
 
     def add_main_rateup_standard(self):
+        """Adds main rateup picture to standard banner"""
         self.main_rateup.thumbnail((self.main_rateup.size[0], self.main_rateup.size[1]-300))
         bg_w, bg_h = self.bg.size
         im_w, im_h = self.main_rateup.size
@@ -103,6 +107,7 @@ class BannerPicture:
         self.bg.paste(self.main_rateup, offset, self.main_rateup)
 
     def add_main_rateup_noob(self):
+        """Adds main rateup picture to beginner's banner"""
         self.main_rateup.thumbnail((self.main_rateup.size[0], self.main_rateup.size[1]-75))
 
         bg_w, bg_h = self.bg.size

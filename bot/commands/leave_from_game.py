@@ -12,7 +12,7 @@ bp.labeler.vbml_ignore_case = True
 async def leave_from_game_question(message: Message):
     if not await exists(message):
         return
-    await message.answer(
+    return (
         "Вы точно хотите удалить геншин?\n"
         "После этого ваш аккаунт удалится.\n"
         'Напишите "!точно удалить геншин", что бы удалить аккаунт'
@@ -32,4 +32,4 @@ async def leave_from_game(message: Message):
             "DELETE FROM players WHERE user_id=$1 AND peer_id=$2",
             message.from_id, message.peer_id
         )
-    await message.answer("Вы вышли из самого лучшего бота во всем вк...")
+    return "Вы вышли из самого лучшего бота во всем вк..."

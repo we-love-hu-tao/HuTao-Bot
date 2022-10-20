@@ -11,6 +11,7 @@ class BannerType(enum.Enum):
 
 
 class Banner(msgspec.Struct, rename="camel"):
+    """Type that describes banner from `Banners.json`"""
     gacha_type: int
     schedule_id: int
     banner_type: BannerType

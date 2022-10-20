@@ -27,7 +27,7 @@ bp.labeler.vbml_ignore_case = True
 
 
 # Following code is based on https://github.com/Grasscutters/Grasscutter/
-class WishNew:
+class Wish:
     def __init__(
         self,
         message: Message,
@@ -55,6 +55,8 @@ class WishNew:
         self.result_records = []
         self.avatars = []
         self.result_inventory = None
+        self.encoder = msgspec.json.Encoder()
+        self.decoder = msgspec.json.Decoder()
 
     async def set_player_info(self):
         logger.info("Setting player gacha info...")
@@ -73,10 +75,10 @@ class WishNew:
             "avatars=$3 ::jsonb, "
             "inventory=$4 ::jsonb "
             "WHERE user_id=$5 AND peer_id=$6",
-            msgspec.json.encode(self.player_gacha_info).decode("utf-8"),
-            msgspec.json.encode(self.result_records).decode("utf-8"),
-            msgspec.json.encode(self.avatars).decode("utf-8"),
-            msgspec.json.encode(self.result_inventory).decode("utf-8"),
+            self.encoder.encode(self.player_gacha_info).decode("utf-8"),
+            self.encoder.encode(self.result_records).decode("utf-8"),
+            self.encoder.encode(self.avatars).decode("utf-8"),
+            self.encoder.encode(self.result_inventory).decode("utf-8"),
             self.user_id,
             self.peer_id
         )
@@ -86,28 +88,28 @@ class WishNew:
             "SELECT gacha_info FROM players WHERE user_id=$1 AND peer_id=$2",
             self.user_id, self.peer_id
         )
-        self.player_gacha_info = msgspec.json.decode(gacha_info['gacha_info'])
+        self.player_gacha_info = self.decoder.decode(gacha_info['gacha_info'])
 
     async def set_records(self):
         gacha_records = await self.pool.fetchrow(
             "SELECT gacha_records FROM players WHERE user_id=$1 AND peer_id=$2",
             self.user_id, self.peer_id
         )
-        self.result_records = msgspec.json.decode(gacha_records['gacha_records'])
+        self.result_records = self.decoder.decode(gacha_records['gacha_records'])
 
     async def set_avatars(self):
         avatars = await self.pool.fetchrow(
             "SELECT avatars FROM players WHERE user_id=$1 AND peer_id=$2",
             self.user_id, self.peer_id
         )
-        self.avatars = msgspec.json.decode(avatars['avatars'])
+        self.avatars = self.decoder.decode(avatars['avatars'])
 
     async def set_inventory(self):
         inventory = await self.pool.fetchrow(
             "SELECT inventory FROM players WHERE user_id=$1 AND peer_id=$2",
             self.user_id, self.peer_id
         )
-        self.result_inventory = msgspec.json.decode(inventory['inventory'])
+        self.result_inventory = self.decoder.decode(inventory['inventory'])
 
     def get_banner(self, gacha_type: int) -> dict:
         for banner in self.banners:
@@ -784,7 +786,7 @@ async def use_wish(message: Message, count: int = 1):
         textmap = await get_textmap()
         weapon_data = await get_weapon_data()
         avatar_data = await get_avatar_data()
-        wish = WishNew(
+        wish = Wish(
             message, info, pool, banners, textmap, weapon_data, avatar_data
         )
         await wish.set_player_info()

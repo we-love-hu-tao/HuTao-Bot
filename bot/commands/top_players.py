@@ -11,7 +11,7 @@ from utils import exists, exp_to_level, get_item
 bp = Blueprint("Top players")
 bp.labeler.vbml_ignore_case = True
 
-# Currently I have no idea, how to implement top of players
+# Currently, I have no idea, how to implement top of players
 # with new inventory/gacha system, so, yeah...
 
 

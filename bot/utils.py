@@ -262,6 +262,8 @@ def give_avatar(avatars, avatar_id):
 
 
 async def exists(event: Message, pool=None) -> bool:
+    """Checks, if player is registered in bot"""
+
     is_banned_request = "SELECT user_id FROM banned WHERE user_id=$1"
     exists_request = "SELECT user_id FROM players WHERE user_id=$1 AND peer_id=$2"
 
@@ -460,6 +462,10 @@ async def give_exp(new_exp: int, user_id: int, peer_id: int, api):
 
 
 async def gen_promocode(reward, author_id=0, expire_time=0, custom_text=None) -> str:
+    """
+    Generates promocode.
+    This may be either player promocode, or original promocode
+    """
     if custom_text is not None:
         promocode_text = custom_text
     else:

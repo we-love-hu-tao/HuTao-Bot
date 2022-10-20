@@ -13,6 +13,9 @@ bp.labeler.vbml_ignore_case = True
 
 
 def count_quests_time(exp):
+    """
+    Based on player level, players will have different quest time
+    """
     player_level = exp_to_level(exp)
     if player_level == 60:
         quest_time = 60
@@ -33,10 +36,10 @@ def count_quests_time(exp):
 @bp.on.chat_message(text="!начать поручения")
 async def start_daily_quests(message: Message):
     """
-    Игрок сможет начать поручение только если:
-    Он зарегестрирован;
-    doing_quest == False
-    daily_quests_time + 86400 секунд (24 часа) < текущего unix времени
+    Player will be able to start quests only if:
+    He is registered;
+    doing_quest == False;
+    daily_quests_time + 86400 секунд (24 часа) < current unix time
     """
     if not await exists(message):
         return

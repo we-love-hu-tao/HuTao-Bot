@@ -17,6 +17,7 @@ admin_list = (322615766, 328328155)
 
 
 class AdminRule(ABCRule[Message]):
+    """Rule which checks, if user id is admin"""
     async def check(self, event: Message) -> bool:
         return event.from_id in admin_list
 
