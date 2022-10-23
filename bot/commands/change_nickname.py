@@ -139,6 +139,8 @@ async def change_nickname(user_id: int, peer_id: int, nickname: str, pool):
 
 async def check_for_swear(nickname: str):
     logger.debug("checking for swears")
+    nickname = nickname.lower()
+
     for swear in CUSTOM_SWEARS:
         if swear in nickname:
             logger.info(f'В никнейме "{nickname}" нашлось особое оскорбление: {swear}')
@@ -196,7 +198,8 @@ async def give_nickname(message: Message, nickname):
                 "Вы были забанены в группе.\n"
                 "Для разбана, напишите "
                 "[id322615766|мне в личные сообщения]\n"
-                f'"{random.choice(BETTER_NOT_USE_ANS)}"'
+                f'"{random.choice(BETTER_NOT_USE_ANS)}"',
+                disable_mentions=True
             )
 
             try:
@@ -231,7 +234,7 @@ async def give_nickname(message: Message, nickname):
                 reaction_answer = random.choice(TIMUR_ANS)
             elif any(char in nickname_low for char in ("эмбер", "amber")):
                 reaction_answer = random.choice(AMBER_ANS)
-            elif any(char in nickname_low for char in ("кэ цин", "кека", "keqing")):
+            elif any(char in nickname_low for char in ("кэ цин", "кека", "keqing", "кекинг")):
                 reaction_answer = random.choice(KEQING_ANS)
             elif any(char in nickname_low for char in ("ёимия", "еимия", "yoimiya")):
                 reaction_answer = random.choice(YOIMIYA_ANS)
