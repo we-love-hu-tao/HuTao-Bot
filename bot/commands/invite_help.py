@@ -1,4 +1,5 @@
 from vkbottle.bot import Blueprint, Message
+
 from config import GROUP_ID
 
 bp = Blueprint("Invite event")
@@ -9,6 +10,7 @@ HELP_LINK = "https://github.com/timius100/HuTao-Bot#команды"
 
 @bp.on.message(action="chat_invite_user")
 async def invite_event_reaction(message: Message):
+    """React when bot is invited to a chat"""
     if message.action.member_id == -GROUP_ID:
         return (
             "Добро пожаловать в Тейват!\n"

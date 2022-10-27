@@ -1,54 +1,33 @@
-from typing import Literal
-from vkbottle.bot import Blueprint, Message
-from vkbottle_types.objects import UsersUserFull
-from loguru import logger
-from variables import (
-    THREE_STAR,
-    FOUR_STAR,
-    FIVE_STAR,
-    FOUR_STAR_TEN,
-    FIVE_STAR_TEN,
-)
-from player_exists import exists
-from utils import (
-    get_avatar_data,
-    get_banner_name,
-    get_item,
-    get_textmap,
-    get_weapon_data,
-    give_avatar,
-    give_item_local,
-    color_to_rarity,
-    resolve_id,
-    get_banners
-)
-from gacha_banner_vars import (
-    STARGLITTER_ID,
-    STARDUST_ID,
-    EVENT_BANNERS,
-    STANDARD_BANNERS,
-    FALLBACK_ITEMS_3,
-    FALLBACK_ITEMS_5_POOL_1,
-    FALLBACK_ITEMS_5_POOL_2,
-    FALLBACK_ITEMS_4_POOL_1,
-    FALLBACK_ITEMS_4_POOL_2,
-    POOL_BALANCE_WEIGHTS4,
-    POOL_BALANCE_WEIGHTS5,
-    WEIGHTS4,
-    WEIGHTS5
-)
-import orjson
-import create_pool
 import asyncio
 import random
 import time
+from typing import Literal
+
+import msgspec
+from loguru import logger
+from vkbottle.bot import Blueprint, Message
+from vkbottle_types.objects import UsersUserFull
+
+import create_pool
+from gacha_banner_vars import (EVENT_BANNERS, FALLBACK_ITEMS_3,
+                               FALLBACK_ITEMS_4_POOL_1,
+                               FALLBACK_ITEMS_4_POOL_2,
+                               FALLBACK_ITEMS_5_POOL_1,
+                               FALLBACK_ITEMS_5_POOL_2, POOL_BALANCE_WEIGHTS4,
+                               POOL_BALANCE_WEIGHTS5, STANDARD_BANNERS,
+                               STARDUST_ID, STARGLITTER_ID, WEIGHTS4, WEIGHTS5)
+from utils import (color_to_rarity, exists, get_avatar_data, get_banner_name,
+                   get_banners, get_item, get_textmap, get_weapon_data,
+                   give_avatar, give_item_local, resolve_id)
+from variables import (FIVE_STAR, FIVE_STAR_TEN, FOUR_STAR, FOUR_STAR_TEN,
+                       THREE_STAR)
 
 bp = Blueprint("Use wish")
 bp.labeler.vbml_ignore_case = True
 
 
 # Following code is based on https://github.com/Grasscutters/Grasscutter/
-class WishNew:
+class Wish:
     def __init__(
         self,
         message: Message,
@@ -76,6 +55,8 @@ class WishNew:
         self.result_records = []
         self.avatars = []
         self.result_inventory = None
+        self.encoder = msgspec.json.Encoder()
+        self.decoder = msgspec.json.Decoder()
 
     async def set_player_info(self):
         logger.info("Setting player gacha info...")
@@ -94,10 +75,10 @@ class WishNew:
             "avatars=$3 ::jsonb, "
             "inventory=$4 ::jsonb "
             "WHERE user_id=$5 AND peer_id=$6",
-            orjson.dumps(self.player_gacha_info).decode("utf-8"),
-            orjson.dumps(self.result_records).decode("utf-8"),
-            orjson.dumps(self.avatars).decode("utf-8"),
-            orjson.dumps(self.result_inventory).decode("utf-8"),
+            self.encoder.encode(self.player_gacha_info).decode("utf-8"),
+            self.encoder.encode(self.result_records).decode("utf-8"),
+            self.encoder.encode(self.avatars).decode("utf-8"),
+            self.encoder.encode(self.result_inventory).decode("utf-8"),
             self.user_id,
             self.peer_id
         )
@@ -107,28 +88,28 @@ class WishNew:
             "SELECT gacha_info FROM players WHERE user_id=$1 AND peer_id=$2",
             self.user_id, self.peer_id
         )
-        self.player_gacha_info = orjson.loads(gacha_info['gacha_info'])
+        self.player_gacha_info = self.decoder.decode(gacha_info['gacha_info'].encode("utf-8"))
 
     async def set_records(self):
         gacha_records = await self.pool.fetchrow(
             "SELECT gacha_records FROM players WHERE user_id=$1 AND peer_id=$2",
             self.user_id, self.peer_id
         )
-        self.result_records = orjson.loads(gacha_records['gacha_records'])
+        self.result_records = self.decoder.decode(gacha_records['gacha_records'].encode("utf-8"))
 
     async def set_avatars(self):
         avatars = await self.pool.fetchrow(
             "SELECT avatars FROM players WHERE user_id=$1 AND peer_id=$2",
             self.user_id, self.peer_id
         )
-        self.avatars = orjson.loads(avatars['avatars'])
+        self.avatars = self.decoder.decode(avatars['avatars'].encode("utf-8"))
 
     async def set_inventory(self):
         inventory = await self.pool.fetchrow(
             "SELECT inventory FROM players WHERE user_id=$1 AND peer_id=$2",
             self.user_id, self.peer_id
         )
-        self.result_inventory = orjson.loads(inventory['inventory'])
+        self.result_inventory = self.decoder.decode(inventory['inventory'].encode("utf-8"))
 
     def get_banner(self, gacha_type: int) -> dict:
         for banner in self.banners:
@@ -729,7 +710,7 @@ async def update_player_banners_info(message: Message):
             "SELECT gacha_info FROM players WHERE user_id=$1 AND peer_id=$2",
             message.from_id, message.peer_id
         )
-        player_banners = orjson.loads(player_banners['gacha_info'])
+        player_banners = msgspec.json.decode(player_banners['gacha_info'].encode("utf-8"))
 
         if len(player_banners) == 0:
             player_banners = {
@@ -776,7 +757,7 @@ async def update_player_banners_info(message: Message):
 
         await pool.execute(
             "UPDATE players SET gacha_info=$1 ::jsonb WHERE user_id=$2 AND peer_id=$3",
-            orjson.dumps(player_banners).decode("utf-8"), message.from_id, message.peer_id
+            msgspec.json.encode(player_banners).decode("utf-8"), message.from_id, message.peer_id
         )
 
 
@@ -805,7 +786,7 @@ async def use_wish(message: Message, count: int = 1):
         textmap = await get_textmap()
         weapon_data = await get_weapon_data()
         avatar_data = await get_avatar_data()
-        wish = WishNew(
+        wish = Wish(
             message, info, pool, banners, textmap, weapon_data, avatar_data
         )
         await wish.set_player_info()

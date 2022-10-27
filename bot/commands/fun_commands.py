@@ -1,7 +1,9 @@
-from vkbottle.bot import Blueprint, Message
-from utils import get_textmap
 import random
 import re
+
+from vkbottle.bot import Blueprint, Message
+
+from utils import get_textmap
 
 bp = Blueprint("Fun commands")
 bp.labeler.vbml_ignore_case = True
@@ -27,6 +29,7 @@ def delete_tags(textmap_string):
 async def generate_random_phrase(message: Message, count=1):
     if count > 10:
         return "Ты что, беседу заспамить решил? Нет, столько нельзя!"
+
     textmap = await get_textmap()
     textmap = list(textmap.values())
 
@@ -49,6 +52,7 @@ async def generate_random_phrase(message: Message, count=1):
 async def find_phrase(message: Message, search_for, count=1):
     if count > 10:
         return "Нельзя искать так много, максимум 10 фраз!"
+
     textmap = await get_textmap()
     textmap = list(textmap.values())
 

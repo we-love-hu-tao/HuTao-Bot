@@ -1,25 +1,14 @@
-from vkbottle.bot import Blueprint, Message, MessageEvent, rules
-from vkbottle import (
-    Keyboard,
-    KeyboardButtonColor,
-    Callback,
-    GroupEventType
-)
 from datetime import datetime
-from typing import Union, Literal
-from player_exists import exists
+from typing import Literal, Union
+
+import msgspec
 from loguru import logger
-from utils import (
-    color_to_rarity,
-    get_avatar_data,
-    get_textmap,
-    get_weapon_data,
-    resolve_id,
-    resolve_map_hash,
-    check_item_type
-)
-import orjson
+from vkbottle import Callback, GroupEventType, Keyboard, KeyboardButtonColor
+from vkbottle.bot import Blueprint, Message, MessageEvent, rules
+
 import create_pool
+from utils import (check_item_type, color_to_rarity, exists, get_avatar_data,
+                   get_textmap, get_weapon_data, resolve_id, resolve_map_hash)
 
 bp = Blueprint("Gacha History")
 bp.labeler.vbml_ignore_case = True
@@ -33,6 +22,7 @@ characters_type = [
 
 
 def filter_records(records, gacha_type: int):
+    """Filters records by gacha type"""
     new_records = []
     for record in records:
         if record['gacha_type'] == gacha_type:
@@ -61,7 +51,7 @@ async def get_last_history(
         "SELECT gacha_records FROM players WHERE user_id=$1 AND peer_id=$2",
         user_id, peer_id
     )
-    records = orjson.loads(records['gacha_records'])
+    records = msgspec.json.decode(records['gacha_records'].encode("utf-8"))
     records = filter_records(records, gacha_type)
 
     if len(records) > 0:
@@ -74,6 +64,7 @@ async def get_last_history(
 
 
 async def raw_history_to_normal(records: dict):
+    """Formats history to make it human-readable"""
     textmap = await get_textmap()
     weapon_data = await get_weapon_data()
     avatar_data = await get_avatar_data()
@@ -111,6 +102,7 @@ def generate_move_keyboard(
     direction: Literal['forward', 'back', 'both'],
     offset: int = 0
 ):
+    """Generates keyboard to move forward or back in history"""
     if direction == "forward":
         direction_text = "Вперед"
         button_color = KeyboardButtonColor.POSITIVE

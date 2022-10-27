@@ -1,5 +1,6 @@
-from vkbottle.bot import Blueprint, Message
 import time
+
+from vkbottle.bot import Blueprint, Message
 
 bp = Blueprint("Test ping")
 bp.labeler.vbml_ignore_case = True

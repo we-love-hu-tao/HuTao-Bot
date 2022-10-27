@@ -1,21 +1,12 @@
+import msgspec
+from loguru import logger
 from vkbottle.bot import Blueprint, Message
 from vkbottle.http import AiohttpClient
-from loguru import logger
-from player_exists import exists
-from utils import (
-    get_default_header,
-    exp_to_level,
-    get_item,
-    get_textmap,
-    resolve_id,
-    get_avatar_data,
-    resolve_map_hash,
-)
-from item_names import (
-    ADVENTURE_EXP, PRIMOGEM, INTERTWINED_FATE, ACQUAINT_FATE
-)
-import orjson
+
 import create_pool
+from item_names import ACQUAINT_FATE, ADVENTURE_EXP, INTERTWINED_FATE, PRIMOGEM
+from utils import (exists, exp_to_level, get_avatar_data, get_item,
+                   get_player_info, get_textmap, resolve_id, resolve_map_hash)
 
 bp = Blueprint("Profile")
 bp.labeler.vbml_ignore_case = True
@@ -43,7 +34,7 @@ async def profile(message: Message):
     nickname = result['nickname']
     UID = result['uid']
 
-    gacha_info = orjson.loads(result['gacha_info'])
+    gacha_info = msgspec.json.decode(result['gacha_info'].encode("utf-8"))
     if len(gacha_info) > 0:
         event_pity5 = gacha_info['eventCharacterBanner']['pity5']
     else:
@@ -147,11 +138,7 @@ async def genshin_info(message: Message, UID: int = None):
     http_client = AiohttpClient()
 
     try:
-        player_info = await http_client.request_json(
-            f"https://enka.network/u/{UID}/__data.json",
-            headers=get_default_header()
-        )
-        logger.info(f"https://enka.network/u/{UID}/__data.json вернул это: {player_info}")
+        player_info = await get_player_info(http_client, UID)
     except Exception as e:
         logger.error(e)
         return (
@@ -159,22 +146,21 @@ async def genshin_info(message: Message, UID: int = None):
             "Если же это не так, пожалуйста, сообщите об этой ошибке [id322615766|мне]"
         )
 
-    if len(player_info) == 0 and UID is None:
-        return (
-            "Ээээ... Информацию об этом UID не получилось найти, "
-            "похоже этот аккаунт в геншине был забанен/удален\n"
-            "(или это ошибка enka.network)"
-        )
-    elif len(player_info) == 0 and UID is not None:
-        return "Игрока с таким UID не существует!"
+    if not player_info:
+        if UID is None:
+            return (
+                "Ээээ... Информацию об этом UID не получилось найти, "
+                "похоже этот аккаунт в геншине был забанен/удален\n"
+                "(или это ошибка enka.network)"
+            )
+        else:
+            return "Игрока с таким UID не существует!"
 
-    player_info = player_info['playerInfo']
-    nickname = player_info.get('nickname') or "неизвестный"
-    adv_rank = player_info.get('level') or "неизвестный"
-    signature = player_info.get('signature') or "нету"
-    world_level = player_info.get('worldLevel') or "неизвестен"
-
-    profile_picture = player_info.get('profilePicture')['avatarId']
+    nickname = player_info.nickname or "неизвестный"
+    adv_rank = player_info.level or "неизвестный"
+    signature = player_info.signature or "нету"
+    world_level = player_info.world_level or "неизвестен"
+    profile_picture = player_info.profile_picture.avatar_id
 
     avatar_data = await get_avatar_data()
     textmap = await get_textmap()
@@ -196,7 +182,8 @@ async def genshin_info(message: Message, UID: int = None):
     info_msg += (
         f"Ранг приключений: {adv_rank}\n"
         f"Описание: {signature}\n"
-        f"Уровень мира: {world_level}"
+        f"Уровень мира: {world_level}\n\n"
+        f"Более подробная информация: https://enka.network/u/{UID}"
     )
 
     return info_msg

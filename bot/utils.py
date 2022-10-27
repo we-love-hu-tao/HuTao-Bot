@@ -1,13 +1,19 @@
-from loguru import logger
-from item_names import ADVENTURE_EXP, INTERTWINED_FATE
-import re
-import time
-import orjson
-import aiofiles
-import sys
-import os
 import base64
+import os
+import re
+import sys
+import time
+
+import aiofiles
+import msgspec
+from loguru import logger
+from vkbottle.bot import Message
+from vkbottle.http import AiohttpClient
+
 import create_pool
+from item_names import ADVENTURE_EXP, INTERTWINED_FATE
+from models.banner import Banner
+from models.player_profile import PlayerProfile
 
 rank_levels_exp = {
     1: 0,
@@ -94,9 +100,9 @@ async def get_textmap():
     if textmap_cache is not None:
         return textmap_cache
 
-    async with aiofiles.open("resources/TextMapRU.json", encoding="UTF8") as file:
+    async with aiofiles.open("resources/TextMapRU.json", mode='rb') as file:
         textmap = await file.read()
-        textmap = orjson.loads(textmap)
+        textmap = msgspec.json.decode(textmap)
         textmap_cache = textmap
         return textmap
 
@@ -106,9 +112,9 @@ async def get_manual_textmap():
     if manual_textmap_cache is not None:
         return manual_textmap_cache
 
-    async with aiofiles.open("resources/ManualTextMapConfigData.json", encoding="UTF8") as file:
+    async with aiofiles.open("resources/ManualTextMapConfigData.json", mode='rb') as file:
         manual_textmap = await file.read()
-        manual_textmap = orjson.loads(manual_textmap)
+        manual_textmap = msgspec.json.decode(manual_textmap)
         manual_textmap_cache = manual_textmap
         return manual_textmap
 
@@ -118,9 +124,9 @@ async def get_banners():
     if banners_cache is not None:
         return banners_cache
 
-    async with aiofiles.open("resources/Banners.json", encoding="UTF8") as file:
-        banners = await file.read()
-        banners = orjson.loads(banners)
+    async with aiofiles.open("resources/Banners.json", mode='rb') as file:
+        banners_raw = await file.read()
+        banners = msgspec.json.decode(banners_raw)
         banners_cache = banners
         return banners
 
@@ -130,9 +136,9 @@ async def get_avatar_data():
     if avatar_data_cache is not None:
         return avatar_data_cache
 
-    async with aiofiles.open("resources/AvatarExcelConfigData.json", encoding="UTF8") as file:
+    async with aiofiles.open("resources/AvatarExcelConfigData.json", mode='rb') as file:
         avatar_data = await file.read()
-        avatar_data = orjson.loads(avatar_data)
+        avatar_data = msgspec.json.decode(avatar_data)
         avatar_data_cache = avatar_data
         return avatar_data
 
@@ -143,10 +149,10 @@ async def get_skill_depot_data():
         return avatar_skill_depot_cache
 
     async with aiofiles.open(
-        "resources/AvatarSkillDepotExcelConfigData.json", encoding="UTF8"
+        "resources/AvatarSkillDepotExcelConfigData.json", mode='rb'
     ) as file:
         skill_depot_data = await file.read()
-        skill_depot_data = orjson.loads(skill_depot_data)
+        skill_depot_data = msgspec.json.decode(skill_depot_data)
         avatar_skill_depot_cache = skill_depot_data
         return skill_depot_data
 
@@ -156,9 +162,9 @@ async def get_skill_excel_data():
     if avatar_skill_cache is not None:
         return avatar_skill_cache
 
-    async with aiofiles.open("resources/AvatarSkillExcelConfigData.json", encoding="UTF8") as file:
+    async with aiofiles.open("resources/AvatarSkillExcelConfigData.json", mode='rb') as file:
         skill_data = await file.read()
-        skill_data = orjson.loads(skill_data)
+        skill_data = msgspec.json.decode(skill_data)
         avatar_skill_cache = skill_data
         return skill_data
 
@@ -168,9 +174,9 @@ async def get_weapon_data():
     if weapon_data_cache is not None:
         return weapon_data_cache
 
-    async with aiofiles.open("resources/WeaponExcelConfigData.json", encoding="UTF8") as file:
+    async with aiofiles.open("resources/WeaponExcelConfigData.json", mode='rb') as file:
         weapon_data = await file.read()
-        weapon_data = orjson.loads(weapon_data)
+        weapon_data = msgspec.json.decode(weapon_data)
         weapon_data_cache = weapon_data
         return weapon_data
 
@@ -182,7 +188,7 @@ async def get_inventory(user_id: int, peer_id: int) -> list:
             "SELECT inventory FROM players WHERE user_id=$1 AND peer_id=$2",
             user_id, peer_id
         )
-        inventory = orjson.loads(inventory['inventory'])
+        inventory = msgspec.json.decode(inventory['inventory'].encode("utf-8"))
         return inventory
 
 
@@ -206,8 +212,8 @@ async def get_peer_id_by_exp(user_id) -> int:
 
 
 async def get_banner_name(gacha_type) -> str:
-    banner = await get_banner(gacha_type)
-    title_path = banner['titlePath']
+    banner: Banner = await get_banner(gacha_type)
+    title_path = banner.title_path
 
     textmap = await get_textmap()
     raw_banner_names = await get_manual_textmap()
@@ -236,11 +242,12 @@ async def get_banner_name(gacha_type) -> str:
 
 
 async def get_banner(gacha_type) -> dict:
+    """Returns banner from `Banners.json`, converted into a `Banner` object"""
     raw_banners = await get_banners()
 
     for raw_banner in raw_banners:
         if raw_banner['gachaType'] == gacha_type:
-            return raw_banner
+            return msgspec.json.decode(msgspec.json.encode(raw_banner), type=Banner)
 
 
 def give_avatar(avatars, avatar_id):
@@ -252,6 +259,34 @@ def give_avatar(avatars, avatar_id):
     }
     avatars.append(avatar_desc)
     return avatars
+
+
+async def exists(event: Message, pool=None) -> bool:
+    """Checks, if player is registered in bot"""
+
+    is_banned_request = "SELECT user_id FROM banned WHERE user_id=$1"
+    exists_request = "SELECT user_id FROM players WHERE user_id=$1 AND peer_id=$2"
+
+    if pool is not None:
+        is_banned = await pool.fetchrow(is_banned_request, event.from_id)
+        row = await pool.fetchrow(exists_request, event.from_id, event.peer_id)
+    else:
+        pool = create_pool.pool
+        async with pool.acquire() as pool:
+            is_banned = await pool.fetchrow(is_banned_request, event.from_id)
+            row = await pool.fetchrow(exists_request, event.from_id, event.peer_id)
+
+    if is_banned is None:    # If user isn't banned
+        if row is not None:  # If user exists
+            return True
+        else:
+            await event.answer(
+                "Для начала нужно зайти в Genshin Impact командой !начать"
+            )
+    else:
+        await event.answer("нет (разбан у [id322615766|меня]).")
+
+    return False
 
 
 def color_to_rarity(color_name) -> int:
@@ -339,7 +374,7 @@ async def give_item(user_id: int, peer_id: int, item_id: int, count: int = 1, gi
             item_desc = create_item(item_id, count)
             inventory.append(item_desc)
 
-    inventory = orjson.dumps(inventory).decode("utf-8")
+    inventory = msgspec.json.encode(inventory).decode("utf-8")
 
     pool = create_pool.pool
     await pool.execute(
@@ -366,7 +401,7 @@ async def get_avatar(user_id, peer_id, avatar_id):
             "SELECT avatars FROM players WHERE user_id=$1 AND peer_id=$2",
             user_id, peer_id,
         )
-        avatars = orjson.loads(avatars['avatars'])
+        avatars = msgspec.json.decode(avatars['avatars'].encode("utf-8"))
 
     for avatar in avatars:
         if avatar['id'] == avatar_id:
@@ -381,7 +416,7 @@ async def get_avatar_by_name(user_id, peer_id, avatar_name):
             "SELECT avatars FROM players WHERE user_id=$1 AND peer_id=$2",
             user_id, peer_id,
         )
-        avatars = orjson.loads(avatars['avatars'])
+        avatars = msgspec.json.decode(avatars['avatars'].encode("utf-8"))
 
     avatar_data = await get_avatar_data()
     textmap = await get_textmap()
@@ -427,6 +462,10 @@ async def give_exp(new_exp: int, user_id: int, peer_id: int, api):
 
 
 async def gen_promocode(reward, author_id=0, expire_time=0, custom_text=None) -> str:
+    """
+    Generates promocode.
+    This may be either player promocode, or original promocode
+    """
     if custom_text is not None:
         promocode_text = custom_text
     else:
@@ -478,21 +517,35 @@ def resolve_id(item_id: int, avatar_data: list = None, weapon_data: list = None)
 
 
 def resolve_map_hash(textmap, text_map_hash: int):
+    """Gets a string from a text map hash"""
     text_map_hash = str(text_map_hash)
     return textmap.get(text_map_hash)
 
 
+async def get_player_info(http_client: AiohttpClient, uid: int):
+    """
+    Gets account information from enka.network and
+    converts it into an `PlayerProfile` object
+    """
+    player_info = await http_client.request_content(
+        f"https://enka.network/u/{uid}/__data.json",
+        headers=get_default_header()
+    )
+    try:
+        player_info = msgspec.json.decode(player_info, type=PlayerProfile).player_info
+    except msgspec.ValidationError:
+        player_info = None
+
+    return player_info
+
+
 def get_default_header() -> dict:
     python_version = sys.version_info
+    version = 1.0
+    major = python_version.major
+    minor = python_version.minor
+    micro = python_version.micro
 
     return {
-        "User-Agent": (
-            "Genshin-Impact-VK-Bot/{version} (Python {major}.{minor}.{micro})"
-            .format(
-                version=0.1,
-                major=python_version.major,
-                minor=python_version.minor,
-                micro=python_version.micro,
-            )
-        )
+        "User-Agent": f"HuTao-Bot/{version} (Python {major}.{minor}.{micro})"
     }

@@ -1,11 +1,13 @@
+from time import time
+
+from vkbottle import GroupEventType, GroupTypes
 from vkbottle.bot import Blueprint
 from vkbottle.user import User
-from vkbottle import GroupEventType, GroupTypes
-from config import VK_USER_TOKEN, GROUP_ID
-from time import time
+
+import create_pool
+from config import GROUP_ID, VK_USER_TOKEN
 from item_names import PRIMOGEM
 from utils import get_peer_id_by_exp, give_item
-import create_pool
 
 bp = Blueprint("On post like primogems reward")
 user = User(VK_USER_TOKEN)

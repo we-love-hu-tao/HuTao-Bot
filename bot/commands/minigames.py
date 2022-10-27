@@ -1,17 +1,21 @@
-from vkbottle.bot import Blueprint, Message
-from player_exists import exists
-from loguru import logger
-from utils import give_exp, give_item, exp_to_level, get_item
-from item_names import PRIMOGEM, ADVENTURE_EXP
-import create_pool
 import random
 import time
+
+from loguru import logger
+from vkbottle.bot import Blueprint, Message
+
+import create_pool
+from item_names import ADVENTURE_EXP, PRIMOGEM
+from utils import exists, exp_to_level, get_item, give_exp, give_item
 
 bp = Blueprint("Minigames")
 bp.labeler.vbml_ignore_case = True
 
 
 def count_quests_time(exp):
+    """
+    Based on player level, players will have different quest time
+    """
     player_level = exp_to_level(exp)
     if player_level == 60:
         quest_time = 60
@@ -32,10 +36,10 @@ def count_quests_time(exp):
 @bp.on.chat_message(text="!начать поручения")
 async def start_daily_quests(message: Message):
     """
-    Игрок сможет начать поручение только если:
-    Он зарегестрирован;
-    doing_quest == False
-    daily_quests_time + 86400 секунд (24 часа) < текущего unix времени
+    Player will be able to start quests only if:
+    He is registered;
+    doing_quest == False;
+    daily_quests_time + 86400 секунд (24 часа) < current unix time
     """
     if not await exists(message):
         return

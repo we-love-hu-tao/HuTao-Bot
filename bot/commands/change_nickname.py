@@ -1,11 +1,13 @@
+import random
+
+from loguru import logger
+from vkbottle import VKAPIError
 from vkbottle.bot import Blueprint, Message
 from vkbottle.user import User
-from vkbottle import VKAPIError
-from loguru import logger
-from config import GROUP_ID, VK_USER_TOKEN
-from player_exists import exists
-import random
+
 import create_pool
+from config import GROUP_ID, VK_USER_TOKEN
+from utils import exists
 
 bp = Blueprint("Nickname changer")
 bp.labeler.vbml_ignore_case = True
@@ -23,12 +25,16 @@ ONCHANGE_ANS = (
 PROTECTED_CHAR = (
     "ху тао",
     "ху",
-    "тао"
+    "тао",
     "кэ цин",
     "кека",
     "эмбер",
     "ёимия",
     "кокоми",
+    "нахида",
+    "кусанали",
+    "чокола",
+    "ванилла",
 )
 
 POSSIBLE_SWEARS = (
@@ -46,7 +52,7 @@ POSSIBLE_SWEARS = (
 CUSTOM_SWEARS = (
     "хуйтао",
     "хуйцин",
-    "хуйэмбер"
+    "хуйэмбер",
 )
 
 BETTER_NOT_USE_ANS = (
@@ -68,56 +74,56 @@ HU_TAO_ANS = (
     "Когда кто-то спрашивает, в чем смысл жизни, сразу можно понять, "
     "что этот человек еще не видел её",
     "Геншин был бы худшей гачи игрой в мире, если бы в ней не было её",
-    "Настоящий пиро архонт"
+    "Настоящий пиро архонт",
 )
 
 TIMUR_ANS = (
     "&#129320;",
-    "Как же я хочу заснуть, а проснуться в Тейвате, рядом с ритуальным бюро Ваншэн..."
+    "Как же я хочу заснуть, а проснуться в Тейвате, рядом с ритуальным бюро Ваншэн...",
 )
 
 KEQING_ANS = (
     "Настоящий электро архонт",
     "Ножки &#128563;&#128563;",
     "Её реран будет.",
-    "Её костюм дает +200% к шансу и криту"
+    "Её костюм дает +200% к шансу и криту",
 )
 
 AMBER_ANS = (
     "Возможно я стану чаще играть в геншин, если хойоверсы её баффнут",
     "Её мейнеры прекрасные люди",
-    "На одном уровне с Ёимией"
+    "На одном уровне с Ёимией",
 )
 
 YOIMIYA_ANS = (
     "МА-ТЕ-РИ-А-ЛЫ!",
-    "4 стрелы - все в голубя"
+    "4 стрелы - все в голубя",
 )
 
 KOKOMI_ANS = (
     "Настоящий гидро архонт (лучше Барбары)",
-    "+100 энергии"
+    "+100 энергии",
 )
 
 KLEE_ANS = (
     "Прыг-скок-бомба",
-    "24 часа убегаем от Джинн"
+    "24 часа убегаем от Джинн",
 )
 
 YANFEI_ANS = (
     "Objection!",
     "Hold It!",
-    "Take That!"
+    "Take That!",
 )
 
 AYAKA_ANS = (
     "240 дней мерзлоты",
-    "Аятао канон?????"
+    "Аятао канон?????",
 )
 
 QIQI_ANS = (
     "&#128128;",
-    "&#9760;"
+    "&#9760;",
 )
 
 
@@ -133,6 +139,8 @@ async def change_nickname(user_id: int, peer_id: int, nickname: str, pool):
 
 async def check_for_swear(nickname: str):
     logger.debug("checking for swears")
+    nickname = nickname.lower()
+
     for swear in CUSTOM_SWEARS:
         if swear in nickname:
             logger.info(f'В никнейме "{nickname}" нашлось особое оскорбление: {swear}')
@@ -190,7 +198,8 @@ async def give_nickname(message: Message, nickname):
                 "Вы были забанены в группе.\n"
                 "Для разбана, напишите "
                 "[id322615766|мне в личные сообщения]\n"
-                f'"{random.choice(BETTER_NOT_USE_ANS)}"'
+                f'"{random.choice(BETTER_NOT_USE_ANS)}"',
+                disable_mentions=True
             )
 
             try:
@@ -225,7 +234,7 @@ async def give_nickname(message: Message, nickname):
                 reaction_answer = random.choice(TIMUR_ANS)
             elif any(char in nickname_low for char in ("эмбер", "amber")):
                 reaction_answer = random.choice(AMBER_ANS)
-            elif any(char in nickname_low for char in ("кэ цин", "кека", "keqing")):
+            elif any(char in nickname_low for char in ("кэ цин", "кека", "keqing", "кекинг")):
                 reaction_answer = random.choice(KEQING_ANS)
             elif any(char in nickname_low for char in ("ёимия", "еимия", "yoimiya")):
                 reaction_answer = random.choice(YOIMIYA_ANS)

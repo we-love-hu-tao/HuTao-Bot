@@ -1,9 +1,9 @@
+from loguru import logger
 from vkbottle.bot import Blueprint, Message
 from vkbottle.http import AiohttpClient
-from player_exists import exists
-from loguru import logger
-from utils import get_default_header
+
 import create_pool
+from utils import exists, get_player_info
 
 bp = Blueprint("Set player in-game UID")
 
@@ -20,10 +20,7 @@ async def change_ingame_uid(message: Message, UID: int):
 
     http_client = AiohttpClient()
     try:
-        player_info = await http_client.request_json(
-            f"https://enka.network/u/{UID}/__data.json",
-            headers=get_default_header()
-        )
+        player_info = await get_player_info(http_client, UID)
     except Exception as e:
         logger.error(e)
         return (
@@ -31,16 +28,12 @@ async def change_ingame_uid(message: Message, UID: int):
             "Если же это не так, пожалуйста, сообщите об этой ошибке [id322615766|мне]"
         )
 
-    if len(player_info) == 0:
+    if not player_info:
         return "Такого игрока не существует!"
 
-    try:
-        nickname = player_info['playerInfo']['nickname']
-        adv_rank = player_info['playerInfo']['level']
-        profile_picture = player_info['playerInfo']['profilePicture']
-    except KeyError as e:
-        logger.error(e)
-        return "Похоже, что enka.network изменил свое апи, попробуйте позже"
+    nickname = player_info.nickname or "неизвестный ник"
+    adv_rank = player_info.level or "неизвестный"
+    profile_picture = player_info.profile_picture.avatar_id
 
     pool = create_pool.pool
     async with pool.acquire() as pool:
