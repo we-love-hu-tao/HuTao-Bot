@@ -51,7 +51,7 @@ async def get_last_history(
         "SELECT gacha_records FROM players WHERE user_id=$1 AND peer_id=$2",
         user_id, peer_id
     )
-    records = msgspec.json.decode(records['gacha_records'])
+    records = msgspec.json.decode(records['gacha_records'].encode("utf-8"))
     records = filter_records(records, gacha_type)
 
     if len(records) > 0:

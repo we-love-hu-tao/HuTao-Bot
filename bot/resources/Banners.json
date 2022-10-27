@@ -52,7 +52,7 @@
         "bannerType": "EVENT",
         "prefabPath": "GachaShowPanel_A101",
         "previewPrefabPath": "UI_Tab_GachaShowPanel_A027",
-        "titlePath": "UI_GACHA_SHOW_PANEL_A101_TITLE",
+        "titlePath": "UI_GACHA_SHOW_PANEL_A027_TITLE",
         "costItemId": 223,
         "beginTime": 0,
         "endTime": 1667285940,

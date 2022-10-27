@@ -188,7 +188,7 @@ async def get_inventory(user_id: int, peer_id: int) -> list:
             "SELECT inventory FROM players WHERE user_id=$1 AND peer_id=$2",
             user_id, peer_id
         )
-        inventory = msgspec.json.decode(inventory['inventory'])
+        inventory = msgspec.json.decode(inventory['inventory'].encode("utf-8"))
         return inventory
 
 
@@ -401,7 +401,7 @@ async def get_avatar(user_id, peer_id, avatar_id):
             "SELECT avatars FROM players WHERE user_id=$1 AND peer_id=$2",
             user_id, peer_id,
         )
-        avatars = msgspec.json.decode(avatars['avatars'])
+        avatars = msgspec.json.decode(avatars['avatars'].encode("utf-8"))
 
     for avatar in avatars:
         if avatar['id'] == avatar_id:
@@ -416,7 +416,7 @@ async def get_avatar_by_name(user_id, peer_id, avatar_name):
             "SELECT avatars FROM players WHERE user_id=$1 AND peer_id=$2",
             user_id, peer_id,
         )
-        avatars = msgspec.json.decode(avatars['avatars'])
+        avatars = msgspec.json.decode(avatars['avatars'].encode("utf-8"))
 
     avatar_data = await get_avatar_data()
     textmap = await get_textmap()

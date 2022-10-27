@@ -34,7 +34,7 @@ async def profile(message: Message):
     nickname = result['nickname']
     UID = result['uid']
 
-    gacha_info = msgspec.json.decode(result['gacha_info'])
+    gacha_info = msgspec.json.decode(result['gacha_info'].encode("utf-8"))
     if len(gacha_info) > 0:
         event_pity5 = gacha_info['eventCharacterBanner']['pity5']
     else:

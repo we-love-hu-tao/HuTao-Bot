@@ -88,28 +88,28 @@ class Wish:
             "SELECT gacha_info FROM players WHERE user_id=$1 AND peer_id=$2",
             self.user_id, self.peer_id
         )
-        self.player_gacha_info = self.decoder.decode(gacha_info['gacha_info'])
+        self.player_gacha_info = self.decoder.decode(gacha_info['gacha_info'].encode("utf-8"))
 
     async def set_records(self):
         gacha_records = await self.pool.fetchrow(
             "SELECT gacha_records FROM players WHERE user_id=$1 AND peer_id=$2",
             self.user_id, self.peer_id
         )
-        self.result_records = self.decoder.decode(gacha_records['gacha_records'])
+        self.result_records = self.decoder.decode(gacha_records['gacha_records'].encode("utf-8"))
 
     async def set_avatars(self):
         avatars = await self.pool.fetchrow(
             "SELECT avatars FROM players WHERE user_id=$1 AND peer_id=$2",
             self.user_id, self.peer_id
         )
-        self.avatars = self.decoder.decode(avatars['avatars'])
+        self.avatars = self.decoder.decode(avatars['avatars'].encode("utf-8"))
 
     async def set_inventory(self):
         inventory = await self.pool.fetchrow(
             "SELECT inventory FROM players WHERE user_id=$1 AND peer_id=$2",
             self.user_id, self.peer_id
         )
-        self.result_inventory = self.decoder.decode(inventory['inventory'])
+        self.result_inventory = self.decoder.decode(inventory['inventory'].encode("utf-8"))
 
     def get_banner(self, gacha_type: int) -> dict:
         for banner in self.banners:
@@ -710,7 +710,7 @@ async def update_player_banners_info(message: Message):
             "SELECT gacha_info FROM players WHERE user_id=$1 AND peer_id=$2",
             message.from_id, message.peer_id
         )
-        player_banners = msgspec.json.decode(player_banners['gacha_info'])
+        player_banners = msgspec.json.decode(player_banners['gacha_info'].encode("utf-8"))
 
         if len(player_banners) == 0:
             player_banners = {

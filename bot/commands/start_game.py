@@ -66,7 +66,7 @@ async def standard_wish(message: Message):
                 "SELECT avatars FROM players WHERE user_id=$1 AND peer_id=$2 ",
                 message.from_id, message.peer_id
             )
-            avatars = msgspec.json.decode(avatars['avatars'])
+            avatars = msgspec.json.decode(avatars['avatars'].encode("utf-8"))
             avatars = give_avatar(avatars, 1021)  # Amber
             avatars = give_avatar(avatars, 1015)  # Kaeya
             avatars = give_avatar(avatars, 1006)  # Lisa

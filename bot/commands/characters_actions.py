@@ -70,7 +70,7 @@ async def list_chatacters(message: Message):
             message.from_id, message.peer_id
         )
 
-    avatars = msgspec.json.decode(avatars['avatars'])
+    avatars = msgspec.json.decode(avatars['avatars'].encode("utf-8"))
     if len(avatars) == 0:
         return "У вас еще нету персонажей! Их можно выбить в баннерах"
 
