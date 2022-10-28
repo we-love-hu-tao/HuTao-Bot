@@ -50,14 +50,20 @@ async def list_user_chat(message: Message, mention=None):
 
 @bp.on.message(AdminRule(), text=(
     "+примогемы <amount:int>",
-    "+примогемы <amount:int> <mention> <peer_id:int>"
+    "+примогемы <amount>",
+    "+примогемы <amount:int> <mention> <peer_id:int>",
 ))
 async def give_primogems(
     message: Message,
-    amount: int,
+    amount: int | str,
     mention: Optional[str] = None,
     peer_id: Optional[int] = None
 ):
+    try:
+        amount = int(amount)
+    except ValueError:
+        return "Количество примогемов должно быть числом!"
+
     if mention is None:
         if message.reply_message is None:
             mention_id = message.from_id

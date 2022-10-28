@@ -2,6 +2,7 @@ import msgspec
 from loguru import logger
 from vkbottle.bot import Blueprint, Message
 from vkbottle.http import AiohttpClient
+from typing import Optional
 
 import create_pool
 from item_names import ACQUAINT_FATE, ADVENTURE_EXP, INTERTWINED_FATE, PRIMOGEM
@@ -11,11 +12,11 @@ from utils import (exists, exp_to_level, get_avatar_data, get_item,
 bp = Blueprint("Profile")
 bp.labeler.vbml_ignore_case = True
 
+http_client = AiohttpClient()
+
 
 @bp.on.chat_message(text=(
-    '!персонаж', '!перс', '!gthc',
-    '!пероснаж', '!прес', '!епрс',
-    '!пнрс', '!пнерс', '!поес'
+    '!персонаж', '!перс', '!gthc', '! перс'
 ))
 async def profile(message: Message):
     if not await exists(message):
@@ -66,7 +67,9 @@ async def profile(message: Message):
     )
 
 
-@bp.on.chat_message(text=("!баланс", "!крутки", "!примогемы"))
+@bp.on.chat_message(text=(
+    '!баланс', '!крутки', '!примогемы', '! баланс'
+))
 async def check_balance(message: Message):
     if not await exists(message):
         return
@@ -96,8 +99,11 @@ FAV_AVATARS = (
 )
 
 
-@bp.on.chat_message(text=("!геншин инфо", "!геншин инфо <UID:int>"))
-async def genshin_info(message: Message, UID: int = None):
+@bp.on.chat_message(text=(
+    "!геншин инфо", "!геншин инфо <UID:int>",
+    "! геншин инфо", " ! геншин инфо <UID:int>"
+))
+async def genshin_info(message: Message, UID: Optional[int] = None):
     if not await exists(message):
         return
 
@@ -135,8 +141,6 @@ async def genshin_info(message: Message, UID: int = None):
 
             UID = UID['uid']
 
-    http_client = AiohttpClient()
-
     try:
         player_info = await get_player_info(http_client, UID)
     except Exception as e:
@@ -160,7 +164,7 @@ async def genshin_info(message: Message, UID: int = None):
     adv_rank = player_info.level or "неизвестный"
     signature = player_info.signature or "нету"
     world_level = player_info.world_level or "неизвестен"
-    profile_picture = player_info.profile_picture.avatar_id
+    profile_picture = player_info.profile_picture.avatar_id or 0
 
     avatar_data = await get_avatar_data()
     textmap = await get_textmap()

@@ -50,7 +50,7 @@ async def redeem_promocode(message: Message, promocode):
             if redeemed_user_promocode['has_redeemed_user_promocode']:
                 return "Вы можете использовать только 1 промокод игрока"
 
-            reward_author = await get_peer_id_by_exp(promocode_query['author'])
+            reward_author: int = await get_peer_id_by_exp(promocode_query['author'])
 
             if reward_author is None:
                 return "Автор этого промокода - ишак, который удалил свой аккаунт из всех бесед"
@@ -67,11 +67,16 @@ async def redeem_promocode(message: Message, promocode):
                 message.from_id, message.peer_id
             )
 
+            nickname_author = (await pool.fetchrow(
+                "SELECT nickname FROM players WHERE user_id=$1 AND peer_id=$2",
+                promocode_query['author'], reward_author
+            ))['nickname']
+
             await bp.api.messages.send(
-                peer_id=reward_author['peer_id'],
+                peer_id=reward_author,
                 random_id=0,
                 message=(
-                    f"[id{promocode_query['author']}|{reward_author['nickname']}], "
+                    f"[id{promocode_query['author']}|{nickname_author}], "
                     f"[id{message.from_id}|этот игрок] актививировал ваш промокод, "
                     "вы получили 4800 примогемов!"
                 ),
@@ -79,7 +84,7 @@ async def redeem_promocode(message: Message, promocode):
 
             return (
                 "Вы успешно активировали промокод игрока "
-                f"[id{promocode_query['author']}|{reward_author['nickname']}]!\n"
+                f"[id{promocode_query['author']}|{nickname_author}]!\n"
                 "За это вы получаете 800 примогемов"
             )
 

@@ -23,10 +23,12 @@ async def buy_fates(message: Message, fate_type, amount: int):
     if amount >= 999999:
         return "За раз так много купить нельзя!"
 
+    pay_count = 160 * amount
+    wish_type = "стандартных"
+
     async with pool.acquire() as pool:
-        primogems = await get_item(PRIMOGEM, message.from_id, message.peer_id)
-        wish_type = "стандартных"
-        if primogems['count'] >= 160 * amount:
+        primogems_count = (await get_item(PRIMOGEM, message.from_id, message.peer_id))['count']
+        if primogems_count >= pay_count:
             if fate_type in STANDARD_VARIANTS:
                 await give_item(message.from_id, message.peer_id, ACQUAINT_FATE, amount)
             elif fate_type in EVENT_VARIANTS:
@@ -35,13 +37,13 @@ async def buy_fates(message: Message, fate_type, amount: int):
             else:
                 return "Неа, таких молитв не существует!"
 
-            await give_item(message.from_id, message.peer_id, PRIMOGEM, -(160 * amount))
-            await message.answer(
-                f"Вы купили {amount} {wish_type} молитв за "
-                f"{160 * amount} примогемов!"
+            await give_item(message.from_id, message.peer_id, PRIMOGEM, -pay_count)
+            return (
+                f"Вы купили {amount} {wish_type} молитв за {pay_count} примогемов!\n"
+                f"Ваш баланс: {primogems_count - pay_count}"
             )
         else:
-            await message.answer(
+            return (
                 f"Вам не хватает примогемов, {amount} молитв стоят "
-                f"{160 * amount} примогемов!"
+                f"{pay_count} примогемов!"
             )

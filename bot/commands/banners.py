@@ -355,7 +355,7 @@ async def create_banner(gacha_type):
                 element = element_to_banner_bg(element)
                 banner_bg = await get_background_by_elem(element)
                 main_rateup = await get_main_rateup_picture(item_info['iconName'].split('_')[2])
-                second_rateup = await get_second_rateup_picture(banner['prefabPath'].split('_')[1])
+                second_rateup = await get_second_rateup_picture(banner.prefab_path.split('_')[1])
                 main_rateup_name = resolve_map_hash(textmap, item_info['nameTextMapHash'])
                 main_rateup_rarity = color_to_rarity(item_info['qualityType'])
 

@@ -766,7 +766,8 @@ CASES = "first_name_dat, last_name_dat, first_name_gen, last_name_gen"
 
 @bp.on.chat_message(text=(
     '!помолиться <count:int>', '!помолиться',
-    '!gjvjkbnmcz <count:int>', '!gjvjkbnmcz'
+    '!gjvjkbnmcz <count:int>', '!gjvjkbnmcz',
+    '! помолиться <count:int>', '! помолиться',
 ))
 async def use_wish(message: Message, count: int = 1):
     if not await exists(message):
