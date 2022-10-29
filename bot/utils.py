@@ -533,7 +533,8 @@ async def get_player_info(http_client: AiohttpClient, uid: int):
     )
     try:
         player_info = msgspec.json.decode(player_info, type=PlayerProfile).player_info
-    except msgspec.ValidationError:
+    except msgspec.ValidationError as e:
+        logger.error(f"Error while trying to validate enka.network response: {e}")
         player_info = None
 
     return player_info

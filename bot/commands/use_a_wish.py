@@ -31,7 +31,7 @@ class Wish:
     def __init__(
         self,
         message: Message,
-        info: UsersUserFull,
+        info: UsersUserFull | None,
         pool,
         banners,
         textmap,
@@ -41,11 +41,17 @@ class Wish:
         self.user_id = message.from_id
         self.peer_id = message.peer_id
         self.message = message
-        self.full_name = info.first_name + " " + info.last_name
-        # Дательный падеж (Тимуру Богданову)
-        self.full_name_dat = info.first_name_dat + " " + info.last_name_dat
-        # Родительный падеж (Тимура Богданова)
-        self.full_name_gen = info.first_name_gen + " " + info.last_name_gen
+        self.info = info
+        if info is not None:
+            self.full_name = info.first_name + " " + info.last_name
+            # Dative (Тимуру Богданову)
+            self.full_name_dat = info.first_name_dat + " " + info.last_name_dat
+            # Genitive (Тимура Богданова)
+            self.full_name_gen = info.first_name_gen + " " + info.last_name_gen
+        else:
+            self.full_name = "Группа"
+            self.full_name_dat = "Группе"
+            self.full_name_gen = "Группы"
         self.pool = pool
         self.banners = banners
         self.textmap = textmap
@@ -651,7 +657,10 @@ class Wish:
 
             results_msg = f"{'&#11088;' * rarity} {drop_emoji}: {item_name}\n\"{item_desc}\"\n"
         else:
-            results_msg = f"Результаты [id{self.user_id}|{self.full_name_gen}]:\n"
+            if self.info:
+                results_msg = f"Результаты [id{self.user_id}|{self.full_name_gen}]:\n"
+            else:
+                results_msg = f"Результаты {self.full_name_gen}:\n"
             for item in new_items:
                 item_info = resolve_id(item, self.avatar_excel_data, self.weapon_excel_data)
                 item_name = self.textmap.get(str(item_info['nameTextMapHash']))
@@ -681,7 +690,10 @@ class Wish:
         )
 
         output_gif = self.choose_gif(max_rarity, (True if times == 10 else False))
-        wish_process_text = f"[id{self.user_id}|{self.full_name}] молится..."
+        if self.info:
+            wish_process_text = f"[id{self.user_id}|{self.full_name}] молится..."
+        else:
+            wish_process_text = f"{self.full_name} молится..."
 
         # Messages start
         logger.info("Sending wish process text...")
@@ -782,7 +794,13 @@ async def use_wish(message: Message, count: int = 1):
         )
         gacha_type = gacha_type['current_banner']
 
-        info = await message.get_user(False, fields=CASES)
+        try:
+            info = await message.get_user(False, fields=CASES)
+        except IndexError:
+            # Probably a bot, that generates messages from other people, like @sglypa
+            # That's cool! This bot should be able to create a wish
+            info = None
+
         banners = await get_banners()
         textmap = await get_textmap()
         weapon_data = await get_weapon_data()

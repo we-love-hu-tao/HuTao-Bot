@@ -43,7 +43,7 @@ async def start_game(message: Message):
             message.from_id, message.peer_id
         )
         if is_exists is not None:
-            return "Вы уже зашли в Genshin Impact"
+            return "В этом чате вы уже присоединились к боту"
         else:
             new_nickname = random.choice(NAMES)
             logger.info(
@@ -73,7 +73,7 @@ async def start_game(message: Message):
             )
 
             return (
-                "Вы зашли в Genshin Impact!\n"
+                "Вы присоединились к боту!\n"
                 "Напишите !персонаж, что бы увидеть ваш никнейм "
                 "и количество примогемов"
             )

@@ -8,6 +8,7 @@ import create_pool
 from item_names import ACQUAINT_FATE, ADVENTURE_EXP, INTERTWINED_FATE, PRIMOGEM
 from utils import (exists, exp_to_level, get_avatar_data, get_item,
                    get_player_info, get_textmap, resolve_id, resolve_map_hash)
+from variables import FAV_AVATARS
 
 bp = Blueprint("Profile")
 bp.labeler.vbml_ignore_case = True
@@ -87,16 +88,6 @@ async def check_balance(message: Message):
         f"&#128160; | Ивентовые крутки: {event_wishes}\n"
         f"&#128160; | Стандартные крутки: {standard_wishes}"
     )
-
-
-FAV_AVATARS = (
-    10000046,  # Hu Tao
-    10000042,  # Keqing
-    10000021,  # Amber
-    10000049,  # Yoimiya
-    10000054,  # Kokomi
-    10000073,  # Nahida
-)
 
 
 @bp.on.chat_message(text=(
