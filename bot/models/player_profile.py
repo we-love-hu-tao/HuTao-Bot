@@ -5,7 +5,7 @@ import msgspec
 
 class ProfilePicture(msgspec.Struct, rename="camel"):
     avatar_id: int
-    costume_id: int
+    costume_id: Optional[int] = None
 
 
 class PlayerInfo(msgspec.Struct, rename="camel"):

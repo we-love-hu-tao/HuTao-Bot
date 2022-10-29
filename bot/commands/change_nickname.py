@@ -177,8 +177,7 @@ async def give_nickname(message: Message, nickname):
             if len(nickname) < 35:
                 await change_nickname(message.from_id, message.peer_id, nickname, pool)
             else:
-                await message.answer("В нике не может быть больше 35 символов (включая пробел)")
-                return
+                return "В нике не может быть больше 35 символов (включая пробел)"
         else:
             # There is a swear of protected character in the nickname.
             # We love our waifus! That's why we are banning this user.

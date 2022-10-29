@@ -35,7 +35,7 @@ NAMES = (
 
 
 @bp.on.chat_message(text="!начать")
-async def standard_wish(message: Message):
+async def start_game(message: Message):
     pool = create_pool.pool
     async with pool.acquire() as pool:
         is_exists = await pool.fetchrow(
@@ -43,7 +43,7 @@ async def standard_wish(message: Message):
             message.from_id, message.peer_id
         )
         if is_exists is not None:
-            await message.answer("Вы уже зашли в Genshin Impact")
+            return "В этом чате вы уже присоединились к боту"
         else:
             new_nickname = random.choice(NAMES)
             logger.info(
@@ -55,12 +55,8 @@ async def standard_wish(message: Message):
                 "($1, $2, $3)",
                 message.from_id, message.peer_id, new_nickname
             )
-            await message.answer(
-                "Вы зашли в Genshin Impact!\n"
-                "Напишите !персонаж, что бы увидеть ваш никнейм "
-                "и количество примогемов"
-            )
 
+            # Giving 6400 primogems and avatars to the player
             await give_item(message.from_id, message.peer_id, PRIMOGEM, 6400)
             avatars = await pool.fetchrow(
                 "SELECT avatars FROM players WHERE user_id=$1 AND peer_id=$2 ",
@@ -74,4 +70,10 @@ async def standard_wish(message: Message):
             await pool.execute(
                 "UPDATE players SET avatars=$1 ::jsonb WHERE user_id=$2 AND peer_id=$3",
                 msgspec.json.encode(avatars).decode("utf-8"), message.from_id, message.peer_id
+            )
+
+            return (
+                "Вы присоединились к боту!\n"
+                "Напишите !персонаж, что бы увидеть ваш никнейм "
+                "и количество примогемов"
             )

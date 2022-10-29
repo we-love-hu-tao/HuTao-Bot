@@ -86,64 +86,20 @@
 # Запуск бота
 **Примечание: если вы обычный пользователь, это, скорее всего, не для вас. В бота можно поиграть в [этой группе](https://vk.com/we_love_hu_tao)**
 ## Создание базы данных
-Нужно создать базу данных с любым именем (по дефолту: `hutao_bot`) и указать данные базы данных в `pgpass.conf`:
+Нужно создать базу данных с названием `hutao_bot` от пользователя `postgres`.
+Сделать это можно через pgadmin или написать в командной строке:
 ```
-<айпи (или localhost)>:<порт>:<название бд>:<никнейм>:<пароль>
+createdb hutao_bot
+```
+
+После чего надо указать данные базы данных в `pgpass.conf`:
+```
+<айпи (или localhost)>:<порт>:hutao_bot:postgres:<пароль>
 ```
 
 Пример:
 ```
-localhost:5432:hutao_bot:postgres:WwCkn9AS
-```
-
-### Таблицы
-В будущем планируется автоматическое создание таблиц, но сейчас их надо создавать вручную.
-
-Таблица players:
-```sql
-CREATE TABLE public.players (
-    user_id integer,
-    peer_id integer,
-    nickname text,
-    reward_last_time integer DEFAULT 0,
-    doing_quest boolean DEFAULT false,
-    daily_quests_time integer DEFAULT 0,
-    uid integer,
-    liked_posts_ids integer[] DEFAULT ARRAY[]::integer[],
-    avatars jsonb DEFAULT '[]'::jsonb,
-    inventory jsonb DEFAULT '[]'::jsonb,
-    promocode text,
-    has_redeemed_user_promocode boolean DEFAULT false,
-    current_banner integer DEFAULT 100,
-    gacha_records jsonb DEFAULT '[]'::jsonb,
-    gacha_info jsonb DEFAULT '{}'::jsonb
-);
-```
-
-Таблица banned:
-```sql
-CREATE TABLE public.banned (
-    user_id integer
-);
-```
-
-Таблица promocodes:
-```sql
-CREATE TABLE public.promocodes (
-    promocode text,
-    author integer DEFAULT 0,
-    expire_time integer DEFAULT 0,
-    promocode_reward integer DEFAULT 800,
-    redeemed_by integer[] DEFAULT '{}'::integer[]
-);
-```
-
-Таблица pictures:
-```sql
-CREATE TABLE public.pictures (
-    picture_name text,
-    picture_id text
-);
+localhost:5432:hutao_bot:postgres:password
 ```
 
 ## Запуск
