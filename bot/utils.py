@@ -460,7 +460,7 @@ async def give_exp(new_exp: int, user_id: int, peer_id: int, api):
             if current_level < new_level:
                 new_rolls = None
                 if new_level % 5 == 0:
-                    await give_item(user_id, peer_id, INTERTWINED_FATE, new_exp)
+                    await give_item(user_id, peer_id, INTERTWINED_FATE, 5)
                     new_rolls = "\n+5 ивентовых молитв!"
                 nickname = await pool.fetchrow(
                     "SELECT nickname FROM players WHERE user_id=$1 AND "
