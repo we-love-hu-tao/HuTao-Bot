@@ -86,6 +86,28 @@ def exp_to_level(exp: int):
     return 60
 
 
+def count_quests_time(exp):
+    """
+    Based on player level, players will have different quest time
+    """
+    player_level = exp_to_level(exp)
+    if player_level == 60:
+        quest_time = 60
+    elif player_level > 45:
+        quest_time = 240
+    elif player_level > 35:
+        quest_time = 420
+    elif player_level > 20:
+        quest_time = 600
+    elif player_level > 10:
+        quest_time = 900
+    else:
+        quest_time = 1200
+
+    return quest_time
+
+
+
 textmap_cache = None
 manual_textmap_cache = None
 banners_cache = None

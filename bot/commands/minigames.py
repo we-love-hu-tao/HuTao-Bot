@@ -6,40 +6,21 @@ from vkbottle.bot import Blueprint, Message
 
 import create_pool
 from item_names import ADVENTURE_EXP, PRIMOGEM
-from utils import exists, exp_to_level, get_item, give_exp, give_item
+from utils import count_quests_time, exists, exp_to_level, get_item, give_exp, give_item
 
 bp = Blueprint("Minigames")
 bp.labeler.vbml_ignore_case = True
 
 
-def count_quests_time(exp):
-    """
-    Based on player level, players will have different quest time
-    """
-    player_level = exp_to_level(exp)
-    if player_level == 60:
-        quest_time = 60
-    elif player_level > 45:
-        quest_time = 240
-    elif player_level > 35:
-        quest_time = 420
-    elif player_level > 20:
-        quest_time = 600
-    elif player_level > 10:
-        quest_time = 900
-    else:
-        quest_time = 1200
-
-    return quest_time
-
-
-@bp.on.chat_message(text="!начать поручения")
+@bp.on.chat_message(text=(
+    "!начать поручения", "[<!>|<!>] Начать поручения"
+))
 async def start_daily_quests(message: Message):
     """
     Player will be able to start quests only if:
     He is registered;
     doing_quest == False;
-    daily_quests_time + 86400 секунд (24 часа) < current unix time
+    daily_quests_time + 86400 seconds (24 hours) < current unix time
     """
     if not await exists(message):
         return
@@ -53,10 +34,10 @@ async def start_daily_quests(message: Message):
             "FROM players WHERE user_id=$1 AND peer_id=$2",
             message.from_id, message.peer_id
         )
-        daily_quests_time: int = result['daily_quests_time']
+        started_time: int = result['daily_quests_time']
         doing_quest: int = result['doing_quest']
 
-        if daily_quests_time + 86400 < int(time.time()) and doing_quest is False:
+        if started_time + 86400 < int(time.time()) and doing_quest is False:
             logger.info(f"{message.from_id} начал поручения в беседе {message.peer_id}")
             await pool.execute(
                 "UPDATE players SET "
@@ -81,14 +62,15 @@ async def start_daily_quests(message: Message):
 
 @bp.on.chat_message(text=(
     "!закончить поручения",
-    "!завершить поручения"
+    "!завершить поручения",
+    "[<!>|<!>] Завершить поручения"
 ))
 async def complete_daily_quests(message: Message):
     """
-    Игрок сможет закончить поручение только если:
-        Он зарегестрирован;
+    Player will be able to end quests only if: 
+        He is registered;
         doing_quest == true;
-        daily_quests_time + 1200 секунд (20 минут) < текущего unix времени
+        daily_quests_time + 1200 seconds (20 minutes) < current unix time
     """
     if not await exists(message):
         return
