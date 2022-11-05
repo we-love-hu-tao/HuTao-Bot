@@ -24,7 +24,12 @@ NO_REWARD_ANSWERS = (
 )
 
 
-@bp.on.chat_message(text=("!забрать награду", "!получить награду", "!награда"))
+@bp.on.chat_message(text=(
+    "!забрать награду",
+    "!получить награду",
+    "!награда",
+    "[<!>|<!>] Награда"
+))
 async def daily_reward(message: Message):
     if not await exists(message):
         return

@@ -3,6 +3,7 @@ import os
 import msgspec
 from PIL import Image, ImageDraw, ImageFont
 from PIL.PngImagePlugin import PngImageFile
+from vkbottle import Keyboard, Text
 from vkbottle.bot import Blueprint, Message
 from vkbottle.tools import PhotoToAlbumUploader
 from vkbottle.user import User
@@ -10,6 +11,7 @@ from vkbottle.user import User
 import create_pool
 from config import BANNERS_ALBUM_ID, GROUP_ID, TEST_MODE, VK_USER_TOKEN
 from gacha_banner_vars import FALLBACK_ITEMS_5_POOL_1
+from keyboards import KEYBOARD_WISH
 from models.banner import Banner, BannerType
 from utils import (color_to_rarity, element_to_banner_bg, exists,
                    get_avatar_data, get_banner, get_banner_name, get_banners,
@@ -481,6 +483,28 @@ async def format_banners(banner: Banner):
     return new_msg
 
 
+KEYBOARD_BEGINNER = (
+    Keyboard(inline=True)
+    .add(Text("Выбрать баннер новичка"))
+)
+KEYBOARD_EVENT = (
+    Keyboard(inline=True)
+    .add(Text("Выбрать баннер ивент"))
+)
+KEYBOARD_EVENT_SECOND = (
+    Keyboard(inline=True)
+    .add(Text("Выбрать баннер ивент 2"))
+)
+KEYBOARD_WEAPON = (
+    Keyboard(inline=True)
+    .add(Text("Выбрать баннер оружие"))
+)
+KEYBOARD_STANDARD = (
+    Keyboard(inline=True)
+    .add(Text("Выбрать баннер стандарт"))
+)
+
+
 @bp.on.chat_message(text=(
     "!баннер",
     "!мой баннер",
@@ -510,7 +534,8 @@ async def show_my_banner(message: Message):
 
     await message.answer(
         f"Ваш выбранный баннер: {banner_name} ({banner_fallback_name})",
-        attachment=banner_attachment
+        attachment=banner_attachment,
+        keyboard=KEYBOARD_WISH
     )
 
 
@@ -546,7 +571,10 @@ async def show_all_banners(message: Message):
     return new_msg
 
 
-@bp.on.chat_message(text="!выбрать баннер <banner>")
+@bp.on.chat_message(text=(
+    "!выбрать баннер <banner>",
+    "[<!>|<!>] Выбрать баннер <banner>"
+))
 async def choose_banner(message: Message, banner):
     if not await exists(message):
         return
@@ -558,7 +586,8 @@ async def choose_banner(message: Message, banner):
         "ивент 2": 400,
         "стандарт": 200,
         "стандартный": 200,
-        "оружейный": 302
+        "оружейный": 302,
+        "оружие": 302,
     }
 
     if banner not in banners:
@@ -581,30 +610,30 @@ async def choose_banner(message: Message, banner):
 
     await message.answer(
         f'Вы выбрали баннер "{banner_name}"!',
-        attachment=banner_attachment
+        attachment=banner_attachment,
+        keyboard=KEYBOARD_WISH
     )
 
 
 @bp.on.chat_message(text=(
-    "!баннер новичк<!>"
+    "!баннер новичк<!>",
+    "!баннер нуба"
 ))
-async def show_noob_banner(message: Message):
+async def show_beginner_banner(message: Message):
     if not await exists(message):
         return
 
     gacha_type = 100
     banner_attachment = await create_banner(gacha_type)
     if banners_cache[gacha_type] is not None:
-        await message.answer(
-            banners_cache[gacha_type],
-            attachment=banner_attachment
-        )
-        return
+        ans_msg = banners_cache[gacha_type]
+    else:
+        raw_banners = await get_banner(gacha_type)
+        ans_msg = await format_banners(raw_banners)
 
-    raw_banners = await get_banner(gacha_type)
-    ans_msg = await format_banners(raw_banners)
-
-    await message.answer(ans_msg, attachment=banner_attachment)
+    await message.answer(
+        ans_msg, attachment=banner_attachment, keyboard=KEYBOARD_BEGINNER
+    )
 
 
 @bp.on.chat_message(text=(
@@ -613,7 +642,7 @@ async def show_noob_banner(message: Message):
     "!баннер ивент <banner_id:int>",
     "!баннер ивент",
     "!ив баннер",
-    "!ивентовый баннер",
+    "!ивентовый баннер"
 ))
 async def show_event_banner(message: Message, banner_id: int = 1):
     if not await exists(message):
@@ -621,34 +650,22 @@ async def show_event_banner(message: Message, banner_id: int = 1):
 
     if banner_id == 1:
         gacha_type = 301
-        banner_attachment = await create_banner(gacha_type)
-        if banners_cache[gacha_type] is not None:
-            await message.answer(
-                banners_cache[gacha_type],
-                attachment=banner_attachment
-            )
-            return
-
-        raw_banners = await get_banner(gacha_type)
     elif banner_id == 2:
         gacha_type = 400
-        banner_attachment = await create_banner(gacha_type)
-        if banners_cache[gacha_type] is not None:
-            await message.answer(
-                banners_cache[gacha_type],
-                attachment=banner_attachment
-            )
-            return
-
-        raw_banners = await get_banner(gacha_type)
     else:
         return "Неправильный айди баннера!"
 
-    ans_msg = await format_banners(raw_banners)
+    banner_attachment = await create_banner(gacha_type)
+    if banners_cache[gacha_type] is not None:
+        ans_msg = banners_cache[gacha_type]
+    else:
+        raw_banners = await get_banner(gacha_type)
+        ans_msg = await format_banners(raw_banners)
 
     await message.answer(
         ans_msg,
-        attachment=banner_attachment
+        attachment=banner_attachment,
+        keyboard=(KEYBOARD_EVENT if banner_id == 1 else KEYBOARD_EVENT_SECOND)
     )
 
 
@@ -665,18 +682,15 @@ async def show_weapon_banner(message: Message):
     gacha_type = 302
     banner_attachment = await create_banner(gacha_type)
     if banners_cache[gacha_type] is not None:
-        await message.answer(
-            banners_cache[gacha_type],
-            attachment=banner_attachment
-        )
-        return
-
-    raw_banners = await get_banner(gacha_type)
-    ans_msg = await format_banners(raw_banners)
+        ans_msg = banners_cache[gacha_type]
+    else:
+        raw_banners = await get_banner(gacha_type)
+        ans_msg = await format_banners(raw_banners)
 
     await message.answer(
         ans_msg,
-        attachment=banner_attachment
+        attachment=banner_attachment,
+        keyboard=KEYBOARD_WEAPON
     )
 
 
@@ -692,16 +706,14 @@ async def show_standard_banner(message: Message):
     gacha_type = 200
     banner_attachment = await create_banner(gacha_type)
     if banners_cache[gacha_type] is not None:
-        await message.answer(
-            banners_cache[gacha_type],
-            attachment=banner_attachment
-        )
-        return
-
-    raw_banners = await get_banner(gacha_type)
-    ans_msg = await format_banners(raw_banners)
+        ans_msg = banners_cache[gacha_type]
+    else:
+        raw_banners = await get_banner(gacha_type)
+        ans_msg = await format_banners(raw_banners)
 
     await message.answer(
         ans_msg,
-        attachment=banner_attachment
+        attachment=banner_attachment,
+        keyboard=KEYBOARD_STANDARD
     )
+

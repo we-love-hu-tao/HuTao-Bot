@@ -2,6 +2,7 @@ import random
 
 import msgspec
 from loguru import logger
+from vkbottle import Keyboard, Text
 from vkbottle.bot import Blueprint, Message
 
 import create_pool
@@ -32,6 +33,10 @@ NAMES = (
     "Богдан",
     "В этом нике явно больше, чем 35 символов"
 )
+PROFILE_INFO_KEYBOARD = (
+    Keyboard(inline=True)
+    .add(Text("Персонаж"))
+)
 
 
 @bp.on.chat_message(text="!начать")
@@ -47,8 +52,8 @@ async def start_game(message: Message):
         else:
             new_nickname = random.choice(NAMES)
             logger.info(
-                f"Пользователь {message.from_id} создал аккаунт в беседе {message.peer_id}, "
-                f"случайный никнейм: {new_nickname}"
+                f"User {message.from_id} has created an account in a chat {message.peer_id}, "
+                f"random nickname: {new_nickname}"
             )
             await pool.execute(
                 "INSERT INTO players (user_id, peer_id, nickname) VALUES "
@@ -72,8 +77,9 @@ async def start_game(message: Message):
                 msgspec.json.encode(avatars).decode("utf-8"), message.from_id, message.peer_id
             )
 
-            return (
+            await message.answer(
                 "Вы присоединились к боту!\n"
                 "Напишите !персонаж, что бы увидеть ваш никнейм "
-                "и количество примогемов"
+                "и количество примогемов",
+                keyboard=PROFILE_INFO_KEYBOARD
             )

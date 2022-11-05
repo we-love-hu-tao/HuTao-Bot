@@ -1,12 +1,16 @@
+import time
+
 import msgspec
 from loguru import logger
+from vkbottle import Keyboard, Text
+from vkbottle import KeyboardButtonColor as Color
 from vkbottle.bot import Blueprint, Message
 from vkbottle.http import AiohttpClient
 from typing import Optional
 
 import create_pool
 from item_names import ACQUAINT_FATE, ADVENTURE_EXP, INTERTWINED_FATE, PRIMOGEM
-from utils import (exists, exp_to_level, get_avatar_data, get_item,
+from utils import (count_quests_time, exists, exp_to_level, get_avatar_data, get_item,
                    get_player_info, get_textmap, resolve_id, resolve_map_hash)
 from variables import FAV_AVATARS
 
@@ -17,7 +21,8 @@ http_client = AiohttpClient()
 
 
 @bp.on.chat_message(text=(
-    '!персонаж', '!перс', '!gthc', '! перс'
+    '!персонаж', '!перс', '!gthc', '! перс',
+    '[<!>|<!>] Персонаж'
 ))
 async def profile(message: Message):
     if not await exists(message):
@@ -28,7 +33,10 @@ async def profile(message: Message):
             "SELECT "
             "nickname, "
             "uid, "
-            "gacha_info "
+            "gacha_info, "
+            "reward_last_time, "
+            "daily_quests_time, "
+            "doing_quest "
             "FROM players WHERE user_id=$1 and peer_id=$2",
             message.from_id, message.peer_id
         )
@@ -42,9 +50,14 @@ async def profile(message: Message):
     else:
         event_pity5 = 0
 
+    reward_last_time = result['reward_last_time']
+    started_time = result['daily_quests_time']
+    doing_quest = result['doing_quest']
+
     experience = await get_item(ADVENTURE_EXP, message.from_id, message.peer_id)
     experience = experience['count']
     level = exp_to_level(experience)
+    quest_time = count_quests_time(experience)
 
     primogems = await get_item(PRIMOGEM, message.from_id, message.peer_id)
     primogems = primogems['count']
@@ -55,7 +68,17 @@ async def profile(message: Message):
     event_wishes = await get_item(INTERTWINED_FATE, message.from_id, message.peer_id)
     event_wishes = event_wishes['count']
 
-    return (
+    keyboard = Keyboard(inline=True)
+    if int(time.time()) > reward_last_time + 86400:
+        keyboard.add(Text("Награда"), color=Color.POSITIVE)
+
+    if started_time + 86400 < int(time.time()) and doing_quest is False:
+        keyboard.add(Text("Начать поручения"))
+
+    if started_time + quest_time < int(time.time()) and doing_quest:
+        keyboard.add(Text("Завершить поручения"), color=Color.POSITIVE)
+
+    await message.answer(
         f"&#128100; | Ник: {nickname}\n"
         f"&#128200; | Уровень: {level}\n"
         f"&#128160; | Примогемы: {primogems}\n"
@@ -64,7 +87,8 @@ async def profile(message: Message):
 
         f"&#10133; | Гарант в ивентовых баннерах: {event_pity5}\n\n"
 
-        f"&#128100; | Айди в Genshin Impact: {UID if UID else 'не установлен!'}"
+        f"&#128100; | Айди в Genshin Impact: {UID if UID else 'не установлен!'}",
+        keyboard=keyboard.get_json()
     )
 
 

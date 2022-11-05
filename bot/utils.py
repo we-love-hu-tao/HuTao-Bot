@@ -86,6 +86,28 @@ def exp_to_level(exp: int):
     return 60
 
 
+def count_quests_time(exp):
+    """
+    Based on player level, players will have different quest time
+    """
+    player_level = exp_to_level(exp)
+    if player_level == 60:
+        quest_time = 60
+    elif player_level > 45:
+        quest_time = 240
+    elif player_level > 35:
+        quest_time = 420
+    elif player_level > 20:
+        quest_time = 600
+    elif player_level > 10:
+        quest_time = 900
+    else:
+        quest_time = 1200
+
+    return quest_time
+
+
+
 textmap_cache = None
 manual_textmap_cache = None
 banners_cache = None
@@ -438,7 +460,7 @@ async def give_exp(new_exp: int, user_id: int, peer_id: int, api):
             if current_level < new_level:
                 new_rolls = None
                 if new_level % 5 == 0:
-                    await give_item(user_id, peer_id, INTERTWINED_FATE, new_exp)
+                    await give_item(user_id, peer_id, INTERTWINED_FATE, 5)
                     new_rolls = "\n+5 ивентовых молитв!"
                 nickname = await pool.fetchrow(
                     "SELECT nickname FROM players WHERE user_id=$1 AND "

@@ -1,10 +1,11 @@
 import asyncio
 import random
 import time
-from typing import Literal
+from typing import Optional, Literal
 
 import msgspec
 from loguru import logger
+from vkbottle import Keyboard, Text
 from vkbottle.bot import Blueprint, Message
 from vkbottle_types.objects import UsersUserFull
 
@@ -61,6 +62,7 @@ class Wish:
         self.result_records = []
         self.avatars = []
         self.result_inventory = None
+        self.keyboard = Keyboard(inline=True)
         self.encoder = msgspec.json.Encoder()
         self.decoder = msgspec.json.Decoder()
 
@@ -689,6 +691,13 @@ class Wish:
             f"&#128160; | Гарант 4*: {pity4}"
         )
 
+        if times == 10:
+            button_text = "Помолиться 10 раз"
+        else:
+            button_text = "Помолиться 1 раз"
+
+        self.keyboard.add(Text(button_text)).get_json()
+
         output_gif = self.choose_gif(max_rarity, (True if times == 10 else False))
         if self.info:
             wish_process_text = f"[id{self.user_id}|{self.full_name}] молится..."
@@ -711,6 +720,7 @@ class Wish:
             self.peer_id,
             results_msg,
             conversation_message_id=wish_process_id,
+            keyboard=self.keyboard,
             disable_mentions=(True if max_rarity < 5 else False)
         )
 
@@ -780,8 +790,9 @@ CASES = "first_name_dat, last_name_dat, first_name_gen, last_name_gen"
     '!помолиться <count:int>', '!помолиться',
     '!gjvjkbnmcz <count:int>', '!gjvjkbnmcz',
     '! помолиться <count:int>', '! помолиться',
+    '[<!>|<!>] Помолиться <count:int> раз',
 ))
-async def use_wish(message: Message, count: int = 1):
+async def use_wish(message: Message, count: Optional[int] = 1):
     if not await exists(message):
         return
     await update_player_banners_info(message)
@@ -833,7 +844,12 @@ async def use_wish(message: Message, count: int = 1):
         else:
             return "Можно помолиться только 1 или 10 раз!"
 
-        return (
+        keyboard = (
+            Keyboard(inline=True)
+            .add(Text(f"Купить молитвы {banner_type} 5"))
+        )
+        await message.answer(
             f"У вас нет {fail_text} круток!\nИх можно купить с "
-            f'помощью команды "!купить молитвы {banner_type} <число>"'
+            f'помощью команды "!купить молитвы {banner_type} <число>"',
+            keyboard=keyboard
         )
