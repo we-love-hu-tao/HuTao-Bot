@@ -22,7 +22,9 @@ async def buy_fates(message: Message, fate_type, amount: int = -1):
     if not await exists(message):
         return
 
-    if amount >= 999999:
+    if amount == 0:
+        return "Ты пьяный?"
+    if amount > 99999:
         return "За раз так много купить нельзя!"
 
     primogems_count = (await get_item(PRIMOGEM, message.from_id, message.peer_id))['count']
@@ -51,5 +53,7 @@ async def buy_fates(message: Message, fate_type, amount: int = -1):
         else:
             return (
                 f"Вам не хватает примогемов, {amount} молитв стоят "
-                f"{pay_count} примогемов!"
+                f"{pay_count} примогемов.\n"
+                "Вы также можете использовать \"!купить молитвы все <тип молитвы>\", "
+                "что бы купить молитвы на все примогемы!"
             )
