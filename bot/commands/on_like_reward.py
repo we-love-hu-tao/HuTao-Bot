@@ -55,7 +55,7 @@ async def like_add(event: GroupTypes.LikeAdd):
         random_id=0,
         message=(
             f"[id{user_id}|{result['nickname']}], спасибо за лайк на пост "
-            f"vk.com/we_love_hu_tao?w=wall-{GROUP_ID}_{post_id}!\n"
+            f"vk.com/we_love_hu_tao?w=wall-{GROUP_ID}_{post_id}\n"
             "За это вы получаете 50 примогемов!"
         ),
     )
