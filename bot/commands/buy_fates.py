@@ -13,23 +13,26 @@ bp.labeler.vbml_ignore_case = True
 @bp.on.chat_message(text=(
     "!купить молитвы <fate_type> <amount:int>",
     "!купить крутки <fate_type> <amount:int>",
-    "[<!>|<!>] Купить молитвы <fate_type> <amount:int>"
+    "!купить молитвы все <fate_type>",
+    "!купить крутки все <fate_type>",
+    "[<!>|<!>] Купить молитвы <fate_type> <amount:int>",
 ))
-async def buy_fates(message: Message, fate_type, amount: int):
+async def buy_fates(message: Message, fate_type, amount: int = -1):
     pool = create_pool.pool
     if not await exists(message):
         return
 
-    if amount <= 0:
-        return "Ты пьяный?"
     if amount >= 999999:
         return "За раз так много купить нельзя!"
+
+    primogems_count = (await get_item(PRIMOGEM, message.from_id, message.peer_id))['count']
+    if amount == -1:
+        amount = primogems_count // 160
 
     pay_count = 160 * amount
     wish_type = "стандартных"
 
     async with pool.acquire() as pool:
-        primogems_count = (await get_item(PRIMOGEM, message.from_id, message.peer_id))['count']
         if primogems_count >= pay_count:
             if fate_type in STANDARD_VARIANTS:
                 await give_item(message.from_id, message.peer_id, ACQUAINT_FATE, amount)
