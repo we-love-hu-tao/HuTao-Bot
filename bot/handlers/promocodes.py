@@ -73,7 +73,7 @@ async def redeem_promocode(message: Message, promocode):
                 promocode_query['author'], reward_author
             ))['nickname']
 
-            await bl.api.messages.send(
+            await message.ctx_api.messages.send(
                 peer_id=reward_author,
                 random_id=0,
                 message=(
