@@ -2,10 +2,10 @@ import asyncio
 from os import mkdir, path
 
 from loguru import logger
-from vkbottle import load_blueprints_from_package
-from vkbottle.bot import Bot
+from vkbottle import Bot
 
 import create_pool
+from handlers import labelers
 from config import VK_GROUP_TOKEN
 
 # TODO: Image generation (wishes)
@@ -17,9 +17,10 @@ if __name__ == "__main__":
     logger.add("logs/file_{time}.log", level="INFO", rotation="10 MB")
 
     bot = Bot(token=VK_GROUP_TOKEN)
+    logger.info(labelers)
 
-    for bp in load_blueprints_from_package("commands"):
-        bp.load(bot)
+    for custom_labeler in labelers:
+        bot.labeler.load(custom_labeler)
 
     # Create asyncpg pool
     loop = asyncio.get_event_loop_policy().get_event_loop()
@@ -27,3 +28,4 @@ if __name__ == "__main__":
 
     # Run bot
     bot.run_forever()
+

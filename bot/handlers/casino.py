@@ -1,12 +1,13 @@
-from vkbottle.bot import Blueprint, Message
+from vkbottle.bot import BotLabeler, Message, rules
 
 import create_pool
 import random
 from item_names import PRIMOGEM
 from utils import exists, get_item, give_item
 
-bp = Blueprint("Casino")
-bp.labeler.vbml_ignore_case = True
+bl = BotLabeler()
+bl.vbml_ignore_case = True
+bl.auto_rules = [rules.PeerRule(from_chat=True)]
 
 CAS_COLORS = {
     "красный": "red",
@@ -15,7 +16,7 @@ CAS_COLORS = {
 }
 
 
-@bp.on.chat_message(text="!рулетка <amount:int> <sel_color>")
+@bl.message(text="!рулетка <amount:int> <sel_color>")
 async def casino_handler(message: Message, amount: int, sel_color):
     if not await exists(message):
         return

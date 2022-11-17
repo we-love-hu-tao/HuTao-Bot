@@ -1,4 +1,4 @@
-from vkbottle.bot import Blueprint, Message
+from vkbottle.bot import BotLabeler, Message, rules
 
 import create_pool
 from item_names import ACQUAINT_FATE, INTERTWINED_FATE, PRIMOGEM
@@ -6,11 +6,12 @@ from keyboards import KEYBOARD_WISH
 from utils import exists, get_item, give_item
 from variables import EVENT_VARIANTS, STANDARD_VARIANTS
 
-bp = Blueprint("Fates shop")
-bp.labeler.vbml_ignore_case = True
+bl = BotLabeler()
+bl.auto_rules = [rules.PeerRule(from_chat=True)]
+bl.vbml_ignore_case = True
 
 
-@bp.on.chat_message(text=(
+@bl.message(text=(
     "!купить молитвы <fate_type> <amount:int>",
     "!купить крутки <fate_type> <amount:int>",
     "!купить молитвы все <fate_type>",

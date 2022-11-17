@@ -1,10 +1,13 @@
-from vkbottle.bot import Blueprint, Message
+from vkbottle.bot import BotLabeler, Message, rules
 
-from utils import (exists, get_inventory, get_textmap, get_weapon_data,
-                   resolve_id, resolve_map_hash)
+from utils import (
+    exists, get_inventory, get_textmap, get_weapon_data, resolve_id,
+    resolve_map_hash
+)
 
-bp = Blueprint("Use wish")
-bp.labeler.vbml_ignore_case = True
+bl = BotLabeler()
+bl.auto_rules = [rules.PeerRule(from_chat=True)]
+bl.vbml_ignore_case = True
 
 
 async def format_inventory(inventory: dict, rarity: int = 5):
@@ -36,7 +39,7 @@ async def format_inventory(inventory: dict, rarity: int = 5):
     return new_message
 
 
-@bp.on.chat_message(text=("!инвентарь", "!инв"))
+@bl.message(text=("!инвентарь", "!инв"))
 async def inventory_handler(message: Message):
     if not await exists(message):
         return

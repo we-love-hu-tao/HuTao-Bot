@@ -2,14 +2,14 @@ import random
 import time
 
 from loguru import logger
-from vkbottle.bot import Blueprint, Message
+from vkbottle.bot import BotLabeler, Message
 
 import create_pool
 from item_names import PRIMOGEM
 from utils import exists, give_exp, give_item
 
-bp = Blueprint("Daily reward")
-bp.labeler.vbml_ignore_case = True
+bl = BotLabeler()
+bl.vbml_ignore_case = True
 
 REWARD_ANSWERS = (
     "Вы проснулись, и увидели на своем столе {} примогемов!\n"
@@ -24,7 +24,7 @@ NO_REWARD_ANSWERS = (
 )
 
 
-@bp.on.chat_message(text=(
+@bl.message(text=(
     "!забрать награду",
     "!получить награду",
     "!награда",
@@ -58,7 +58,7 @@ async def daily_reward(message: Message):
                     f"примогемов в беседе {message.peer_id}"
                 )
                 await give_item(message.from_id, message.peer_id, PRIMOGEM, reward_primogems)
-                await give_exp(reward_experience, message.from_id, message.peer_id, bp.api)
+                await give_exp(reward_experience, message.from_id, message.peer_id, message.ctx_api)
 
                 return random.choice(REWARD_ANSWERS).format(reward_primogems)
             else:

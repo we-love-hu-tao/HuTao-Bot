@@ -1,7 +1,7 @@
 from time import time
 
 from vkbottle import GroupEventType, GroupTypes
-from vkbottle.bot import Blueprint
+from vkbottle.bot import BotLabeler
 from vkbottle.user import User
 
 import create_pool
@@ -9,11 +9,11 @@ from config import GROUP_ID, VK_USER_TOKEN
 from item_names import PRIMOGEM
 from utils import get_peer_id_by_exp, give_item
 
-bp = Blueprint("On post like primogems reward")
+bl = BotLabeler()
 user = User(VK_USER_TOKEN)
 
 
-@bp.on.raw_event(GroupEventType.LIKE_ADD, GroupTypes.LikeAdd)
+@bl.raw_event(GroupEventType.LIKE_ADD, GroupTypes.LikeAdd)
 async def like_add(event: GroupTypes.LikeAdd):
     # When user likes a post, he likes both
     # picture and a post, 2 events
@@ -50,7 +50,7 @@ async def like_add(event: GroupTypes.LikeAdd):
         )
         await give_item(user_id, add_to, PRIMOGEM, 50)
 
-    await bp.api.messages.send(
+    await bl.api.messages.send(
         peer_id=add_to,
         random_id=0,
         message=(
