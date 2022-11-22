@@ -1,4 +1,4 @@
-from vkbottle.bot import Blueprint, Message
+from vkbottle.bot import BotLabeler, Message, rules
 
 from utils import exists
 
@@ -8,14 +8,15 @@ from item_names import ADVENTURE_EXP, PRIMOGEM
 from utils import exists, exp_to_level, get_item
 """
 
-bp = Blueprint("Top players")
-bp.labeler.vbml_ignore_case = True
+bl = BotLabeler()
+bl.auto_rules = [rules.PeerRule(from_chat=True)]
+bl.vbml_ignore_case = True
 
 # Currently, I have no idea, how to implement top of players
 # with new inventory/gacha system, so, yeah...
 
 
-@bp.on.chat_message(text=("!топ", "!топ <top_type>"))
+@bl.message(text=("!топ", "!топ <top_type>"))
 async def top_players_handler(message: Message, top_type=None):
     if not await exists(message):
         return

@@ -1,12 +1,13 @@
 import random
 import re
 
-from vkbottle.bot import Blueprint, Message
+from vkbottle.bot import BotLabeler, Message, rules
 
 from utils import get_textmap
 
-bp = Blueprint("Fun commands")
-bp.labeler.vbml_ignore_case = True
+bl = BotLabeler()
+bl.auto_rules = [rules.PeerRule(from_chat=True)]
+bl.vbml_ignore_case = True
 
 
 def delete_tags(textmap_string):
@@ -22,7 +23,7 @@ def delete_tags(textmap_string):
     return textmap_string
 
 
-@bp.on.message(text=(
+@bl.message(text=(
     "!рандомная фраза",
     "!<count:int> рандомных фраз",
 ))
@@ -45,7 +46,7 @@ async def generate_random_phrase(message: Message, count=1):
     return to_send
 
 
-@bp.on.message(text=(
+@bl.message(text=(
     "!найти фразу <search_for>",
     "!найти <count:int> фраз <search_for>",
     "!найти <count:int> фразы <search_for>"

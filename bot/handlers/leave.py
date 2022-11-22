@@ -1,14 +1,15 @@
 from loguru import logger
-from vkbottle.bot import Blueprint, Message
+from vkbottle.bot import BotLabeler, Message, rules
 
 import create_pool
 from utils import exists
 
-bp = Blueprint("Leave")
-bp.labeler.vbml_ignore_case = True
+bl = BotLabeler()
+bl.auto_rules = [rules.PeerRule(from_chat=True)]
+bl.vbml_ignore_case = True
 
 
-@bp.on.chat_message(text="!удалить геншин")
+@bl.message(text="!удалить геншин")
 async def leave_from_game_question(message: Message):
     if not await exists(message):
         return
@@ -19,7 +20,7 @@ async def leave_from_game_question(message: Message):
     )
 
 
-@bp.on.chat_message(text="!точно удалить геншин")
+@bl.message(text="!точно удалить геншин")
 async def leave_from_game(message: Message):
     if not await exists(message):
         return

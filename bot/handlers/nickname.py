@@ -2,15 +2,16 @@ import random
 
 from loguru import logger
 from vkbottle import VKAPIError
-from vkbottle.bot import Blueprint, Message
+from vkbottle.bot import BotLabeler, Message, rules
 from vkbottle.user import User
 
 import create_pool
 from config import GROUP_ID, VK_USER_TOKEN
 from utils import exists
 
-bp = Blueprint("Nickname changer")
-bp.labeler.vbml_ignore_case = True
+bl = BotLabeler()
+bl.auto_rules = [rules.PeerRule(from_chat=True)]
+bl.vbml_ignore_case = True
 
 user = User(VK_USER_TOKEN)
 
@@ -155,7 +156,7 @@ async def check_for_swear(nickname: str):
     return False
 
 
-@bp.on.chat_message(
+@bl.message(
     text=(
         "!установить имя <nickname>",
         "!установить ник <nickname>",

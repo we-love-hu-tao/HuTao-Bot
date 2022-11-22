@@ -4,7 +4,7 @@ import msgspec
 from PIL import Image, ImageDraw, ImageFont
 from PIL.PngImagePlugin import PngImageFile
 from vkbottle import Keyboard, Text
-from vkbottle.bot import Blueprint, Message
+from vkbottle.bot import BotLabeler, Message, rules
 from vkbottle.tools import PhotoToAlbumUploader
 from vkbottle.user import User
 
@@ -18,8 +18,9 @@ from utils import (color_to_rarity, element_to_banner_bg, exists,
                    get_skill_depot_data, get_skill_excel_data, get_textmap,
                    get_weapon_data, resolve_id, resolve_map_hash)
 
-bp = Blueprint("Banners command")
-bp.labeler.vbml_ignore_case = True
+bl = BotLabeler()
+bl.vbml_ignore_case = True
+bl.auto_rules = [rules.PeerRule(from_chat=True)]
 user = User(VK_USER_TOKEN)
 
 # Banners names
@@ -505,7 +506,7 @@ KEYBOARD_STANDARD = (
 )
 
 
-@bp.on.chat_message(text=(
+@bl.message(text=(
     "!баннер",
     "!мой баннер",
     "!выбранный баннер",
@@ -539,7 +540,7 @@ async def show_my_banner(message: Message):
     )
 
 
-@bp.on.chat_message(text="!баннеры")
+@bl.message(text="!баннеры")
 async def show_all_banners(message: Message):
     if not await exists(message):
         return
@@ -571,7 +572,7 @@ async def show_all_banners(message: Message):
     return new_msg
 
 
-@bp.on.chat_message(text=(
+@bl.message(text=(
     "!выбрать баннер <banner>",
     "[<!>|<!>] Выбрать баннер <banner>"
 ))
@@ -615,7 +616,7 @@ async def choose_banner(message: Message, banner):
     )
 
 
-@bp.on.chat_message(text=(
+@bl.message(text=(
     "!баннер новичк<!>",
     "!баннер нуба"
 ))
@@ -636,7 +637,7 @@ async def show_beginner_banner(message: Message):
     )
 
 
-@bp.on.chat_message(text=(
+@bl.message(text=(
     "!ив баннер <banner_id:int>",
     "!ивентовый баннер <banner_id:int>",
     "!баннер ивент <banner_id:int>",
@@ -669,7 +670,7 @@ async def show_event_banner(message: Message, banner_id: int = 1):
     )
 
 
-@bp.on.chat_message(text=(
+@bl.message(text=(
     "!оруж баннер",
     "!оружейный баннер",
     "!баннер оруж<!>",
@@ -694,7 +695,7 @@ async def show_weapon_banner(message: Message):
     )
 
 
-@bp.on.chat_message(text=(
+@bl.message(text=(
     "!ст баннер",
     "!стандартный баннер",
     "!баннер стандарт<!>",

@@ -2,17 +2,18 @@ import random
 import time
 
 from loguru import logger
-from vkbottle.bot import Blueprint, Message
+from vkbottle.bot import BotLabeler, Message, rules
 
 import create_pool
 from item_names import ADVENTURE_EXP, PRIMOGEM
 from utils import count_quests_time, exists, exp_to_level, get_item, give_exp, give_item
 
-bp = Blueprint("Minigames")
-bp.labeler.vbml_ignore_case = True
+bl = BotLabeler()
+bl.auto_rules = [rules.PeerRule(from_chat=True)]
+bl.vbml_ignore_case = True
 
 
-@bp.on.chat_message(text=(
+@bl.message(text=(
     "!начать поручения", "[<!>|<!>] Начать поручения"
 ))
 async def start_daily_quests(message: Message):
@@ -60,7 +61,7 @@ async def start_daily_quests(message: Message):
             )
 
 
-@bp.on.chat_message(text=(
+@bl.message(text=(
     "!закончить поручения",
     "!завершить поручения",
     "[<!>|<!>] Завершить поручения"

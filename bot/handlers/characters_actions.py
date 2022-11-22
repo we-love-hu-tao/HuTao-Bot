@@ -1,14 +1,14 @@
 from datetime import datetime
 
 import msgspec
-from vkbottle.bot import Blueprint, Message
+from vkbottle.bot import BotLabeler, Message
 
 import create_pool
 from utils import (color_to_rarity, exists, get_avatar_by_name,
                    get_avatar_data, get_textmap, resolve_id, resolve_map_hash)
 
-bp = Blueprint("Characters list")
-bp.labeler.vbml_ignore_case = True
+bl = BotLabeler()
+bl.vbml_ignore_case = True
 
 
 async def format_characters(avatars: dict, rarity: int = 5):
@@ -59,7 +59,7 @@ async def format_characters(avatars: dict, rarity: int = 5):
     return new_message
 
 
-@bp.on.chat_message(text=("!персы", "!персонажи", "!мои персонажы"))
+@bl.message(text=("!персы", "!персонажи", "!мои персонажы"))
 async def list_chatacters(message: Message):
     if not await exists(message):
         return
@@ -81,7 +81,7 @@ async def list_chatacters(message: Message):
     return new_msg
 
 
-@bp.on.chat_message(text=("!перс <avatar_name>", "!персонаж <avatar_name>"))
+@bl.message(text=("!перс <avatar_name>", "!персонаж <avatar_name>"))
 async def character_info(message: Message, avatar_name):
     if not await exists(message):
         return

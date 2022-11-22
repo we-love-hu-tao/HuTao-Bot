@@ -6,7 +6,7 @@ from typing import Optional, Literal
 import msgspec
 from loguru import logger
 from vkbottle import Keyboard, Text
-from vkbottle.bot import Blueprint, Message
+from vkbottle.bot import BotLabeler, Message
 from vkbottle_types.objects import UsersUserFull
 
 import create_pool
@@ -23,8 +23,8 @@ from utils import (color_to_rarity, exists, get_avatar_data, get_banner_name,
 from variables import (FIVE_STAR, FIVE_STAR_TEN, FOUR_STAR, FOUR_STAR_TEN,
                        THREE_STAR)
 
-bp = Blueprint("Use wish")
-bp.labeler.vbml_ignore_case = True
+bl = BotLabeler()
+bl.vbml_ignore_case = True
 
 
 # Following code is based on https://github.com/Grasscutters/Grasscutter/
@@ -716,7 +716,7 @@ class Wish:
         await asyncio.sleep(6.0)
 
         logger.info("Sending wish results text...")
-        await bp.api.messages.edit(
+        await self.message.ctx_api.messages.edit(
             self.peer_id,
             results_msg,
             conversation_message_id=wish_process_id,
@@ -786,7 +786,7 @@ async def update_player_banners_info(message: Message):
 CASES = "first_name_dat, last_name_dat, first_name_gen, last_name_gen"
 
 
-@bp.on.chat_message(text=(
+@bl.message(text=(
     '!помолиться <count:int>', '!помолиться',
     '!gjvjkbnmcz <count:int>', '!gjvjkbnmcz',
     '! помолиться <count:int>', '! помолиться',

@@ -1,14 +1,15 @@
 from loguru import logger
-from vkbottle.bot import Blueprint, Message
+from vkbottle.bot import BotLabeler, Message, rules
 from vkbottle.http import AiohttpClient
 
 import create_pool
 from utils import exists, get_player_info
 
-bp = Blueprint("Set player in-game UID")
+bl = BotLabeler()
+bl.auto_rules = [rules.PeerRule(from_chat=True)]
 
 
-@bp.on.chat_message(text=(
+@bl.message(text=(
     "!установить айди <UID:int>",
     "!поменять айди <UID:int>",
     "!айди <UID:int>",
@@ -50,3 +51,4 @@ async def change_ingame_uid(message: Message, UID: int):
         text += "\nХу Тао на аве, здоровья маме"
 
     return text
+

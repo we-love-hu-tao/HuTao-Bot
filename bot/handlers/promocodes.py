@@ -1,17 +1,18 @@
 import time
 
 from loguru import logger
-from vkbottle.bot import Blueprint, Message
+from vkbottle.bot import BotLabeler, Message, rules
 
 import create_pool
 from item_names import PRIMOGEM
 from utils import exists, gen_promocode, get_peer_id_by_exp, give_item
 
-bp = Blueprint("Promocodes actions")
-bp.labeler.vbml_ignore_case = True
+bl = BotLabeler()
+bl.auto_rules = [rules.PeerRule(from_chat=True)]
+bl.vbml_ignore_case = True
 
 
-@bp.on.chat_message(text="!промокод <promocode>")
+@bl.message(text="!промокод <promocode>")
 async def redeem_promocode(message: Message, promocode):
     if not await exists(message):
         return
@@ -72,7 +73,7 @@ async def redeem_promocode(message: Message, promocode):
                 promocode_query['author'], reward_author
             ))['nickname']
 
-            await bp.api.messages.send(
+            await message.ctx_api.messages.send(
                 peer_id=reward_author,
                 random_id=0,
                 message=(
@@ -100,7 +101,7 @@ async def redeem_promocode(message: Message, promocode):
     return f"Вы успешно получили {promocode_query['promocode_reward']} примогемов!"
 
 
-@bp.on.chat_message(text="!мой промокод")
+@bl.message(text="!мой промокод")
 async def my_promocode(message: Message):
     if not await exists(message):
         return

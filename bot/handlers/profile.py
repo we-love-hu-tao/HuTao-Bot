@@ -4,7 +4,7 @@ import msgspec
 from loguru import logger
 from vkbottle import Keyboard, Text
 from vkbottle import KeyboardButtonColor as Color
-from vkbottle.bot import Blueprint, Message
+from vkbottle.bot import BotLabeler, Message, rules
 from vkbottle.http import AiohttpClient
 from typing import Optional
 
@@ -14,13 +14,14 @@ from utils import (count_quests_time, exists, exp_to_level, get_avatar_data, get
                    get_player_info, get_textmap, resolve_id, resolve_map_hash)
 from variables import FAV_AVATARS
 
-bp = Blueprint("Profile")
-bp.labeler.vbml_ignore_case = True
+bl = BotLabeler()
+bl.auto_rules = [rules.PeerRule(from_chat=True)]
+bl.vbml_ignore_case = True
 
 http_client = AiohttpClient()
 
 
-@bp.on.chat_message(text=(
+@bl.message(text=(
     '!персонаж', '!перс', '!gthc', '! перс',
     '[<!>|<!>] Персонаж'
 ))
@@ -92,7 +93,7 @@ async def profile(message: Message):
     )
 
 
-@bp.on.chat_message(text=(
+@bl.message(text=(
     '!баланс', '!крутки', '!примогемы', '! баланс'
 ))
 async def check_balance(message: Message):
@@ -114,7 +115,7 @@ async def check_balance(message: Message):
     )
 
 
-@bp.on.chat_message(text=(
+@bl.message(text=(
     "!геншин инфо", "!геншин инфо <UID:int>",
     "! геншин инфо", " ! геншин инфо <UID:int>"
 ))

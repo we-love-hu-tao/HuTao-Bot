@@ -3,17 +3,12 @@ import time
 from typing import Optional
 
 from loguru import logger
-from vkbottle.bot import Blueprint, Message
+from vkbottle.bot import BotLabeler, Message
 from vkbottle.dispatch.rules import ABCRule
 
 import create_pool
 from item_names import PRIMOGEM
 from utils import gen_promocode, give_exp, give_item
-
-bp = Blueprint("Admin")
-bp.labeler.vbml_ignore_case = True
-
-admin_list = (322615766, 328328155)
 
 
 class AdminRule(ABCRule[Message]):
@@ -22,7 +17,13 @@ class AdminRule(ABCRule[Message]):
         return event.from_id in admin_list
 
 
-@bp.on.message(AdminRule(), text=("!беседы <mention>", "!беседы"))
+bl = BotLabeler()
+bl.auto_rules = [AdminRule()] 
+bl.vbml_ignore_case = True
+
+admin_list = (322615766, 328328155)
+
+@bl.message(text=("!беседы <mention>", "!беседы"))
 async def list_user_chat(message: Message, mention=None):
     if mention is not None:
         mention_id = int(mention.split("|")[0][1:].replace("id", ""))
@@ -48,7 +49,7 @@ async def list_user_chat(message: Message, mention=None):
     return to_send
 
 
-@bp.on.message(AdminRule(), text=(
+@bl.message(text=(
     "+примогемы <amount:int>",
     "+примогемы <amount>",
     "+примогемы <amount:int> <mention> <peer_id:int>",
@@ -94,7 +95,7 @@ async def give_primogems(
             return "Такого пользователя нет в игре!"
 
 
-@bp.on.message(AdminRule(), text=(
+@bl.message(text=(
     "+уровень <amount:int>",
     "+уровень <amount:int> <mention> <peer_id:int>"
 ))
@@ -134,7 +135,7 @@ async def give_level(
             return "Такого пользователя нет в игре!"
 
 
-@bp.on.message(AdminRule(), text=("!гнш бан <mention>", "!гнш бан"))
+@bl.message(text=("!гнш бан <mention>", "!гнш бан"))
 async def ban_user(message: Message, mention=None):
     if mention is not None:
         mention_id = int(mention.split("|")[0][1:].replace("id", ""))
@@ -162,7 +163,7 @@ async def ban_user(message: Message, mention=None):
             await message.answer("этот человек уже забанен")
 
 
-@bp.on.message(AdminRule(), text=("!гнш разбан <mention>", "!гнш разбан"))
+@bl.message(text=("!гнш разбан <mention>", "!гнш разбан"))
 async def unban_user(message: Message, mention=None):
     if mention is not None:
         mention_id = int(mention.split("|")[0][1:].replace("id", ""))
@@ -190,8 +191,7 @@ async def unban_user(message: Message, mention=None):
             await message.answer("этот человек, к счастью не забанен")
 
 
-@bp.on.message(
-    AdminRule(),
+@bl.message(
     text=(
         "!новый промокод <!>",
         "!новый промокод"
@@ -218,8 +218,8 @@ async def create_new_promocode(message: Message):
         return f"Ошибка: {e}"
 
 
-@bp.on.message(
-    AdminRule(), text="!удалить промокод <promocode_name>"
+@bl.message(
+    text="!удалить промокод <promocode_name>"
 )
 async def delete_promocode(message: Message, promocode_name):
     pool = create_pool.pool
@@ -231,7 +231,7 @@ async def delete_promocode(message: Message, promocode_name):
     return "Промокод был удален!"
 
 
-@bp.on.message(AdminRule(), text="!sql <!>")
+@bl.message(text="!sql <!>")
 async def sql_request(message: Message):
     sql_request = message.text[5:]
     logger.debug(sql_request)
@@ -244,7 +244,7 @@ async def sql_request(message: Message):
     return f"SQL запрос вернул это: {result}"
 
 
-@bp.on.message(AdminRule(), text="!execute <!>")
+@bl.message(text="!execute <!>")
 async def execute_shell_command(message: Message):
     if message.from_id != 322615766:
         return "а тебе зачем?"

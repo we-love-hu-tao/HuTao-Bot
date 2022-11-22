@@ -4,14 +4,15 @@ from typing import Literal, Union
 import msgspec
 from loguru import logger
 from vkbottle import Callback, GroupEventType, Keyboard, KeyboardButtonColor
-from vkbottle.bot import Blueprint, Message, MessageEvent, rules
+from vkbottle.bot import BotLabeler, Message, MessageEvent, rules
 
 import create_pool
 from utils import (check_item_type, color_to_rarity, exists, get_avatar_data,
                    get_textmap, get_weapon_data, resolve_id, resolve_map_hash)
 
-bp = Blueprint("Gacha History")
-bp.labeler.vbml_ignore_case = True
+bl = BotLabeler()
+bl.auto_rules = [rules.PeerRule(from_chat=True)]
+bl.vbml_ignore_case = True
 
 weapons_type = [
     "normal_standard_weapons", "rare_standard_weapons", "legendary_standard_weapons"
@@ -145,7 +146,7 @@ def generate_move_keyboard(
     return keyboard
 
 
-@bp.on.chat_message(text="!история")
+@bl.message(text="!история")
 async def gacha_history(message: Message):
     if not await exists(message):
         return
@@ -167,7 +168,7 @@ async def gacha_history(message: Message):
     await message.answer(history, keyboard=keyboard)
 
 
-@bp.on.raw_event(
+@bl.raw_event(
     GroupEventType.MESSAGE_EVENT,
     MessageEvent,
     rules.PayloadMapRule([
