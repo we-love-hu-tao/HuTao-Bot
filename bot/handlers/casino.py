@@ -47,7 +47,7 @@ async def casino_handler(message: Message, amount: int, sel_color):
 
     if ball in range(1, 19):
         color = "black"
-        results += "&#9679;"
+        results += "&#9899;"
     elif ball in range(19, 36):
         color = "red"
         results += "&#128308;"
@@ -66,8 +66,8 @@ async def casino_handler(message: Message, amount: int, sel_color):
 
         await give_item(message.from_id, message.peer_id, PRIMOGEM, prim_count)
 
-        results += f"Вы выиграли {prim_count} примогемов!"
+        results += f"&#127881; Вы выиграли {prim_count} примогемов!"
         return results
 
-    return f"{results}Вам не повезло и вы проиграли все свои примогемы! Может быть в следующий раз повезет..."
+    return f"{results}&#128128; Вам не повезло и вы проиграли все свои примогемы! Может быть в следующий раз повезет..."
 

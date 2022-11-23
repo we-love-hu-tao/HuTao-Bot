@@ -49,6 +49,18 @@ async def list_user_chat(message: Message, mention=None):
     return to_send
 
 
+@bl.message(text="+примогемы всем <amount:int>")
+async def give_primogems_all(message: Message, amount: int):
+    pool = create_pool.pool
+    async with pool.acquire() as pool:
+        users = await pool.fetch("SELECT user_id, peer_id FROM players")
+
+    for user in users:
+        await give_item(user['user_id'], user['peer_id'], PRIMOGEM, amount)
+
+    return f"Всем игрокам успешно выдано {amount} примогемов"
+
+
 @bl.message(text=(
     "+примогемы <amount:int>",
     "+примогемы <amount>",

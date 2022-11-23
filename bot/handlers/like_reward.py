@@ -50,7 +50,7 @@ async def like_add(event: GroupTypes.LikeAdd):
         )
         await give_item(user_id, add_to, PRIMOGEM, 50)
 
-    await bl.api.messages.send(
+    await event.ctx_api.messages.send(
         peer_id=add_to,
         random_id=0,
         message=(
