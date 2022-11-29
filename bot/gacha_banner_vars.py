@@ -5,6 +5,7 @@ EVENT_BANNERS = (100, 301, 400)
 STANDARD_BANNERS = (200,)
 WEAPON_BANNERS = (302,)
 
+# 3* weapons
 FALLBACK_ITEMS_3 = (
     11301,
     11302,
@@ -21,7 +22,9 @@ FALLBACK_ITEMS_3 = (
     15304,
 )
 
+# 4* characters
 FALLBACK_ITEMS_4_POOL_1 = (
+    1006,
     1014,
     1020,
     1023,
@@ -43,6 +46,7 @@ FALLBACK_ITEMS_4_POOL_1 = (
     1064,
 )
 
+# 4* weapons
 FALLBACK_ITEMS_4_POOL_2 = (
     11401,
     11402,
@@ -71,9 +75,10 @@ FALLBACK_ITEMS_5_POOL_1 = (
     1042,  # Keqing
     1035,  # Qiqi
     1041,  # Mona
-    1069,  # Tighnari (not added in off. game yet, but idc)
+    1069,  # Tighnari
 )
 
+# Standard 5* weapons
 FALLBACK_ITEMS_5_POOL_2 = (
     11501,
     11502,
