@@ -102,7 +102,7 @@ async def complete_daily_quests(message: Message):
                     "WHERE user_id=$1 AND peer_id=$2",
                     message.from_id, message.peer_id
                 )
-                await give_exp(experience_reward, message.from_id, message.peer_id, bp.api)
+                await give_exp(experience_reward, message.from_id, message.peer_id, message.ctx_api)
                 await give_item(message.from_id, message.peer_id, PRIMOGEM, primogems_reward)
 
                 return (
