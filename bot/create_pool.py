@@ -58,3 +58,12 @@ async def init():
                 picture_id text
             );
         ''')
+
+        # Image generation info (stable horde tokens)
+        await db.execute('''
+            CREATE TABLE IF NOT EXISTS public.img_gen (
+                user_id integer UNIQUE,
+                sh_token text
+            );
+        ''')
+

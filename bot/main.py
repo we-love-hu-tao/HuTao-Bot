@@ -13,8 +13,10 @@ from config import VK_GROUP_TOKEN
 if __name__ == "__main__":
     log_path = "logs"
     error_path = "logs/errors"
+    generation_path = "generated_imgs"  # Don't change
     makedirs(log_path, exist_ok=True)
     makedirs(error_path, exist_ok=True)
+    makedirs(generation_path, exist_ok=True)
 
     logger.add(f"{log_path}/file_{{time}}.log", level="INFO", rotation="100 MB")
     logger.add(f"{error_path}/file_{{time}}.log", level="ERROR", rotation="100 MB")
