@@ -202,7 +202,9 @@ class Wish:
 
         for banner in self.player_gacha_info:
             if banner == banner_type:
-                self.player_gacha_info[banner][coinflip_name] == count
+                # i accidently put 2 equal signs instead of 1
+                # entire 100% system stopped working
+                self.player_gacha_info[banner][coinflip_name] = count
                 break
 
     def lerp(self, x, xy_array):
@@ -479,7 +481,7 @@ class Wish:
         banner_type = self.get_banner_type(gacha_type)
         # TODO: Epitomized path
         pity_featured = self.get_failed_featured_item_pulls(banner_type, rarity)
-        roll_featured = random.randint(1, 100) <= 50  # 50% chance
+        roll_featured = bool(random.getrandbits(1)) # 50% chance
         pull_featured = pity_featured or roll_featured
 
         if pull_featured and len(featured) > 0:
