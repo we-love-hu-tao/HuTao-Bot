@@ -167,6 +167,10 @@ async def check_for_swear(nickname: str):
 async def give_nickname(message: Message, nickname):
     if not await exists(message):
         return
+
+    if "." in nickname:
+        return "В нике не может быть точка!"
+
     pool = create_pool.pool
     async with pool.acquire() as pool:
 

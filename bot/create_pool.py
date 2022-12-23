@@ -17,7 +17,7 @@ async def init():
             CREATE TABLE IF NOT EXISTS public.players (
                 user_id integer,
                 peer_id integer,
-                nickname text,
+                nickname VARCHAR(100),
                 reward_last_time integer DEFAULT 0,
                 doing_quest boolean DEFAULT false,
                 daily_quests_time integer DEFAULT 0,
@@ -56,14 +56,6 @@ async def init():
             CREATE TABLE IF NOT EXISTS public.pictures (
                 picture_name text,
                 picture_id text
-            );
-        ''')
-
-        # Image generation info (stable horde tokens)
-        await db.execute('''
-            CREATE TABLE IF NOT EXISTS public.img_gen (
-                user_id integer UNIQUE,
-                sh_token text
             );
         ''')
 

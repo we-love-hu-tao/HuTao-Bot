@@ -99,7 +99,7 @@ async def find_phrase(message: Message, search_for, count=1):
     if please_wait_id == 0:
         return results_text
     else:
-        await bp.api.messages.edit(
+        await message.ctx_api.messages.edit(
             message.peer_id,
             results_text,
             conversation_message_id=please_wait_id

@@ -1,6 +1,7 @@
 import asyncio
 from os import makedirs
 
+from aiohttp.client_exceptions import ClientOSError
 from loguru import logger
 from vkbottle import Bot
 
@@ -25,6 +26,10 @@ if __name__ == "__main__":
 
     for custom_labeler in labelers:
         bot.labeler.load(custom_labeler)
+
+    @bot.error_handler.register_error_handler(ClientOSError)
+    async def no_internet_error_handler(e: ClientOSError):
+        logger.warning(f"No internet connection: {e}")
 
     # Create asyncpg pool
     loop = asyncio.get_event_loop_policy().get_event_loop()

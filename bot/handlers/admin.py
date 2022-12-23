@@ -262,6 +262,9 @@ async def execute_shell_command(message: Message):
         return "а тебе зачем?"
 
     cmd_command = message.text[9:]
-    command_output = subprocess.check_output(cmd_command, shell=True).decode("utf-8")
+    try:
+        command_output = subprocess.check_output(cmd_command, shell=True).decode("utf-8")
+    except subprocess.CalledProcessError as e:
+        return f"Не нулевой статус выхода: {e}"
 
     return f"Вывод: {command_output}"
