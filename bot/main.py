@@ -31,9 +31,8 @@ if __name__ == "__main__":
     async def no_internet_error_handler(e: ClientOSError):
         logger.warning(f"No internet connection: {e}")
 
-    # Create asyncpg pool
-    loop = asyncio.get_event_loop_policy().get_event_loop()
-    loop.run_until_complete(create_pool.init())
+    # Create asyncpg pool on bot startup
+    bot.loop_wrapper.on_startup(create_pool.init())
 
     # Run bot
     bot.run_forever()
