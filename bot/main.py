@@ -32,7 +32,7 @@ if __name__ == "__main__":
         logger.warning(f"No internet connection: {e}")
 
     # Create asyncpg pool on bot startup
-    bot.loop_wrapper.on_startup(create_pool.init())
+    bot.loop_wrapper.on_startup.append(create_pool.init())
 
     # Run bot
     bot.run_forever()
