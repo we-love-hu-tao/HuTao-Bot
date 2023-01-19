@@ -793,6 +793,8 @@ CASES = "first_name_dat, last_name_dat, first_name_gen, last_name_gen"
     '!gjvjkbnmcz <count:int>', '!gjvjkbnmcz',
     '! помолиться <count:int>', '! помолиться',
     '[<!>|<!>] Помолиться <count:int> раз',
+    'Помолиться <count:int> раз',
+
 ))
 async def use_wish(message: Message, count: Optional[int] = 1):
     if not await exists(message):

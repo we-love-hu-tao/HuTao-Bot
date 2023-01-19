@@ -7,7 +7,6 @@ from utils import exists, get_item, give_item
 from variables import EVENT_VARIANTS, STANDARD_VARIANTS
 
 bl = BotLabeler()
-bl.auto_rules = [rules.PeerRule(from_chat=True)]
 bl.vbml_ignore_case = True
 
 
@@ -17,6 +16,7 @@ bl.vbml_ignore_case = True
     "!купить молитвы все <fate_type>",
     "!купить крутки все <fate_type>",
     "[<!>|<!>] Купить молитвы <fate_type> <amount:int>",
+    "Купить молитвы <fate_type> <amount:int>",
 ))
 async def buy_fates(message: Message, fate_type, amount: int = -1):
     pool = create_pool.pool

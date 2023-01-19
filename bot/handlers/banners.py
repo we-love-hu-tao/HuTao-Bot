@@ -20,7 +20,6 @@ from utils import (color_to_rarity, element_to_banner_bg, exists,
 
 bl = BotLabeler()
 bl.vbml_ignore_case = True
-bl.auto_rules = [rules.PeerRule(from_chat=True)]
 user = User(VK_USER_TOKEN)
 
 # Banners names
@@ -574,7 +573,8 @@ async def show_all_banners(message: Message):
 
 @bl.message(text=(
     "!выбрать баннер <banner>",
-    "[<!>|<!>] Выбрать баннер <banner>"
+    "[<!>|<!>] Выбрать баннер <banner>",
+    "Выбрать баннер <banner>",
 ))
 async def choose_banner(message: Message, banner):
     if not await exists(message):

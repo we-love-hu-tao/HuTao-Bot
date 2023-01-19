@@ -10,7 +10,6 @@ from config import GROUP_ID, VK_USER_TOKEN
 from utils import exists
 
 bl = BotLabeler()
-bl.auto_rules = [rules.PeerRule(from_chat=True)]
 bl.vbml_ignore_case = True
 
 user = User(VK_USER_TOKEN)

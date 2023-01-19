@@ -28,7 +28,8 @@ NO_REWARD_ANSWERS = (
     "!забрать награду",
     "!получить награду",
     "!награда",
-    "[<!>|<!>] Награда"
+    "[<!>|<!>] Награда",
+    "Награда",
 ))
 async def daily_reward(message: Message):
     if not await exists(message):

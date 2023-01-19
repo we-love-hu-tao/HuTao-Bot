@@ -6,7 +6,6 @@ import create_pool
 from utils import exists, get_player_info
 
 bl = BotLabeler()
-bl.auto_rules = [rules.PeerRule(from_chat=True)]
 
 
 @bl.message(text=(

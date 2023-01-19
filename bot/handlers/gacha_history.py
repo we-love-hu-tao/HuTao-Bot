@@ -11,7 +11,6 @@ from utils import (check_item_type, color_to_rarity, exists, get_avatar_data,
                    get_textmap, get_weapon_data, resolve_id, resolve_map_hash)
 
 bl = BotLabeler()
-bl.auto_rules = [rules.PeerRule(from_chat=True)]
 bl.vbml_ignore_case = True
 
 weapons_type = [

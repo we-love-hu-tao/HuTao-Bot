@@ -5,7 +5,6 @@ import create_pool
 from utils import exists
 
 bl = BotLabeler()
-bl.auto_rules = [rules.PeerRule(from_chat=True)]
 bl.vbml_ignore_case = True
 
 

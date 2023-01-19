@@ -9,7 +9,6 @@ from utils import exists, exp_to_level, get_item
 """
 
 bl = BotLabeler()
-bl.auto_rules = [rules.PeerRule(from_chat=True)]
 bl.vbml_ignore_case = True
 
 # Currently, I have no idea, how to implement top of players

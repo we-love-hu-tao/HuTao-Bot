@@ -9,12 +9,13 @@ from item_names import ADVENTURE_EXP, PRIMOGEM
 from utils import count_quests_time, exists, exp_to_level, get_item, give_exp, give_item
 
 bl = BotLabeler()
-bl.auto_rules = [rules.PeerRule(from_chat=True)]
 bl.vbml_ignore_case = True
 
 
 @bl.message(text=(
-    "!начать поручения", "[<!>|<!>] Начать поручения"
+    "!начать поручения",
+    "[<!>|<!>] Начать поручения",
+    "Начать поручения",
 ))
 async def start_daily_quests(message: Message):
     """
@@ -64,7 +65,8 @@ async def start_daily_quests(message: Message):
 @bl.message(text=(
     "!закончить поручения",
     "!завершить поручения",
-    "[<!>|<!>] Завершить поручения"
+    "[<!>|<!>] Завершить поручения",
+    "Завершить поручения",
 ))
 async def complete_daily_quests(message: Message):
     """

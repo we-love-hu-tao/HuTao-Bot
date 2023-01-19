@@ -7,7 +7,6 @@ from utils import exists, get_item, give_item
 
 bl = BotLabeler()
 bl.vbml_ignore_case = True
-bl.auto_rules = [rules.PeerRule(from_chat=True)]
 
 CAS_COLORS = {
     "красный": "red",

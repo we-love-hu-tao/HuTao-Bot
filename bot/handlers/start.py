@@ -10,7 +10,6 @@ from item_names import PRIMOGEM
 from utils import give_avatar, give_item
 
 bl = BotLabeler()
-bl.auto_rules = [rules.PeerRule(from_chat=True)]
 bl.vbml_ignore_case = True
 
 NAMES = (

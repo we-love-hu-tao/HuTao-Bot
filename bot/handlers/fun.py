@@ -6,7 +6,6 @@ from vkbottle.bot import BotLabeler, Message, rules
 from utils import get_textmap
 
 bl = BotLabeler()
-bl.auto_rules = [rules.PeerRule(from_chat=True)]
 bl.vbml_ignore_case = True
 
 

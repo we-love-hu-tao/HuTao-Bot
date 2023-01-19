@@ -8,7 +8,6 @@ from item_names import PRIMOGEM
 from utils import exists, gen_promocode, get_peer_id_by_exp, give_item
 
 bl = BotLabeler()
-bl.auto_rules = [rules.PeerRule(from_chat=True)]
 bl.vbml_ignore_case = True
 
 

@@ -2,7 +2,7 @@ import time
 
 import msgspec
 from loguru import logger
-from vkbottle import Keyboard, Text
+from vkbottle import Callback, Keyboard, Text
 from vkbottle import KeyboardButtonColor as Color
 from vkbottle.bot import BotLabeler, Message, rules
 from vkbottle.http import AiohttpClient
@@ -15,7 +15,6 @@ from utils import (count_quests_time, exists, exp_to_level, get_avatar_data, get
 from variables import FAV_AVATARS
 
 bl = BotLabeler()
-bl.auto_rules = [rules.PeerRule(from_chat=True)]
 bl.vbml_ignore_case = True
 
 http_client = AiohttpClient()
@@ -23,7 +22,7 @@ http_client = AiohttpClient()
 
 @bl.message(text=(
     '!персонаж', '!перс', '!gthc', '! перс',
-    '[<!>|<!>] Персонаж'
+    '[<!>|<!>] Персонаж', 'Персонаж',
 ))
 async def profile(message: Message):
     if not await exists(message):
@@ -120,9 +119,6 @@ async def check_balance(message: Message):
     "! геншин инфо", " ! геншин инфо <UID:int>"
 ))
 async def genshin_info(message: Message, UID: Optional[int] = None):
-    if not await exists(message):
-        return
-
     info_msg = ""
 
     if UID is None:
@@ -134,7 +130,7 @@ async def genshin_info(message: Message, UID: Optional[int] = None):
                     message.from_id, message.peer_id
                 )
 
-                if UID['uid'] is None:
+                if UID is None or UID['uid'] is None:
                     return (
                         "Вы не установили свой UID! "
                         "Его можно установить с помощью команды \"!установить айди <UID>\""
@@ -181,11 +177,45 @@ async def genshin_info(message: Message, UID: Optional[int] = None):
     signature = player_info.signature or "нету"
     world_level = player_info.world_level or "неизвестен"
     profile_picture = player_info.profile_picture.avatar_id or 0
+    show_avatars = player_info.show_avatar_info_list or None
 
     avatar_data = await get_avatar_data()
     textmap = await get_textmap()
     avatar_picture_info = resolve_id(profile_picture, avatar_data)
     avatar_picture_name = resolve_map_hash(textmap, avatar_picture_info['nameTextMapHash'])
+
+    keyboard = None
+    if show_avatars is not None and len(show_avatars) > 0:
+        keyboard = Keyboard(inline=True)
+        item_kbd = 0
+        for avatar in show_avatars:
+            avatar_show_info = resolve_id(avatar.avatar_id, avatar_data)
+            avatar_show_name = resolve_map_hash(textmap, avatar_show_info['nameTextMapHash']) 
+
+            item_kbd += 1
+            if item_kbd > 1:
+                keyboard.row()
+                item_kbd = 0
+
+            avatar_name_text = avatar_show_name
+            color = Color.SECONDARY
+            if avatar.level >= 90:
+                color = Color.PRIMARY
+            else:
+                avatar_name_text += f" (Ур. {avatar.level})"
+
+            if avatar.avatar_id == 10000046:
+                color = Color.POSITIVE
+
+            avatar_kbd_text = Callback(
+                avatar_name_text,
+                payload={
+                    "uid": UID,
+                    "avatar_id": avatar.avatar_id
+            })
+
+            keyboard.add(avatar_kbd_text, color)
+        keyboard = keyboard.get_json()
 
     info_msg += (
         f"Айди в Genshin Impact: {UID}\n"
@@ -206,4 +236,4 @@ async def genshin_info(message: Message, UID: Optional[int] = None):
         f"Более подробная информация: https://enka.network/u/{UID}"
     )
 
-    return info_msg
+    await message.answer(info_msg, keyboard=keyboard)
