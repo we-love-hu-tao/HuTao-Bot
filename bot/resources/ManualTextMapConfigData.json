@@ -28133,6 +28133,13 @@
         ]
     },
     {
+        "textMapId": "UI_GACHA_SHOW_PANEL_A0115_TITLE",
+        "textMapContentTextMapHash": 2877368774,
+        "paramTypes": [
+            "TEXT_PARAM_NONE"
+        ]
+    },
+    {
         "textMapId": "UI_MINIMAP_SETTING_DESC",
         "textMapContentTextMapHash": 3090159646,
         "paramTypes": [

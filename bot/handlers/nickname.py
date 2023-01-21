@@ -163,7 +163,7 @@ async def check_for_swear(nickname: str):
         "!дать жабе имя <nickname>",
     )
 )
-async def give_nickname(message: Message, nickname):
+async def give_nickname(message: Message, nickname: str):
     if not await exists(message):
         return
 
@@ -209,7 +209,7 @@ async def give_nickname(message: Message, nickname):
                 logger.info(
                     f'Попытка забанить пользователя {message.from_id} в беседе {message.peer_id}'
                 )
-                await bp.api.messages.remove_chat_user(
+                await message.ctx_api.messages.remove_chat_user(
                     chat_id=message.chat_id, user_id=message.from_id
                 )
             except VKAPIError as error:
