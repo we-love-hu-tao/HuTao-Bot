@@ -3,9 +3,12 @@ import os
 import re
 import sys
 import time
+#from functools import lru_cache
 
 import aiofiles
 import msgspec
+from aiocache import cached
+#from aiocache.serializers import JsonSerializer
 from loguru import logger
 from vkbottle.bot import Message
 from vkbottle.http import AiohttpClient
@@ -107,100 +110,81 @@ def count_quests_time(exp):
     return quest_time
 
 
-
-textmap_cache = None
-manual_textmap_cache = None
-banners_cache = None
-avatar_data_cache = None
-avatar_skill_depot_cache = None
-avatar_skill_cache = None
-weapon_data_cache = None
-
-
+@cached(key="textmap")
 async def get_textmap():
-    global textmap_cache
-    if textmap_cache is not None:
-        return textmap_cache
-
-    async with aiofiles.open("resources/TextMapRU.json", mode='rb') as file:
+    logger.info("Loading textmap data...")
+    async with aiofiles.open(
+        "resources/TextMapRU.json", mode='rb'
+    ) as file:
         textmap = await file.read()
         textmap = msgspec.json.decode(textmap)
-        textmap_cache = textmap
         return textmap
 
 
+@cached(key="manual_textmap")
 async def get_manual_textmap():
-    global manual_textmap_cache
-    if manual_textmap_cache is not None:
-        return manual_textmap_cache
-
-    async with aiofiles.open("resources/ManualTextMapConfigData.json", mode='rb') as file:
+    logger.info("Loading manual textmap data...")
+    async with aiofiles.open(
+        "resources/ManualTextMapConfigData.json", mode='rb'
+    ) as file:
         manual_textmap = await file.read()
         manual_textmap = msgspec.json.decode(manual_textmap)
-        manual_textmap_cache = manual_textmap
         return manual_textmap
 
 
+@cached(key="banners")
 async def get_banners():
-    global banners_cache
-    if banners_cache is not None:
-        return banners_cache
-
-    async with aiofiles.open("resources/Banners.json", mode='rb') as file:
+    logger.info("Loading banner data...")
+    async with aiofiles.open(
+        "resources/Banners.json", mode='rb'
+    ) as file:
         banners_raw = await file.read()
         banners = msgspec.json.decode(banners_raw)
-        banners_cache = banners
-        return banners
+        return tuple(banners)
 
 
+@cached(key="avatar_data")
 async def get_avatar_data():
-    global avatar_data_cache
-    if avatar_data_cache is not None:
-        return avatar_data_cache
-
-    async with aiofiles.open("resources/AvatarExcelConfigData.json", mode='rb') as file:
+    logger.info("Loading avatar data...")
+    async with aiofiles.open(
+        "resources/AvatarExcelConfigData.json", mode='rb'
+    ) as file:
         avatar_data = await file.read()
         avatar_data = msgspec.json.decode(avatar_data)
-        avatar_data_cache = avatar_data
         return avatar_data
 
 
+@cached(key="skill_depot_data")
 async def get_skill_depot_data():
-    global avatar_skill_depot_cache
-    if avatar_skill_depot_cache is not None:
-        return avatar_skill_depot_cache
-
+    logger.info("Loading skill depot data...")
     async with aiofiles.open(
         "resources/AvatarSkillDepotExcelConfigData.json", mode='rb'
     ) as file:
         skill_depot_data = await file.read()
         skill_depot_data = msgspec.json.decode(skill_depot_data)
-        avatar_skill_depot_cache = skill_depot_data
-        return skill_depot_data
+        return tuple(skill_depot_data)
 
 
+@cached(key="skill_excel_data")
 async def get_skill_excel_data():
-    global avatar_skill_cache
-    if avatar_skill_cache is not None:
-        return avatar_skill_cache
-
-    async with aiofiles.open("resources/AvatarSkillExcelConfigData.json", mode='rb') as file:
+    logger.info("Loading skill excel data...")
+    async with aiofiles.open(
+        "resources/AvatarSkillExcelConfigData.json", mode='rb'
+    ) as file:
         skill_data = await file.read()
         skill_data = msgspec.json.decode(skill_data)
-        avatar_skill_cache = skill_data
-        return skill_data
+        return tuple(skill_data)
 
 
+@cached(key="weapon_data")
 async def get_weapon_data():
-    global weapon_data_cache
-    if weapon_data_cache is not None:
-        return weapon_data_cache
-
-    async with aiofiles.open("resources/WeaponExcelConfigData.json", mode='rb') as file:
+    logger.info("Loading weapon data...")
+    async with aiofiles.open(
+        "resources/WeaponExcelConfigData.json", mode='rb'
+    ) as file:
         weapon_data = await file.read()
         weapon_data = msgspec.json.decode(weapon_data)
-        weapon_data_cache = weapon_data
-        return weapon_data
+        return tuple(weapon_data)
 
 
 async def get_inventory(user_id: int, peer_id: int) -> list:
@@ -233,7 +217,8 @@ async def get_peer_id_by_exp(user_id) -> int:
     return peer_id
 
 
-async def get_banner_name(gacha_type) -> str:
+#@cached(ttl=60)
+async def get_banner_name(gacha_type, add_main=False) -> str:
     banner: Banner = await get_banner(gacha_type)
     title_path = banner.title_path
 
@@ -260,9 +245,26 @@ async def get_banner_name(gacha_type) -> str:
     # Remove HTML tags
     # <color=#C8A078FF>Молитва</color> новичка -> Молитва новичка
     banner_name = re.sub("(<([^>]+)>)", "", banner_name)
+
+    if add_main:
+        main_rateup = None
+        if len(banner.rate_up_items_5) > 0:
+            main_rateup = banner.rate_up_items_5[0]
+        elif len(banner.rate_up_items_4) > 0:
+            main_rateup = banner.rate_up_items_4[0]
+        if main_rateup is None:
+            return banner_name
+
+        avatar_data = await get_avatar_data()
+        weapon_data = await get_weapon_data()
+        item_data = resolve_id(main_rateup, avatar_data, weapon_data)
+        item_name = resolve_map_hash(textmap, item_data['nameTextMapHash'])
+
+        banner_name += f' ({item_name})'
     return banner_name
 
 
+#@cached(ttl=60)
 async def get_banner(gacha_type) -> dict:
     """Returns banner from `Banners.json`, converted into a `Banner` object"""
     raw_banners = await get_banners()
@@ -505,6 +507,7 @@ async def gen_promocode(reward, author_id=0, expire_time=0, custom_text=None) ->
     return promocode_text
 
 
+#@lru_cache(maxsize=64)
 def resolve_id(item_id: int, avatar_data: list = None, weapon_data: list = None) -> dict:
     item_info = None
     if avatar_data is None:
@@ -538,19 +541,21 @@ def resolve_id(item_id: int, avatar_data: list = None, weapon_data: list = None)
     return item_info
 
 
+#@lru_cache(maxsize=64)
 def resolve_map_hash(textmap, text_map_hash: int):
     """Gets a string from a text map hash"""
     text_map_hash = str(text_map_hash)
     return textmap.get(text_map_hash)
 
 
+#@cached(ttl=60)
 async def get_player_info(http_client: AiohttpClient, uid: int):
     """
     Gets account information from enka.network and
     converts it into an `PlayerProfile` object
     """
     player_info = await http_client.request_content(
-        f"https://enka.network/u/{uid}/__data.json",
+        f"https://enka.network/api/uid/{uid}?info",
         headers=get_default_header()
     )
     try:
