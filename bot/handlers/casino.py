@@ -25,7 +25,7 @@ async def casino_handler(message: Message, amount: int, sel_color):
         return "Вам не хватает примогемов!"
     if amount < 50:
         return "Че, боишься? Вы должны поставить как минимум 50 примогемов"
-    if amount > 5600:
+    if amount > 10000:
         return "Нельзя ставить так много, а то бомжом станешь!"
 
     sel_color = CAS_COLORS.get(sel_color)

@@ -686,7 +686,7 @@ class Wish:
 
         pity5 = self.get_pity5(banner_type)
         pity4 = self.get_pity4(banner_type)
-        banner_name = await get_banner_name(gacha_type)
+        banner_name = await get_banner_name(gacha_type, add_main=True)
         results_msg += (
             f"\n&#128160; | Ваш выбранный баннер: {banner_name}\n"
             f"&#128160; | Гарант 5*: {pity5}\n"

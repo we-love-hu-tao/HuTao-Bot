@@ -1,6 +1,7 @@
 import os
 
 import msgspec
+from aiocache import cached
 from PIL import Image, ImageDraw, ImageFont
 from PIL.PngImagePlugin import PngImageFile
 from vkbottle import Keyboard, Text
@@ -434,6 +435,7 @@ async def create_banner(gacha_type):
     return banner_attachment
 
 
+@cached()
 async def format_banners(banner: Banner):
     new_msg = ""
 
@@ -564,7 +566,7 @@ async def show_all_banners(message: Message):
             new_msg += "Неизвестный баннер\n"
             continue
 
-        banner_name = await get_banner_name(banner.gacha_type)
+        banner_name = await get_banner_name(banner.gacha_type, add_main=True)
         new_msg += f"{banner_name}\n"
 
     all_banners_cache = new_msg
