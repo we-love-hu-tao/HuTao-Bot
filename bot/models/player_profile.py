@@ -23,6 +23,12 @@ class PlayerInfo(msgspec.Struct, rename="camel"):
     show_avatar_info_list: Optional[List[ShowAvatarInfoList]] = None
 
 
+class AvatarInfoList(msgspec.Struct, rename="camel"):
+    avatar_id: int
+    fight_prop_map: dict
+
+
 class PlayerProfile(msgspec.Struct, rename="camel"):
     """Type that describes player profile from enka.network"""
     player_info: PlayerInfo
+    avatar_info_list: Optional[List[AvatarInfoList]] = None

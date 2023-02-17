@@ -3,13 +3,12 @@ import os
 import re
 import sys
 import time
-#from functools import lru_cache
 
 import aiofiles
 import msgspec
 from aiocache import cached
-#from aiocache.serializers import JsonSerializer
 from loguru import logger
+from vkbottle import API
 from vkbottle.bot import Message
 from vkbottle.http import AiohttpClient
 
@@ -217,7 +216,6 @@ async def get_peer_id_by_exp(user_id) -> int:
     return peer_id
 
 
-#@cached(ttl=60)
 async def get_banner_name(gacha_type, add_main=False) -> str:
     banner: Banner = await get_banner(gacha_type)
     title_path = banner.title_path
@@ -264,7 +262,6 @@ async def get_banner_name(gacha_type, add_main=False) -> str:
     return banner_name
 
 
-#@cached(ttl=60)
 async def get_banner(gacha_type) -> dict:
     """Returns banner from `Banners.json`, converted into a `Banner` object"""
     raw_banners = await get_banners()
@@ -507,7 +504,6 @@ async def gen_promocode(reward, author_id=0, expire_time=0, custom_text=None) ->
     return promocode_text
 
 
-#@lru_cache(maxsize=64)
 def resolve_id(item_id: int, avatar_data: list = None, weapon_data: list = None) -> dict:
     item_info = None
     if avatar_data is None:
@@ -541,25 +537,29 @@ def resolve_id(item_id: int, avatar_data: list = None, weapon_data: list = None)
     return item_info
 
 
-#@lru_cache(maxsize=64)
 def resolve_map_hash(textmap, text_map_hash: int):
     """Gets a string from a text map hash"""
     text_map_hash = str(text_map_hash)
     return textmap.get(text_map_hash)
 
 
-#@cached(ttl=60)
-async def get_player_info(http_client: AiohttpClient, uid: int):
+async def report_error(api: API, error: Exception):
+    # TODO: report errors in group dms
+    pass
+
+
+@cached(ttl=60)
+async def get_player_info(http_client: AiohttpClient, uid: int, only_info=False) -> PlayerProfile:
     """
     Gets account information from enka.network and
     converts it into an `PlayerProfile` object
     """
     player_info = await http_client.request_content(
-        f"https://enka.network/api/uid/{uid}?info",
+        f"https://enka.network/api/uid/{uid}{'?info' if only_info else ''}",
         headers=get_default_header()
     )
     try:
-        player_info = msgspec.json.decode(player_info, type=PlayerProfile).player_info
+        player_info = msgspec.json.decode(player_info, type=PlayerProfile)
     except msgspec.ValidationError as e:
         logger.error(f"Error while trying to validate enka.network response: {e}")
         player_info = None
