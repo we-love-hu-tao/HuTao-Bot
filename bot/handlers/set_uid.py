@@ -1,5 +1,5 @@
 from loguru import logger
-from vkbottle.bot import BotLabeler, Message, rules
+from vkbottle.bot import BotLabeler, Message
 from vkbottle.http import AiohttpClient
 
 import create_pool

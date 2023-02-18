@@ -5,7 +5,7 @@ from aiocache import cached
 from PIL import Image, ImageDraw, ImageFont
 from PIL.PngImagePlugin import PngImageFile
 from vkbottle import Keyboard, Text
-from vkbottle.bot import BotLabeler, Message, rules
+from vkbottle.bot import BotLabeler, Message
 from vkbottle.tools import PhotoToAlbumUploader
 from vkbottle.user import User
 

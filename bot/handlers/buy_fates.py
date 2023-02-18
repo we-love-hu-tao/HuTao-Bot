@@ -1,4 +1,4 @@
-from vkbottle.bot import BotLabeler, Message, rules
+from vkbottle.bot import BotLabeler, Message
 
 import create_pool
 from item_names import ACQUAINT_FATE, INTERTWINED_FATE, PRIMOGEM

@@ -2,7 +2,7 @@ import random
 
 from loguru import logger
 from vkbottle import VKAPIError
-from vkbottle.bot import BotLabeler, Message, rules
+from vkbottle.bot import BotLabeler, Message
 from vkbottle.user import User
 
 import create_pool

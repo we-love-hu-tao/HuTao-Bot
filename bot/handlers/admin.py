@@ -140,7 +140,7 @@ async def give_level(
         if is_exists is not None:
             logger.info(f"Добавление пользователю {mention_id} {amount} опыта")
 
-            await give_exp(amount, mention_id, peer_id, bp.api)
+            await give_exp(amount, mention_id, peer_id, message.ctx_api)
 
             return f"[id{mention_id}|Этому пользователю] было добавлено {amount} опыта!"
         else:

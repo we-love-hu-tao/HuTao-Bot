@@ -1,6 +1,5 @@
-from vkbottle.bot import BotLabeler, Message, rules
+from vkbottle.bot import BotLabeler, Message
 
-import create_pool
 import random
 from item_names import PRIMOGEM
 from utils import exists, get_item, give_item

@@ -1,7 +1,7 @@
 import random
 import re
 
-from vkbottle.bot import BotLabeler, Message, rules
+from vkbottle.bot import BotLabeler, Message
 
 from utils import get_textmap
 

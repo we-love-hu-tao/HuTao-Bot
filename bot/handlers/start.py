@@ -3,7 +3,7 @@ import random
 import msgspec
 from loguru import logger
 from vkbottle import Keyboard, Text
-from vkbottle.bot import BotLabeler, Message, rules
+from vkbottle.bot import BotLabeler, Message
 
 import create_pool
 from item_names import PRIMOGEM

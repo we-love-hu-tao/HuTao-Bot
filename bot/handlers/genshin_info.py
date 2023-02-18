@@ -142,13 +142,44 @@ async def genshin_info(message: Message, UID: Optional[int] = None):
 
 # https://api.enka.network/#/api?id=fightprop
 FIGHT_PROP_NAMES = {
-    "1010": 1377450402,
-    "2001": 1756301290,
-    "2002": 3591287138,
-    "20": 1916797986,
-    "22": 4137936461
+    '2000': 1377450402,  # HP
+    '2001': 1756301290,  # ATK
+    '2002': 3591287138,  # DEF
+    '28': 3421163681,    # Elemental Mastery
+    '20': 1916797986,    # CRIT Rate
+    '22': 4137936461,    # CRIT DMG
+    '26': 3911103831,    # Heal Bonus
+    '23': 1735465728,    # Energy Recharge
+    '30': 3763864883,    # Physical DMG Bonus
+    '40': 999734248,     # Pyro DMG Bonus
+    '41': 3514877774,    # Electro DMG Bonus
+    '42': 3619239513,    # Hydro DMG Bonus
+    '43': 1824382851,    # Dendro DMG Bonus
+    '44': 312842903,     # Anemo DMG Bonus
+    '45': 2557985416,    # Geo DMG Bonus
+    '46': 4054347456,    # Cryo DMG Bonus
 }
-FIGHT_PROP_DECIMAL = ("20", "22")
+FIGHT_PROP_EMOJIS = {
+    '2000': '💖',
+    '2001': '⚔️',
+    '2002': '🛡️',
+    '20': '💥',
+    '22': '🗡️',
+    '23': '⚡',
+    '26': '💊',
+    '28': '🌀',
+    '30': '🔥',
+    '40': '🔥',
+    '41': '⚡',
+    '42': '💧',
+    '43': '🌳',
+    '44': '💨',
+    '45': '🪨',
+    '46': '❄️',
+}
+FIGHT_PROP_DECIMAL = (
+    '20', '22', '23', '26', '30', '40', '41', '42', '43', '44', '45', '46'
+)
 
 
 @bl.raw_event(
@@ -170,22 +201,33 @@ async def show_avatar_info(event: MessageEvent):
 
     msg = f"Информация о персонаже {avatar_name} игрока {uid}:\n"
     avatars_info = player_info.avatar_info_list
+    if avatars_info is None:
+        await event.edit_message(
+            "У этого игрока отключены подробные детали персонажей"
+        )
+        return
     for avatar in avatars_info:
         if avatar.avatar_id != avatar_id:
             continue
         break
     fight_prop_map = avatar.fight_prop_map
-    fight_prop_map = {k for k, v in fight_prop_map.items() if v > 0}
+    fight_prop_map = {k: v for k, v in fight_prop_map.items() if v > 0}
 
-    for k, v in fight_prop_map.items():
-        if k not in FIGHT_PROP_NAMES:
+    textmap = await get_textmap()
+    for k, v in FIGHT_PROP_NAMES.items():
+        if k not in fight_prop_map:
             continue
 
-        if v in FIGHT_PROP_DECIMAL:
-            v = round(v, 1)
+        fight_prop_val = fight_prop_map.get(k)
+        if k in FIGHT_PROP_DECIMAL:
+            fight_prop_val = round(fight_prop_val * 100, 1)
         else:
-            v = int(v)
+            fight_prop_val = round(fight_prop_val)
 
-        msg += f"{FIGHT_PROP_NAMES.get(k)}: {v}\n"
+        emoji = ''
+        if k in FIGHT_PROP_EMOJIS:
+            emoji = FIGHT_PROP_EMOJIS[k] + ' | '
+
+        msg += f"{emoji}{resolve_map_hash(textmap, v)}: {fight_prop_val}\n"
 
     await event.edit_message(msg)

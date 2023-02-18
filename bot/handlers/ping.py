@@ -1,6 +1,6 @@
 import time
 
-from vkbottle.bot import BotLabeler, Message, rules
+from vkbottle.bot import BotLabeler, Message
 
 bl = BotLabeler()
 bl.vbml_ignore_case = True
