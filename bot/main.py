@@ -1,4 +1,3 @@
-import asyncio
 from os import makedirs
 
 from aiohttp.client_exceptions import ClientOSError

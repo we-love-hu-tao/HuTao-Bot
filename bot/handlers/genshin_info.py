@@ -3,17 +3,58 @@ from typing import Optional
 from loguru import logger
 from vkbottle import Callback, GroupEventType, Keyboard
 from vkbottle import KeyboardButtonColor as Color
+from vkbottle import ShowSnackbarEvent
 from vkbottle.bot import BotLabeler, Message, MessageEvent, rules
 from vkbottle.http import AiohttpClient
 
 import create_pool
-from utils import get_avatar_data, get_player_info, get_textmap, resolve_id, resolve_map_hash
+from utils import (
+    get_avatar_data, get_player_info, get_textmap, resolve_id, resolve_map_hash
+)
 from variables import FAV_AVATARS
 
 bl = BotLabeler()
 bl.vbml_ignore_case = True
 
 http_client = AiohttpClient()
+
+
+async def generate_avatars_kbd(from_id, UID, show_avatars):
+    avatar_data = await get_avatar_data()
+    textmap = await get_textmap()
+
+    keyboard = Keyboard(inline=True)
+    item_kbd = 0
+    for avatar in show_avatars:
+        avatar_show_info = resolve_id(avatar.avatar_id, avatar_data)
+
+        item_kbd += 1
+        if item_kbd > 1:
+            keyboard.row()
+            item_kbd = 0
+
+        avatar_name_text = resolve_map_hash(textmap, avatar_show_info["nameTextMapHash"])
+        color = Color.SECONDARY
+        if avatar.level >= 90:
+            color = Color.PRIMARY
+        else:
+            avatar_name_text += f" (Ур. {avatar.level})"
+
+        if avatar.avatar_id == 10000046:
+            color = Color.POSITIVE
+
+        avatar_kbd_text = Callback(
+            avatar_name_text,
+            payload={
+                "caller_id": from_id,
+                "uid": UID,
+                "avatar_id": avatar.avatar_id,
+                "avatar_name": avatar_name_text,
+            },
+        )
+
+        keyboard.add(avatar_kbd_text, color)
+    return keyboard.get_json()
 
 
 @bl.message(
@@ -89,37 +130,7 @@ async def genshin_info(message: Message, UID: Optional[int] = None):
 
     keyboard = None
     if show_avatars is not None and len(show_avatars) > 0:
-        keyboard = Keyboard(inline=True)
-        item_kbd = 0
-        for avatar in show_avatars:
-            avatar_show_info = resolve_id(avatar.avatar_id, avatar_data)
-
-            item_kbd += 1
-            if item_kbd > 1:
-                keyboard.row()
-                item_kbd = 0
-
-            avatar_name_text = resolve_map_hash(textmap, avatar_show_info["nameTextMapHash"])
-            color = Color.SECONDARY
-            if avatar.level >= 90:
-                color = Color.PRIMARY
-            else:
-                avatar_name_text += f" (Ур. {avatar.level})"
-
-            if avatar.avatar_id == 10000046:
-                color = Color.POSITIVE
-
-            avatar_kbd_text = Callback(
-                avatar_name_text,
-                payload={
-                    "uid": UID,
-                    "avatar_id": avatar.avatar_id,
-                    "avatar_name": avatar_name_text,
-                },
-            )
-
-            keyboard.add(avatar_kbd_text, color)
-        keyboard = keyboard.get_json()
+        keyboard = await generate_avatars_kbd(message.from_id, UID, show_avatars)
 
     info_msg += f"Айди в Genshin Impact: {UID}\nНик: {nickname}\n"
 
@@ -185,10 +196,24 @@ FIGHT_PROP_DECIMAL = (
 @bl.raw_event(
     GroupEventType.MESSAGE_EVENT,
     MessageEvent,
-    rules.PayloadMapRule([("uid", int), ("avatar_id", int), ("avatar_name", str)]),
+    rules.PayloadMapRule([
+        ("caller_id", int), ("uid", int), ("avatar_id", int), ("avatar_name", str)
+    ]),
 )
 async def show_avatar_info(event: MessageEvent):
     payload = event.get_payload_json()
+    caller_id = payload['caller_id']
+    if caller_id != event.object.user_id:
+        await event.ctx_api.messages.send_message_event_answer(
+            event_id=event.object.event_id,
+            user_id=event.object.user_id,
+            peer_id=event.object.peer_id,
+            event_data=ShowSnackbarEvent(
+                text="Неа! Только вызывающий эту команду может увидеть билд этого персонажа"
+            ).json(),
+        )
+        return
+
     uid = payload['uid']
     avatar_id = payload['avatar_id']
     avatar_name = payload['avatar_name']
@@ -196,7 +221,9 @@ async def show_avatar_info(event: MessageEvent):
         player_info = await get_player_info(http_client, uid)
     except Exception as e:
         logger.error(e)
-        await event.edit_message("Что-то пошло не так во время получения информации об этом персонаже")
+        await event.edit_message(
+            "Что-то пошло не так во время получения информации об этом персонаже"
+        )
         return
 
     msg = f"Информация о персонаже {avatar_name} игрока {uid}:\n"
@@ -207,9 +234,8 @@ async def show_avatar_info(event: MessageEvent):
         )
         return
     for avatar in avatars_info:
-        if avatar.avatar_id != avatar_id:
-            continue
-        break
+        if avatar.avatar_id == avatar_id:
+            break
     fight_prop_map = avatar.fight_prop_map
     fight_prop_map = {k: v for k, v in fight_prop_map.items() if v > 0}
 
@@ -230,4 +256,18 @@ async def show_avatar_info(event: MessageEvent):
 
         msg += f"{emoji}{resolve_map_hash(textmap, v)}: {fight_prop_val}\n"
 
-    await event.edit_message(msg)
+    # We use `copy()` since `get_player_info()` is cached, if we change
+    # `show_avatar_info_list` without using `copy()`, then
+    # `player_info.player_info.show_avatar_info_list` will also change
+    # and will be returned every time we call `get_player_info()`
+    show_avatar_info_list = player_info.player_info.show_avatar_info_list.copy()
+    logger.info(show_avatar_info_list)
+    for avatar in show_avatar_info_list:
+        if avatar.avatar_id == avatar_id:
+            show_avatar_info_list.remove(avatar)
+            break
+
+    keyboard = await generate_avatars_kbd(
+        caller_id, uid, show_avatar_info_list
+    )
+    await event.edit_message(msg, keyboard=keyboard)

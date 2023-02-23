@@ -30,6 +30,7 @@ async def change_ingame_uid(message: Message, UID: int):
 
     if not player_info:
         return "Такого игрока не существует!"
+    player_info = player_info.player_info
 
     nickname = player_info.nickname or "неизвестный ник"
     adv_rank = player_info.level or "неизвестный"
