@@ -128,6 +128,9 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-# Bot stuff
+# Bot cache
 banners_cache/
 
+# Bot resources
+resources/*ConfigData.json
+resources/TextMapRU.json
