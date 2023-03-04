@@ -266,6 +266,7 @@ async def get_main_rateup_picture(item_name):
         name = name.replace('.png', '')
         if item_name.lower() == name.lower():
             return filename
+    logger.warning(f"Picture of main rateup ({item_name}) not found!")
 
 
 async def get_second_rateup_picture(banner_id):

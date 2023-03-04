@@ -126,7 +126,10 @@ async def genshin_info(message: Message, UID: Optional[int] = None):
     avatar_data = await get_avatar_data()
     textmap = await get_textmap()
     avatar_picture_info = resolve_id(profile_picture, avatar_data)
-    avatar_picture_name = resolve_map_hash(textmap, avatar_picture_info["nameTextMapHash"])
+    if avatar_picture_info is None:
+        avatar_picture_name = "[неизвестный]"
+    else:
+        avatar_picture_name = resolve_map_hash(textmap, avatar_picture_info["nameTextMapHash"])
 
     keyboard = None
     if show_avatars is not None and len(show_avatars) > 0:

@@ -26,7 +26,7 @@
         "beginTime": 0,
         "endTime": 1924992000,
         "sortId": 1000,
-        "weights5":[[1,75], [73,150], [90,10000]]
+        "weights5": [[1,75], [73,150], [90,10000]]
     },
     {
         "comment": "Character Event Banner 1",
@@ -41,7 +41,7 @@
         "sortId": 9998,
         "rateUpItems4": [1032, 1067, 1014],
         "rateUpItems5": [1079],
-        "weights5":[[1,80], [73,80], [90,10000]]
+        "weights5": [[1,75], [73,150], [90,10000]]
     },
     {
         "comment": "Character Event Banner 2",
@@ -56,7 +56,7 @@
         "sortId": 9998,
         "rateUpItems4": [1032, 1067, 1014],
         "rateUpItems5": [1071],
-        "weights5":[[1,75], [73,150], [90,10000]]
+        "weights5": [[1,75], [73,150], [90,10000]]
     },
     {
         "comment": "Weapon Event Banner",
