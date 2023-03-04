@@ -2,6 +2,7 @@ import os
 
 import msgspec
 from aiocache import cached
+from loguru import logger
 from PIL import Image, ImageDraw, ImageFont
 from PIL.PngImagePlugin import PngImageFile
 from vkbottle import Keyboard, Text
@@ -256,14 +257,16 @@ async def get_main_rateup_picture(item_name):
     for filename in os.listdir(banners_items_path):
         if not filename.endswith('.png'):
             continue
+        filename = filename.replace('.png', '')
 
         name = ''
         if filename.startswith('UI_Gacha_AvatarImg_'):
-            name = filename.split('_')[3]
+            name = '_'.join(filename.split('_')[3])
         elif filename.startswith('UI_Gacha_EquipIcon_'):
-            name = filename.split('_')[4]
+            name = '_'.join(filename.split('_')[3:5])
 
-        name = name.replace('.png', '')
+        filename += '.png'
+
         if item_name.lower() == name.lower():
             return filename
     logger.warning(f"Picture of main rateup ({item_name}) not found!")
@@ -286,6 +289,7 @@ async def get_background_by_elem(element):
 
 
 async def check_banner_cache(prefab_path):
+    logger.info(f"Checking if {prefab_path} exists in cache")
     pool = create_pool.pool
     async with pool.acquire() as pool:
         result = await pool.fetchrow(
@@ -293,6 +297,7 @@ async def check_banner_cache(prefab_path):
             prefab_path
         )
     if result is not None:
+        logger.info(f"Cache exists, results: {result}")
         return result
 
 
@@ -384,8 +389,12 @@ async def create_banner(gacha_type):
             rateup2_info = resolve_id(main_rateup2, weapon_data=weapon_data)
             rateup1_name = resolve_map_hash(textmap, rateup1_info['nameTextMapHash'])
             rateup2_name = resolve_map_hash(textmap, rateup2_info['nameTextMapHash'])
-            main_rateup1 = await get_main_rateup_picture(rateup1_info['icon'].split('_')[3])
-            main_rateup2 = await get_main_rateup_picture(rateup2_info['icon'].split('_')[3])
+            main_rateup1 = await get_main_rateup_picture(
+                '_'.join(rateup1_info['icon'].split('_')[2:4])
+            )
+            main_rateup2 = await get_main_rateup_picture(
+                '_'.join(rateup2_info['icon'].split('_')[2:4])
+            )
 
             banner_bg = Image.open(f"{banners_bg_path}{banner_bg}")
             main_rateup1 = Image.open(f"{banners_items_path}{main_rateup1}")
