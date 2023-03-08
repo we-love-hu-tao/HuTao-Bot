@@ -3,12 +3,15 @@ import time
 from typing import Optional
 
 from loguru import logger
+from vkbottle import VKAPIError
 from vkbottle.bot import BotLabeler, Message
 from vkbottle.dispatch.rules import ABCRule
 
 import create_pool
 from item_names import PRIMOGEM
-from utils import gen_promocode, give_exp, give_item
+from utils import (
+    gen_promocode, give_exp, give_item, get_achvmt, give_achvmt
+)
 
 
 class AdminRule(ABCRule[Message]):
@@ -23,7 +26,7 @@ bl.vbml_ignore_case = True
 
 admin_list = (322615766, 328328155)
 
-@bl.message(text=("!беседы <mention>", "!беседы"))
+@bl.message(text=("!гнш беседы <mention>", "!гнш беседы"))
 async def list_user_chat(message: Message, mention=None):
     if mention is not None:
         mention_id = int(mention.split("|")[0][1:].replace("id", ""))
@@ -39,26 +42,25 @@ async def list_user_chat(message: Message, mention=None):
             "SELECT peer_id FROM players WHERE user_id=$1", mention_id
         )
 
+    if len(raw_chats) == 0:
+        await message.answer(
+            f"У [id{mention_id}|этого] пользователя нету аккаунтов в боте",
+            disable_mentions=True
+        )
+        return
+
     to_send = f"Айди бесед [id{mention_id}|этого] пользователя:\n"
     for chat in raw_chats:
-        to_send += f"{chat['peer_id']}"
+        if chat['peer_id'] == message.from_id:
+            to_send += "ЛС"
+        else:
+            to_send += f"{chat['peer_id']}"
+
         if chat['peer_id'] == message.peer_id:
             to_send += " - эта беседа"
         to_send += "\n"
 
-    return to_send
-
-
-@bl.message(text="+примогемы всем <amount:int>")
-async def give_primogems_all(message: Message, amount: int):
-    pool = create_pool.pool
-    async with pool.acquire() as pool:
-        users = await pool.fetch("SELECT user_id, peer_id FROM players")
-
-    for user in users:
-        await give_item(user['user_id'], user['peer_id'], PRIMOGEM, amount)
-
-    return f"Всем игрокам успешно выдано {amount} примогемов"
+    await message.answer(to_send, disable_mentions=True)
 
 
 @bl.message(text=(
@@ -173,6 +175,12 @@ async def ban_user(message: Message, mention=None):
             )
         else:
             await message.answer("этот человек уже забанен")
+    try:
+        await message.ctx_api.messages.remove_chat_user(
+            chat_id=message.chat_id, user_id=mention_id
+        )
+    except ValueError as e:
+        logger.info(f"Couldn't ban user from chat: {e}")
 
 
 @bl.message(text=("!гнш разбан <mention>", "!гнш разбан"))
@@ -241,6 +249,18 @@ async def delete_promocode(message: Message, promocode_name):
         except Exception:
             return "Такого промокода не существует!"
     return "Промокод был удален!"
+
+
+@bl.message(text="!тестачивка")
+async def test_achvmt_give(message: Message):
+    a = await give_achvmt(message.from_id, message.peer_id, 3, 15)
+    await message.answer(a)
+
+
+@bl.message(text="!тестачивка инфа")
+async def test_achvmt_get(message: Message):
+    achvmt = await get_achvmt(message.from_id, message.peer_id, 3)
+    await message.answer(achvmt)
 
 
 @bl.message(text="!sql <!>")

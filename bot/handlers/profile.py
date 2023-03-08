@@ -9,7 +9,7 @@ from vkbottle.http import AiohttpClient
 
 import create_pool
 from item_names import ACQUAINT_FATE, ADVENTURE_EXP, INTERTWINED_FATE, PRIMOGEM
-from utils import count_quests_time, exists, exp_to_level, get_item
+from utils import count_quests_time, exists, exp_to_level, get_item, ACHIEVEMENTS
 
 bl = BotLabeler()
 bl.vbml_ignore_case = True
@@ -109,3 +109,17 @@ async def check_balance(message: Message):
         f"&#128160; | Ивентовые крутки: {event_wishes}\n"
         f"&#128160; | Стандартные крутки: {standard_wishes}"
     )
+
+
+@bl.message(text=("!достижения", "!ачивки"))
+async def view_achievements(message: Message):
+    msg = None
+    for num, i in enumerate(ACHIEVEMENTS, 1):
+        msg += str(num)+'. '+ACHIEVEMENTS[i]['name']
+        if ACHIEVEMENTS[i]['progress'] is True:
+            pass
+
+        msg += '\n'+ACHIEVEMENTS[i]['description']
+
+    return msg
+

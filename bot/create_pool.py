@@ -29,7 +29,8 @@ async def init():
                 has_redeemed_user_promocode boolean DEFAULT false,
                 current_banner integer DEFAULT 100,
                 gacha_records jsonb DEFAULT '[]'::jsonb,
-                gacha_info jsonb DEFAULT '{}'::jsonb
+                gacha_info jsonb DEFAULT '{}'::jsonb,
+                achievements JSONB NOT NULL
             );
         ''')
 

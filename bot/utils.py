@@ -548,6 +548,97 @@ async def report_error(api: API, error: Exception):
     pass
 
 
+async def give_achvmt(user_id, peer_id, achvmt_id, progress=0):
+    # Achievement giver
+    pool = create_pool.pool
+    async with pool.acquire() as pool:
+        achievements = await pool.fetch(
+            "SELECT achievements FROM players WHERE user_id=$1 AND peer_id=$2",
+            user_id, peer_id
+        )
+        achievements = msgspec.json.decode(achievements[0]['achievements'].encode("utf-8"))
+        for achvmt in achievements:
+            if achvmt['achievement_id'] == achvmt_id:
+                achvmt['progress'] += progress
+                achievements = msgspec.json.encode(achievements).decode("utf-8")
+                await pool.execute(
+                    "UPDATE players SET achievements=$1 WHERE user_id=$2 AND peer_id=$3",
+                    achievements, user_id, peer_id
+                )
+                return achievements
+
+        a = await pool.execute(
+            "UPDATE players SET achievements = achievements || "
+            "$1::jsonb "
+            "WHERE user_id=$2 AND peer_id=$3",
+            '[{"achievement_id": %s, "progress": %s}]' % (achvmt_id, progress), user_id, peer_id
+        )
+    return a
+
+
+async def get_achvmt(user_id, peer_id, achvmt_id):
+    # Achievement getter
+    pool = create_pool.pool
+    async with pool.acquire() as pool:
+        result = await pool.fetch(
+            "SELECT achievements FROM players "
+            "WHERE user_id=$1 AND peer_id=$2",
+            user_id, peer_id
+        )
+    achievements = msgspec.json.decode(result[0]['achievements'].encode("utf-8"))
+    for achvmt in achievements:
+        if achvmt['achievement_id'] == achvmt_id:
+            return achvmt
+
+
+ACHIEVEMENTS = {
+    "1": {
+        "name": "Часть тебя в моём имени",
+        "description": (
+            "Тот самый персонаж, которого мы все любим, должен "
+            "оказаться в твоем нике!"
+        ),
+        "progress": False
+    },
+    "0": {
+        "name": "Первые шаги",
+        "description": (
+            "Именно из-за этого игроки иногда расстраиваются, "
+            "а иногда наоборот, радуются"
+        ),
+        "progress": True,
+        "max_progress": 10
+    },
+    "2": {
+        "name": "I pulled a Qiqi",
+        "description": (
+            "Lost 50/50\nAt 90 pity\nAnd now I'm out\nOf primogems..."
+        ),
+        "progress": False
+    },
+    "3": {
+        "name": "Игра пройдена, можно удалять",
+        "description": "Выбейте её и её любимый рабочий инструмент 6 и 5 раз",
+        "progress": False
+    },
+    "4": {
+        "name": "Горячая витрина",
+        "description": "Похоже, что кто-то очень любит пиро. Не обожгись!",
+        "progress": False
+    },
+    "5": {
+        "name": "Наэлектрезованная витрина",
+        "description": "Один раз он поспорил с пиро мейном. Произошел взрыв",
+        "progress": False
+    },
+}
+
+
+async def id_to_achvmt(achvmt_id: int | str):
+    achvmt_id = str(achvmt_id)
+    return ACHIEVEMENTS.get(achvmt_id)
+
+
 @cached(ttl=60)
 async def get_player_info(http_client: AiohttpClient, uid: int, only_info=False) -> PlayerProfile:
     """
