@@ -1,3 +1,4 @@
+import random
 from time import time
 
 from vkbottle import GroupEventType, GroupTypes
@@ -12,6 +13,14 @@ from utils import get_peer_id_by_exp, give_item
 bl = BotLabeler()
 user = User(VK_USER_TOKEN)
 
+NORMAL_ANSWER = (
+    "{mention}, спасибо за лайк на пост {link}\n"
+    "За это вы получаете 50 примогемов! ❀"
+)
+LOW_CHANCE_ANSWER = (
+    "авв, {mention}, с-спасибо за л-лайк на постик {link}, ~мне т-так приятно, ахх... :3\n"
+    "~за это я тебе д-дам... 50 примогемчиков, наслаждайся)"
+)
 
 @bl.raw_event(GroupEventType.LIKE_ADD, GroupTypes.LikeAdd)
 async def like_add(event: GroupTypes.LikeAdd):
@@ -50,12 +59,18 @@ async def like_add(event: GroupTypes.LikeAdd):
         )
         await give_item(user_id, add_to, PRIMOGEM, 50)
 
+    mention = f"[id{user_id}|{result['nickname']}]"
+    link = f"vk.com/we_love_hu_tao?w=wall-{GROUP_ID}_{post_id}\n"
+
+    if random.random() < 0.05:
+        ans_message = LOW_CHANCE_ANSWER
+    else:
+        ans_message = NORMAL_ANSWER
+
+    ans_message = ans_message.format(mention=mention, link=link)
+
     await event.ctx_api.messages.send(
         peer_id=add_to,
         random_id=0,
-        message=(
-            f"[id{user_id}|{result['nickname']}], спасибо за лайк на пост "
-            f"vk.com/we_love_hu_tao?w=wall-{GROUP_ID}_{post_id}\n"
-            "За это вы получаете 50 примогемов!"
-        ),
+        message=ans_message
     )
