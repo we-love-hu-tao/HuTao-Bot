@@ -116,10 +116,10 @@ async def genshin_info(message: Message, UID: Optional[int] = None):
         else:
             return "Игрока с таким UID не существует!"
 
-    nickname = player_info.nickname or "неизвестный"
-    adv_rank = player_info.level or "неизвестный"
-    signature = player_info.signature or "нету"
-    world_level = player_info.world_level or "неизвестен"
+    nickname = player_info.nickname or "[неизвестный]"
+    adv_rank = player_info.level or "[неизвестный]"
+    signature = player_info.signature or "[нету]"
+    world_level = player_info.world_level or "[неизвестен]"
     profile_picture = player_info.profile_picture.avatar_id or 0
     show_avatars = player_info.show_avatar_info_list or None
 

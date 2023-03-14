@@ -131,6 +131,10 @@ dmypy.json
 # Bot cache
 banners_cache/
 
+# Resources downloader
+download_res_linux.sh
+download_res_win.bat
+
 # Bot resources
-resources/*ConfigData.json
-resources/TextMapRU.json
+*ConfigData.json
+*TextMapRU.json
