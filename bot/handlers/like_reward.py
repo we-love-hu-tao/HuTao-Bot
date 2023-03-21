@@ -22,6 +22,7 @@ LOW_CHANCE_ANSWER = (
     "~за это я тебе д-дам... 50 примогемчиков, наслаждайся)"
 )
 
+
 @bl.raw_event(GroupEventType.LIKE_ADD, GroupTypes.LikeAdd)
 async def like_add(event: GroupTypes.LikeAdd):
     # When user likes a post, he likes both

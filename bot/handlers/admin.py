@@ -18,10 +18,11 @@ class AdminRule(ABCRule[Message]):
 
 
 bl = BotLabeler()
-bl.auto_rules = [AdminRule()] 
+bl.auto_rules = [AdminRule()]
 bl.vbml_ignore_case = True
 
 admin_list = (322615766, 328328155)
+
 
 @bl.message(text=("!беседы <mention>", "!беседы"))
 async def list_user_chat(message: Message, mention=None):

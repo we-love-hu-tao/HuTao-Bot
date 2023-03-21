@@ -729,4 +729,3 @@ async def show_standard_banner(message: Message):
         attachment=banner_attachment,
         keyboard=KEYBOARD_STANDARD
     )
-

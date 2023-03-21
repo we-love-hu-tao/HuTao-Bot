@@ -51,4 +51,3 @@ async def change_ingame_uid(message: Message, UID: int):
         text += "\nХу Тао на аве, здоровья маме"
 
     return text
-

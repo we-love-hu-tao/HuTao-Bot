@@ -67,5 +67,7 @@ async def casino_handler(message: Message, amount: int, sel_color):
         results += f"&#127881; Вы выиграли {prim_count} примогемов!"
         return results
 
-    return f"{results}&#128128; Вам не повезло и вы проиграли все свои примогемы! Может быть в следующий раз повезет..."
-
+    return (
+        f"{results}☠ Вам не повезло и вы проиграли все свои примогемы! "
+        "Может быть в следующий раз повезет..."
+    )

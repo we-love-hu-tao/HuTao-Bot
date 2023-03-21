@@ -15,4 +15,3 @@ labelers = [
 ]
 
 __all__ = ["labelers"]
-

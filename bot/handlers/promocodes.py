@@ -1,7 +1,7 @@
 import time
 
 from loguru import logger
-from vkbottle.bot import BotLabeler, Message, rules
+from vkbottle.bot import BotLabeler, Message
 
 import create_pool
 from item_names import PRIMOGEM

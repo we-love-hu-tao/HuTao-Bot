@@ -481,7 +481,7 @@ class Wish:
         banner_type = self.get_banner_type(gacha_type)
         # TODO: Epitomized path
         pity_featured = self.get_failed_featured_item_pulls(banner_type, rarity)
-        roll_featured = bool(random.getrandbits(1)) # 50% chance
+        roll_featured = bool(random.getrandbits(1))  # 50% chance
         pull_featured = pity_featured or roll_featured
 
         if pull_featured and len(featured) > 0:

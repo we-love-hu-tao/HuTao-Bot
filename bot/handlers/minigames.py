@@ -70,7 +70,7 @@ async def start_daily_quests(message: Message):
 ))
 async def complete_daily_quests(message: Message):
     """
-    Player will be able to end quests only if: 
+    Player will be able to end quests only if:
         He is registered;
         doing_quest == true;
         daily_quests_time + 1200 seconds (20 minutes) < current unix time
