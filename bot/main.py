@@ -5,8 +5,8 @@ from loguru import logger
 from vkbottle import Bot
 
 import create_pool
-from handlers import labelers
 from config import VK_GROUP_TOKEN
+from handlers import labelers
 
 # TODO: Image generation (wishes)
 

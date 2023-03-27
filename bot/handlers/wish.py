@@ -123,18 +123,20 @@ class Wish:
         for banner in self.banners:
             if banner['gachaType'] == gacha_type:
                 return banner
+        raise ValueError(f"Banner {gacha_type} not found")
 
     def get_banner_player_info(
         self,
         banner_type: Literal[
             "standardBanner", "eventCharacterBanner", "eventWeaponBanner"
         ]
-    ):
+    ) -> dict:
         for banner in self.player_gacha_info:
             if banner == banner_type:
                 return self.player_gacha_info[banner]
+        raise ValueError(f"Banner with type {banner_type} not found")
 
-    def get_banner_type(self, gacha_type):
+    def get_banner_type(self, gacha_type) -> str:
         if gacha_type in EVENT_BANNERS:
             return "eventCharacterBanner"
         elif gacha_type in STANDARD_BANNERS:
@@ -179,14 +181,14 @@ class Wish:
 
     def get_fallback_items_5_pool_2(self, gacha_type: int) -> tuple:
         if self.get_banner_type(gacha_type) == 'eventCharacterBanner':
-            return []
+            return ()
         banner = self.get_banner(gacha_type)
         fallback = banner.get('fallbackItems5Pool2')
         return (
             fallback if fallback is not None else FALLBACK_ITEMS_5_POOL_2
         )
 
-    def get_failed_featured_item_pulls(self, banner_type: int, rarity):
+    def get_failed_featured_item_pulls(self, banner_type: str, rarity):
         match rarity:
             case 4: coinflip_name = "failedFeatured4ItemPulls"
             case _: coinflip_name = "failedFeaturedItemPulls"
@@ -294,12 +296,13 @@ class Wish:
             item_id += 9999000
             for avatar in self.avatar_excel_data:
                 if avatar['id'] == item_id:
-                    return color_to_rarity(avatar['qualityType'])
+                    return color_to_rarity(avatar['qualityType']) or 1
         else:
             for weapon in self.weapon_excel_data:
                 if weapon['id'] == item_id:
                     return weapon['rankLevel']
-        logger.warning(f"Unknow item type, item_type is {item_const}, id {item_id}")
+        logger.warning(f"Unknow item rarity, item_type is {item_const}, id {item_id}")
+        return 1
 
     def add_to_records(self, gacha_type, item_type, item_id: int):
         """
@@ -358,6 +361,9 @@ class Wish:
         if item_id >= 101 and item_id <= 917:
             # Spendable item
             return -3
+
+        logger.warning(f"Unknown const level, item id: {item_id}")
+        return 0
 
     def inc_pity_all(self, banner_type):
         for banner in self.player_gacha_info:
@@ -424,7 +430,7 @@ class Wish:
             case _:
                 raise ValueError(f"Выпал {rarity}* предмет, такого быть не может")
 
-    def draw_roulette(self, weights: list, cutoff) -> bool:
+    def draw_roulette(self, weights: list, cutoff) -> int:
         total = 0
         for weight in weights:
             if weight < 0:

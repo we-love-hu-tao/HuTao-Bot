@@ -217,7 +217,10 @@ async def get_peer_id_by_exp(user_id) -> int:
 
 
 async def get_banner_name(gacha_type, add_main=False) -> str:
-    banner: Banner = await get_banner(gacha_type)
+    banner = await get_banner(gacha_type)
+    if banner is None:
+        return "Несуществующий баннер"
+
     title_path = banner.title_path
 
     textmap = await get_textmap()
@@ -256,13 +259,16 @@ async def get_banner_name(gacha_type, add_main=False) -> str:
         avatar_data = await get_avatar_data()
         weapon_data = await get_weapon_data()
         item_data = resolve_id(main_rateup, avatar_data, weapon_data)
-        item_name = resolve_map_hash(textmap, item_data['nameTextMapHash'])
+        if item_data is None:
+            logger.warning(f"Couldn't resolve item {main_rateup}")
+        else:
+            item_name = resolve_map_hash(textmap, item_data['nameTextMapHash'])
+            banner_name += f' ({item_name})'
 
-        banner_name += f' ({item_name})'
     return banner_name
 
 
-async def get_banner(gacha_type) -> dict:
+async def get_banner(gacha_type) -> Banner | None:
     """Returns banner from `Banners.json`, converted into a `Banner` object"""
     raw_banners = await get_banners()
 
@@ -310,7 +316,7 @@ async def exists(event: Message, pool=None) -> bool:
     return False
 
 
-def color_to_rarity(color_name) -> int:
+def color_to_rarity(color_name) -> int | None:
     colors = {
         "QUALITY_ORANGE_SP": 5,  # Aloy rarity
         "QUALITY_ORANGE": 5,
@@ -335,7 +341,7 @@ def element_to_banner_bg(element_name):
     return elements.get(element_name.lower())
 
 
-def check_item_type(item_id) -> int:
+def check_item_type(item_id) -> int | None:
     if item_id >= 11101 and item_id <= 15511:
         # Weapon
         return -1
@@ -404,7 +410,12 @@ async def give_item(user_id: int, peer_id: int, item_id: int, count: int = 1, gi
     )
 
 
-async def get_item(item_id, user_id=None, peer_id=None, inventory=None):
+async def get_item(
+    item_id: int,
+    user_id: int = 0,
+    peer_id: int = 0,
+    inventory: list[dict] | None = None
+):
     if inventory is None:
         inventory = await get_inventory(user_id, peer_id)
 
@@ -443,9 +454,13 @@ async def get_avatar_by_name(user_id, peer_id, avatar_name):
     textmap = await get_textmap()
     for avatar in avatars:
         avatar_excel = resolve_id(avatar['id'], avatar_data)
-        name = textmap.get(str(avatar_excel['nameTextMapHash'])).lower()
-        if name == avatar_name:
-            return avatar
+
+        if avatar_excel is not None:
+            name = textmap.get(str(avatar_excel['nameTextMapHash'])).lower()
+            if name == avatar_name:
+                return avatar
+        else:
+            logger.warning(f"Couldn't read avatar {avatar['id']} while getting it's name")
 
 
 async def give_exp(new_exp: int, user_id: int, peer_id: int, api):
@@ -504,16 +519,21 @@ async def gen_promocode(reward, author_id=0, expire_time=0, custom_text=None) ->
     return promocode_text
 
 
-def resolve_id(item_id: int, avatar_data: list = None, weapon_data: list = None) -> dict:
+def resolve_id(
+    item_id: int,
+    avatar_data: list | None = None,
+    weapon_data: list | None = None
+) -> dict | None:
     item_info = None
-    if avatar_data is None:
+    search_in = "both"
+    if avatar_data is None and weapon_data is not None:
         search_in = weapon_data
-    elif weapon_data is None:
+    elif weapon_data is None and avatar_data is not None:
         search_in = avatar_data
         if item_id <= 10000000:
             item_id += 9999000
-    else:
-        search_in = "both"
+    elif avatar_data is None and weapon_data is None:
+        raise ValueError("No data to resolve id provided")
 
     if search_in != "both":
         logger.info(f"Searching {item_id} in not empty data")
@@ -537,7 +557,7 @@ def resolve_id(item_id: int, avatar_data: list = None, weapon_data: list = None)
     return item_info
 
 
-def resolve_map_hash(textmap, text_map_hash: int):
+def resolve_map_hash(textmap: dict, text_map_hash: int | str) -> str | None:
     """Gets a string from a text map hash"""
     text_map_hash = str(text_map_hash)
     return textmap.get(text_map_hash)
@@ -549,7 +569,9 @@ async def report_error(api: API, error: Exception):
 
 
 @cached(ttl=60)
-async def get_player_info(http_client: AiohttpClient, uid: int, only_info=False) -> PlayerProfile:
+async def get_player_info(
+        http_client: AiohttpClient, uid: int, only_info: bool = False
+) -> PlayerProfile | None:
     """
     Gets account information from enka.network and
     converts it into an `PlayerProfile` object
