@@ -6,7 +6,7 @@ from vkbottle.bot import BotLabeler, Message
 
 import create_pool
 from item_names import ADVENTURE_EXP, PRIMOGEM
-from utils import count_quests_time, exists, get_item, give_exp, give_item
+from utils import count_quests_time, exists, get_item, give_exp, give_item, translate
 
 bl = BotLabeler()
 bl.vbml_ignore_case = True
@@ -51,15 +51,13 @@ async def start_daily_quests(message: Message):
 
             experience = await get_item(ADVENTURE_EXP, message.from_id, message.peer_id)
             quest_time = count_quests_time(experience['count'])
+            quest_time = int(quest_time/60)
+            ending = ('у' if quest_time/60 == 1.0 else 'ы' if quest_time/60 < 5.0 else '')
             return (
-                "Вы начали выполнять поручения. "
-                f"Возвращайтесь через {int(quest_time/60)} минут"
-                f"{'у' if quest_time/60 == 1.0 else 'ы' if quest_time/60 < 5.0 else ''}!"
+                (await translate("minigames", "start")).format(time=quest_time, ending=ending)
             )
         else:
-            return (
-                "Вы уже начали поручения или выполнили их!"
-            )
+            return await translate("minigames", "already_started")
 
 
 @bl.message(text=(
@@ -108,12 +106,12 @@ async def complete_daily_quests(message: Message):
                 await give_item(message.from_id, message.peer_id, PRIMOGEM, primogems_reward)
 
                 return (
-                    "Сегодня Катерина выплатила вам премию в размере "
-                    f"{primogems_reward} примогемов и {experience_reward} опыта!"
+                    (await translate("minigames", "end"))
+                    .format(primogems_reward=primogems_reward, experience_reward=experience_reward)
                 )
             else:
                 return (
-                    "Вы не начали поручения/уже выполнили их!"
+                    await translate("minigames", "not_started")
                 )
         else:
             seconds_left = started_time+quest_time-int(time.time())
@@ -123,6 +121,5 @@ async def complete_daily_quests(message: Message):
             else:
                 ending = f"{seconds_left} секунд"
             return (
-                "Вы сможете закончить поручения только через "
-                f"{ending}!"
+                (await translate("minigames", "time_left")).format(ending=ending)
             )

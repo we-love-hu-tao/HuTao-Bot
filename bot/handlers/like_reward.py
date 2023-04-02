@@ -1,6 +1,7 @@
 import random
 from time import time
 
+from loguru import logger
 from vkbottle import GroupEventType, GroupTypes
 from vkbottle.bot import BotLabeler
 from vkbottle.user import User
@@ -8,36 +9,40 @@ from vkbottle.user import User
 import create_pool
 from config import GROUP_ID, VK_USER_TOKEN
 from item_names import PRIMOGEM
-from utils import get_peer_id_by_exp, give_item
+from utils import get_peer_id_by_exp, give_item, translate
 
 bl = BotLabeler()
 user = User(VK_USER_TOKEN)
 
-NORMAL_ANSWER = (
-    "{mention}, спасибо за лайк на пост {link}\n"
-    "За это вы получаете 50 примогемов! ❀"
-)
-LOW_CHANCE_ANSWER = (
-    "авв, {mention}, с-спасибо за л-лайк на постик {link}, ~мне т-так приятно, ахх... :3\n"
-    "~за это я тебе д-дам... 50 примогемчиков, наслаждайся)"
-)
+liked_local = {}
 
 
 @bl.raw_event(GroupEventType.LIKE_ADD, GroupTypes.LikeAdd)
 async def like_add(event: GroupTypes.LikeAdd):
+    logger.debug(liked_local)
+    if len(liked_local) >= 10:
+        liked_local.clear()
+
     # When user likes a post, he likes both
     # picture and a post, 2 events
     if (event.object.object_type.value != "post"):
         return
 
     post_id = event.object.object_id
+    user_id = event.object.liker_id
+    is_liked_post_id = liked_local.get(post_id)
+    if is_liked_post_id is not None and user_id in is_liked_post_id:
+        return
+    if liked_local.get("post_id") is not None:
+        if user_id in liked_local["post_id"]:
+            return
+
     liked_post = await user.api.wall.get_by_id(f"-{GROUP_ID}_{post_id}")
     liked_post_time = liked_post[0].date
 
     if int(time()) - liked_post_time > 86400:  # 86400 - 1 day
         return
 
-    user_id = event.object.liker_id
     pool = create_pool.pool
     async with pool.acquire() as pool:
         add_to = await get_peer_id_by_exp(user_id)
@@ -59,14 +64,18 @@ async def like_add(event: GroupTypes.LikeAdd):
             post_id, user_id, add_to
         )
         await give_item(user_id, add_to, PRIMOGEM, 50)
+        if liked_local.get(post_id) is not None:
+            liked_local[post_id].append(user_id)
+        else:
+            liked_local[post_id] = [user_id]
 
     mention = f"[id{user_id}|{result['nickname']}]"
     link = f"vk.com/we_love_hu_tao?w=wall-{GROUP_ID}_{post_id}\n"
 
     if random.random() < 0.05:
-        ans_message = LOW_CHANCE_ANSWER
+        ans_message = await translate("like_reward", "on_like_rare")
     else:
-        ans_message = NORMAL_ANSWER
+        ans_message = await translate("like_reward", "on_like")
 
     ans_message = ans_message.format(mention=mention, link=link)
 

@@ -5,5 +5,6 @@ KEYBOARD_WISH = (
     .add(Text("Помолиться 1 раз"))
     .row()
     .add(Text("Помолиться 10 раз"))
+    .get_json()
 )
 

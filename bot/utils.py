@@ -16,6 +16,7 @@ import create_pool
 from item_names import ADVENTURE_EXP, INTERTWINED_FATE
 from models.banner import Banner
 from models.player_profile import PlayerProfile
+from config import CURRENT_LANG
 
 rank_levels_exp = {
     1: 0,
@@ -86,6 +87,10 @@ def exp_to_level(exp: int):
         if exp < exp_to_level:
             return level - 1
     return 60
+
+
+def level_to_exp(level: int):
+    return rank_levels_exp.get(level) or rank_levels_exp[60]
 
 
 def count_quests_time(exp):
@@ -184,6 +189,49 @@ async def get_weapon_data():
         weapon_data = await file.read()
         weapon_data = msgspec.json.decode(weapon_data)
         return tuple(weapon_data)
+
+
+@cached(key="language_bot")
+async def get_language_file(language):
+    file_exists = os.path.exists(f"languages/{language}.json")
+    if not file_exists:
+        logger.warning(f"Language file {language}.json doesn't exists, fallback to ru.json")
+        language = "ru"
+
+    async with aiofiles.open(
+        f"languages/{language}.json", mode='rb'
+    ) as file:
+        content = await file.read()
+    return msgspec.json.decode(content)
+
+
+async def translate(category: str, value: str, language: str | None = None):
+    language = language or CURRENT_LANG
+
+    language_file = await get_language_file(language)
+    fallback_language_file = {}
+    if language != "ru":
+        fallback_language_file = await get_language_file("ru")
+
+    using_fallback = False
+    if language_file.get(category) is None:
+        if fallback_language_file.get(category) is None:
+            raise ValueError(f"Wrong language category: {category}")
+        else:
+            using_fallback = True
+
+    if using_fallback:
+        if fallback_language_file[category].get(value) is None:
+            raise ValueError(f"Wrong translate value (in fallback): {value}")
+
+    else:
+        if language_file[category].get(value) is None:
+            if fallback_language_file[category].get(value) is None:
+                raise ValueError(f"Wrong translate value: {value}")
+            else:
+                return fallback_language_file[category][value]
+        else:
+            return language_file[category][value]
 
 
 async def get_inventory(user_id: int, peer_id: int) -> list:

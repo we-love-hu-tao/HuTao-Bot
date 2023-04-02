@@ -18,7 +18,7 @@ from models.banner import Banner, BannerType
 from utils import (color_to_rarity, element_to_banner_bg, exists,
                    get_avatar_data, get_banner, get_banner_name, get_banners,
                    get_skill_depot_data, get_skill_excel_data, get_textmap,
-                   get_weapon_data, resolve_id, resolve_map_hash)
+                   get_weapon_data, resolve_id, resolve_map_hash, translate)
 
 bl = BotLabeler()
 bl.vbml_ignore_case = True
@@ -58,7 +58,7 @@ fnt_weapon_name = ImageFont.truetype(fnt_path, 28)
 
 class BannerPicture:
     def __init__(
-        self, bg: PngImageFile, main_rateup: PngImageFile, second_rateup: PngImageFile = None
+        self, bg: PngImageFile, main_rateup: PngImageFile, second_rateup: PngImageFile | None = None
     ):
         self.main_rateup = main_rateup
         self.second_rateup = second_rateup
@@ -557,7 +557,9 @@ async def show_my_banner(message: Message):
     banner_fallback_name = BANNERS_NAMES[current_banner]
 
     await message.answer(
-        f"Ваш выбранный баннер: {banner_name} ({banner_fallback_name})",
+        (
+            await translate("banners", "current")
+        ).format(banner_name=banner_name, banner_fallback_name=banner_fallback_name),
         attachment=banner_attachment,
         keyboard=KEYBOARD_WISH
     )
@@ -572,7 +574,7 @@ async def show_all_banners(message: Message):
     if all_banners_cache is not None:
         return all_banners_cache
 
-    new_msg = "Список всех баннеров:\n"
+    new_msg = (await translate("banners", "list"))+"\n"
 
     raw_banners = await get_banners()
     decoder = msgspec.json.Decoder(Banner)
@@ -585,7 +587,7 @@ async def show_all_banners(message: Message):
         try:
             new_msg += f"{BANNERS_NAMES[banner.gacha_type]}: "
         except IndexError:
-            new_msg += "Неизвестный баннер\n"
+            new_msg += (await translate("banners", "unknown_banner"))+"\n"
             continue
 
         banner_name = await get_banner_name(banner.gacha_type, add_main=True)
@@ -616,10 +618,7 @@ async def choose_banner(message: Message, banner):
     }
 
     if banner not in banners:
-        return (
-            "Такого баннера не существует!\n"
-            "Могут быть только эти варианты: новичка, ивент, ивент 2, стандарт, оружейный"
-        )
+        return await translate("banners", "selected_unknown")
 
     choiced_banner: Banner = await get_banner(banners[banner])
 
@@ -637,7 +636,7 @@ async def choose_banner(message: Message, banner):
     banner_attachment = banner_attachment.get("attachment")
 
     await message.answer(
-        f'Вы выбрали баннер "{banner_name}"!',
+        (await translate("banners", "selected")).format(banner_name=banner_name),
         attachment=banner_attachment,
         keyboard=KEYBOARD_WISH
     )
@@ -685,7 +684,7 @@ async def show_event_banner(message: Message, banner_id: int = 1):
     elif banner_id == 2:
         gacha_type = 400
     else:
-        return "Неправильный айди баннера!"
+        return await translate("banners", "unknown_id")
 
     banner_attachment = await create_banner(gacha_type) or {}
     if banner_attachment.get("error"):

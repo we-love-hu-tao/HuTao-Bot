@@ -19,7 +19,7 @@ from gacha_banner_vars import (EVENT_BANNERS, FALLBACK_ITEMS_3,
                                STARDUST_ID, STARGLITTER_ID, WEIGHTS4, WEIGHTS5)
 from utils import (color_to_rarity, exists, get_avatar_data, get_banner_name,
                    get_banners, get_item, get_textmap, get_weapon_data,
-                   give_avatar, give_item_local, resolve_id)
+                   give_avatar, give_item_local, resolve_id, translate)
 from variables import (FIVE_STAR, FIVE_STAR_TEN, FOUR_STAR, FOUR_STAR_TEN,
                        THREE_STAR)
 
@@ -562,14 +562,14 @@ class Wish:
         else:
             match pay_item:
                 case 224:
-                    cost_item_not_enough = "У вас не достаточно стандартных молитв!"
+                    cost_item_not_enough = await translate("wish", "not_enough_standard_wishes")
                     how_to_buy = "стандарт"
                 case _:
-                    cost_item_not_enough = "У вас не достаточно ивентовых молитв!"
+                    cost_item_not_enough = await translate("wish", "not_enough_event_wishes")
                     how_to_buy = "ивент"
             await self.message.answer(
                 cost_item_not_enough
-                + f'Купить их можно с помощью команды "!купить молитвы {how_to_buy} <число>"!'
+                + (await translate("wish", "how_to_buy")).format(wish_type=how_to_buy)
             )
             return
 
@@ -652,10 +652,10 @@ class Wish:
             item_info = resolve_id(item, self.avatar_excel_data, self.weapon_excel_data)
             item_name = self.textmap.get(str(item_info['nameTextMapHash']))
             if item_name is None:
-                item_name = "Неизвестный предмет"
+                item_name = await translate("wish", "unknown_item")
             item_desc = self.textmap.get(str(item_info['descTextMapHash']))
             if item_desc is None:
-                item_desc = "Без описания"
+                item_desc = await translate("wish", "unknown_description")
             item_type = self.check_avatar_constellation_level(item_info['id'])
 
             if item_type >= -1:
@@ -668,14 +668,16 @@ class Wish:
             results_msg = f"{'&#11088;' * rarity} {drop_emoji}: {item_name}\n\"{item_desc}\"\n"
         else:
             if self.info:
-                results_msg = f"Результаты [id{self.user_id}|{self.full_name_gen}]:\n"
+                mention = f"[id{self.user_id}|{self.full_name_gen}]"
             else:
-                results_msg = f"Результаты {self.full_name_gen}:\n"
+                mention = self.full_name_gen
+
+            results_msg = (await translate("wish", "results")).format(mention=mention) + '\n'
             for item in new_items:
                 item_info = resolve_id(item, self.avatar_excel_data, self.weapon_excel_data)
                 item_name = self.textmap.get(str(item_info['nameTextMapHash']))
                 if item_name is None:
-                    item_name = "Неизвестный предмет"
+                    item_name = await translate("wish", "unknown_item")
                 item_type = self.check_avatar_constellation_level(item_info['id'])
 
                 if item_type >= -1:
@@ -694,9 +696,9 @@ class Wish:
         pity4 = self.get_pity4(banner_type)
         banner_name = await get_banner_name(gacha_type, add_main=True)
         results_msg += (
-            f"\n&#128160; | Ваш выбранный баннер: {banner_name}\n"
-            f"&#128160; | Гарант 5*: {pity5}\n"
-            f"&#128160; | Гарант 4*: {pity4}"
+            f"\n&#128160; | {await translate('wish', 'chosen_banner')}: {banner_name}\n"
+            f"&#128160; | {await translate('wish', 'five_star_gacha')}: {pity5}\n"
+            f"&#128160; | {await translate('wish', 'four_star_gacha')}: {pity4}"
         )
 
         if times == 10:
@@ -708,9 +710,10 @@ class Wish:
 
         output_gif = self.choose_gif(max_rarity, (True if times == 10 else False))
         if self.info:
-            wish_process_text = f"[id{self.user_id}|{self.full_name}] молится..."
+            mention = f"[id{self.user_id}|{self.full_name}]"
         else:
-            wish_process_text = f"{self.full_name} молится..."
+            mention = self.full_name
+        wish_process_text = (await translate("wish", "wish_process")).format(mention=mention)
 
         # Messages start
         logger.info("Sending wish process text...")
@@ -852,14 +855,17 @@ async def use_wish(message: Message, count: Optional[int] = 1):
                 await wish.do_pulls(gacha_type, 10)
                 return
         else:
-            return "Можно помолиться только 1 или 10 раз!"
+            return await translate("wish", "maximum_ten_wishes")
 
         keyboard = (
             Keyboard(inline=True)
-            .add(Text(f"Купить молитвы {banner_type} 5"))
+            .add(Text(f"Купить молитвы {banner_type} 10"))
+            .get_json()
         )
+        ans_msg = (
+            await translate("wish", "not_enough_wishes")
+        ).format(fail_text=fail_text, banner_type=banner_type)
         await message.answer(
-            f"У вас нет {fail_text} круток!\nИх можно купить с "
-            f'помощью команды "!купить молитвы {banner_type} <число>"',
-            keyboard=keyboard
+            ans_msg,
+            keyboard=keyboard,
         )

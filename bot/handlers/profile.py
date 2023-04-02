@@ -9,7 +9,7 @@ from vkbottle.http import AiohttpClient
 
 import create_pool
 from item_names import ACQUAINT_FATE, ADVENTURE_EXP, INTERTWINED_FATE, PRIMOGEM
-from utils import count_quests_time, exists, exp_to_level, get_item
+from utils import count_quests_time, exists, exp_to_level, get_item, level_to_exp, translate
 
 bl = BotLabeler()
 bl.vbml_ignore_case = True
@@ -54,6 +54,8 @@ async def profile(message: Message):
     experience = await get_item(ADVENTURE_EXP, message.from_id, message.peer_id)
     experience = experience['count']
     level = exp_to_level(experience)
+    next_level_exp = level_to_exp(level+1)
+
     quest_time = count_quests_time(experience)
 
     primogems = await get_item(PRIMOGEM, message.from_id, message.peer_id)
@@ -74,17 +76,20 @@ async def profile(message: Message):
 
     if started_time + quest_time < int(time.time()) and doing_quest:
         keyboard.add(Text("Завершить поручения"), color=Color.POSITIVE)
+    uid_not_set = await translate("profile", "anime_game_id_not_set")
+    UID = UID or uid_not_set
 
     await message.answer(
-        f"&#128100; | Ник: {nickname}\n"
-        f"&#128200; | Уровень: {level}\n"
-        f"&#128160; | Примогемы: {primogems}\n"
-        f"&#128311; | Стандартных молитв: {standard_wishes}\n"
-        f"&#128310; | Молитв события: {event_wishes}\n\n"
+        f"&#128100; | {await translate('profile', 'nickname')}: {nickname}\n"
+        f"&#128200; | {await translate('profile', 'level')}: {level}"
+        f" ({experience}/{next_level_exp})\n"
+        f"&#128160; | {await translate('profile', 'primogems')}: {primogems}\n"
+        f"&#128311; | {await translate('profile', 'standard_wish')}: {standard_wishes}\n"
+        f"&#128310; | {await translate('profile', 'event_wish')}: {event_wishes}\n\n"
 
-        f"&#10133; | Гарант в ивентовых баннерах: {event_pity5}\n\n"
+        f"&#10133; | {await translate('profile', 'event_gacha')}: {event_pity5}\n\n"
 
-        f"&#128100; | Айди в Genshin Impact: {UID if UID else 'не установлен!'}",
+        f"&#128100; | {await translate('profile', 'anime_game_id')}: {UID}",
         keyboard=keyboard.get_json()
     )
 
@@ -105,7 +110,7 @@ async def check_balance(message: Message):
     standard_wishes = standard_wishes['count']
 
     return (
-        f"&#128160; | Примогемы: {primogems}\n"
-        f"&#128160; | Ивентовые крутки: {event_wishes}\n"
-        f"&#128160; | Стандартные крутки: {standard_wishes}"
+        f"&#128160; | {await translate('profile', 'primogems')}: {primogems}\n"
+        f"&#128160; | {await translate('profile', 'event_wish')}: {event_wishes}\n"
+        f"&#128160; | {await translate('profile', 'standard_wish')}: {standard_wishes}"
     )

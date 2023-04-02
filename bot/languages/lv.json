@@ -1,0 +1,97 @@
+{
+    "banners": {
+        "current": "Jūsu izvēlētais baneris: {banner_name} ({banner_fallback_name})",
+        "list": "Visi pieejamie baneri:",
+        "selected": "Jūs izvēlējāties baneri \"{banner_name}\"!",
+        "selected_unknown": "Tāds baneris neeksistē!\nIespējamie varianti: новичка, ивент, ивент 2, стандарт, оружейный",
+        "unknown_banner": "Nezināms baneris",
+        "unknown_id": "Nepareizs banera ID!"
+    },
+    "shop": {
+        "wish_type_standard": "standarta",
+        "wish_type_event": "pasākumu",
+        "buy_confirmation": "Jūs esat iegādājies {amount} {wish_type} lūgšanas par {pay_count} primogems!\nJūsu bilance: {current_balance}",
+        "zero_value": "Jūs esat piedzēries?",
+        "too_big_value": "Tāds daudzums nevar tikt iegādāts uzreiz!",
+        "unknown_wish": "Nē, šādas lūgšanas nepastāv!",
+        "not_enough_primos": "Jums nav pietiekami daudz primogems, {amount} lūgšanas maksā {pay_count} primogems!",
+        "not_enough_primos_tip": "Jūs varat arī izmantot komandu \"!купить молитвы все <lūgšanas tips>\", lai iegādātos lūgšanas par visiem primogems!"
+    },
+    "daily_rewards": {
+        "reward_answers": [
+            "Jūs pamodāties un uz savas galda redzējāt {amount} primogems!\nInteresanti, kā tie tur nokļuva?",
+            "Jūs izgājāt uz ielas un atradāt {amount} primogems uz zemes",
+            "Kāds hiličurls atrada {amount} primogems, un jūs tos \"aizņēmāties\" no viņa"
+        ],
+        "no_reward_answers": [
+            "Šodien jums nelabi izvēlējās, jūs neatradāt nevienu primogems...",
+            "Kamēr jūs devāties mājup, jūs nolaidāt visas atrastās primogems upē..."
+        ],
+        "already_used": "Jūs jau mēģinājāt atrast primogems, mēģiniet rīt vēlreiz!"
+    }, 
+    "genshin_info": {
+        "kbd_avatar_level": "(Līmenis {level})",
+        "uid_not_set": "Jūs neesat iestatījis savu UID! To var izdarīt, izmantojot komandu \"!установить айди <UID>\"",
+        "replier_no_uid": "Persona, uz kuru jūs atbildat, vēl nav izveidojusi kontu / nav norādījusi ID, taču viņa to var izdarīt, rakstot \"!установить айди <UID>\"",
+        "player_info": "Informācija par [id{from_id}|šī] spēlētāja kontu",
+        "enka_network_error": "Izskatās, ka enka.network pakalpojums pašlaik nedarbojas!\nJa tā nav, lūdzu, informējiet [id322615766|main] par to]",
+        "current_account_deleted": "Vai nu neizdevās atrast informāciju par šo UID, vai arī šis Genshin Impact konts tika aizliegts / dzēsts\n(vai arī tā ir enka.network kļūda)",
+        "uid_not_found": "Spēlētāja ar šādu UID nav",
+        "unknown_value": "[nezināms]",
+        "info_msg_start": "ID Genshin Impact: {uid}\nLietotājvārds: {nickname}",
+        "fav_avatar_profile_picture": "{avatar_name} profila attēlā, veselība mātei",
+        "no_avatar_profile_picture": "Profilā nav neviena (kā tas var būt?)",
+        "avatar_profile_picture": "{avatar_name} profila attēlā",
+        "adv_rank": "Piedzīvojumu ranga līmenis",
+        "description": "Apraksts",
+        "world_level": "Pasaules līmenis",
+        "more_information": "Papildu informācija",
+        "only_caller_build": "Nē! Tikai tas, kurš izsauc šo komandu, var redzēt šīs rakstzīmes būvējumu",
+        "get_build_error": "Kaut kas nogāja greizi, iegūstot informāciju par šo rakstzīmi",
+        "avatar_info_start": "Informācija par rakstzīmi {avatar_name} spēlētāja {uid}:",
+        "detailed_info_disabled": "Šī spēlētāja rakstzīmēm ir izslēgta detalizētā informācija"
+    },
+    "like_reward": {
+        "on_like": "{mention}, paldies par patīkamu ziņojuma {link} apskati!\nPar to jūs saņemat 50 primogems! ❀",
+        "on_like_rare": "avv, {mention}, p-paldies par p-patīkamu {link} apskati, man ir tik patīkami, ah ...: 3\n par to es tev dosiu... 50 primogemčiki, baudīt)"
+    },
+    "minigames": {
+        "start": "Jūs esat sākuši izpildīt uzdevumu. Atgriezieties pēc {time} minūtēm{ending}!",
+        "already_started": "Jūs jau esat sākuši uzdevumu vai to izpildījuši!",
+        "end": "Šodien Katerīna jums izmaksāja prēmiju {primogems_reward} primogemu un {experience_reward} pieredzes punktu apmērā!",
+        "not_started": "Jūs neesat sākuši uzdevumu / jau to izpildījuši!",
+        "time_left": "Jūs varēsiet pabeigt uzdevumu tikai pēc {ending}!"
+    },
+    "ping": {
+        "pong": "Pongs!"
+    },
+    "profile": {
+        "nickname": "Iesauka",
+        "level": "Līmenis",
+        "primogems": "Primogemi",
+        "standard_wish": "Standarta lūgšanu",
+        "event_wish": "Notikuma lūgšanu",
+        "event_gacha": "Garančijas ietvaros notikuma lūgšanas",
+        "anime_game_id": "Genshin Impact ID",
+        "anime_game_id_not_set": "nav uzstādīts!"
+    },
+    "wish": {
+        "group": "Grupa",
+        "group_dat": "Grupai",
+        "group_gen": "Grupas",
+        "not_enough_standard_wishes": "Jums nav pietiekami daudz standarta lūgšanu!",
+        "not_enough_event_wishes": "Jums nav pietiekami daudz notikuma lūgšanu!",
+        "how_to_buy_standard": "standarta",
+        "how_to_buy_event": "notikuma",
+        "how_to_buy": "To var iegādāties, izmantojot komandu \"!купить молитвы {wish_type} <skaitlis>\"!",
+        "unknown_item": "Nezināms priekšmets",
+        "unknown_description": "Bez apraksta",
+        "results": "{mention} rezultāti:",
+        "chosen_banner": "Jūsu izvēlētais plakāts",
+        "five_star_gacha": "Garančijas ietvaros 5*",
+        "four_star_gacha": "Garančijas ietvaros 4*",
+        "wish_process": "{mention} lūdz...",
+        "maximum_ten_wishes": "Var lūgt tikai 1 vai 10 reizes!",
+        "not_enough_wishes": "Jums nav pietiekami daudz {fail_text} lūgšanu!\nTo var iegādāties, izmantojot komandu \"!купить молитвы {banner_type} <skaitlis>\""
+    }
+}

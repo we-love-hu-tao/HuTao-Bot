@@ -6,22 +6,10 @@ from vkbottle.bot import BotLabeler, Message
 
 import create_pool
 from item_names import PRIMOGEM
-from utils import exists, give_exp, give_item
+from utils import exists, give_exp, give_item, translate
 
 bl = BotLabeler()
 bl.vbml_ignore_case = True
-
-REWARD_ANSWERS = (
-    "Вы проснулись, и увидели на своем столе {} примогемов!\n"
-    "Интересно, как они там оказались?",
-    "Вы вышли на улицу и нашли на земле {} примогемов",
-    'Какой-то хиличурл нашел {} примогемов, и вы "одолжили" их у него'
-)
-
-NO_REWARD_ANSWERS = (
-    "Сегодня вам не повезло, вы не нашли никаких примогемов...",
-    "Пока вы шли домой, вы уронили все найденные примогемы в реку..."
-)
 
 
 @bl.message(text=(
@@ -50,7 +38,7 @@ async def daily_reward(message: Message):
                 int(time.time()), message.from_id, message.peer_id
             )
 
-            if random.random() * 100 < 90:
+            if random.random() * 100 < 85:
                 # Giving daily reward to a player
                 reward_primogems = random.randint(160, 1600)
                 reward_experience = random.randint(500, 1000)
@@ -61,9 +49,13 @@ async def daily_reward(message: Message):
                 await give_item(message.from_id, message.peer_id, PRIMOGEM, reward_primogems)
                 await give_exp(reward_experience, message.from_id, message.peer_id, message.ctx_api)
 
-                return random.choice(REWARD_ANSWERS).format(reward_primogems)
+                return random.choice(
+                    (await translate("daily_rewards", "reward_answers"))
+                ).format(amount=reward_primogems)
             else:
                 # This guy is super unlucky, he got nothing
-                return random.choice(NO_REWARD_ANSWERS)
+                return random.choice(
+                    (await translate("daily_rewards", "no_reward_answers"))
+                )
         else:
-            return "Вы уже попытались найти примогемы, попробуйте завтра!"
+            return await translate("daily_rewards", "already_used")

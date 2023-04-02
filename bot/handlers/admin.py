@@ -109,6 +109,52 @@ async def give_primogems(
 
 
 @bl.message(text=(
+    "-примогемы <amount:int>",
+    "-примогемы <amount>",
+    "-примогемы <amount:int> <mention> <peer_id:int>",
+))
+async def take_primogems(
+    message: Message,
+    amount: int | str,
+    mention: Optional[str] = None,
+    peer_id: Optional[int] = None
+):
+    try:
+        amount = int(amount)
+    except ValueError:
+        return "Количество примогемов должно быть числом!"
+
+    if mention is None:
+        if message.reply_message is None:
+            mention_id = message.from_id
+        else:
+            mention_id = message.reply_message.from_id
+    else:
+        mention_id = int(mention.split("|")[0][1:].replace("id", ""))
+
+    if peer_id is None:
+        peer_id = message.peer_id
+    else:
+        if peer_id < 2000000000:
+            peer_id += 2000000000
+
+    pool = create_pool.pool
+    async with pool.acquire() as pool:
+        is_exists = await pool.fetchrow(
+            "SELECT user_id FROM players WHERE user_id=$1 AND peer_id=$2",
+            mention_id, peer_id
+        )
+        if is_exists is not None:
+            logger.info(f"Отнимание у пользователю {mention_id} {amount} примогемов")
+
+            await give_item(mention_id, peer_id, PRIMOGEM, -amount)
+
+            return f"У [id{mention_id}|этого пользователч] было отнято {amount} примогемов"
+        else:
+            return "Такого пользователя нет в игре!"
+
+
+@bl.message(text=(
     "+уровень <amount:int>",
     "+уровень <amount:int> <mention> <peer_id:int>"
 ))
@@ -156,7 +202,7 @@ async def ban_user(message: Message, mention=None):
         if message.reply_message is not None:
             mention_id = message.reply_message.from_id
         else:
-            await message.answer("так ответь на сообщение")
+            return "так ответь на сообщение"
     pool = create_pool.pool
     async with pool.acquire() as pool:
         is_exists = await pool.fetchrow(
@@ -172,6 +218,13 @@ async def ban_user(message: Message, mention=None):
             await message.answer(
                 "этот человек совершил что-то ужасное, поэтому был забанен"
             )
+            try:
+                await message.ctx_api.messages.remove_chat_user(
+                    chat_id=message.chat_id, user_id=mention_id
+                )
+            except ValueError as e:
+                logger.info(f"Couldn't ban user from chat: {e}")
+
         else:
             await message.answer("этот человек уже забанен")
 
@@ -247,6 +300,7 @@ async def delete_promocode(message: Message, promocode_name):
 @bl.message(text="!sql <!>")
 async def sql_request(message: Message):
     sql_request = message.text[5:]
+    sql_request = sql_request.replace('»', '>>')
     logger.debug(sql_request)
     pool = create_pool.pool
     async with pool.acquire() as pool:

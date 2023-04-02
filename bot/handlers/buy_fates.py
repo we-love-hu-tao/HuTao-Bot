@@ -3,7 +3,7 @@ from vkbottle.bot import BotLabeler, Message
 import create_pool
 from item_names import ACQUAINT_FATE, INTERTWINED_FATE, PRIMOGEM
 from keyboards import KEYBOARD_WISH
-from utils import exists, get_item, give_item
+from utils import exists, get_item, give_item, translate
 from variables import EVENT_VARIANTS, STANDARD_VARIANTS
 
 bl = BotLabeler()
@@ -24,9 +24,9 @@ async def buy_fates(message: Message, fate_type, amount: int = -1):
         return
 
     if amount == 0:
-        return "Ты пьяный?"
+        return await translate("shop", "zero_value")
     if amount > 99999:
-        return "За раз так много купить нельзя!"
+        return await translate("shop", "too_big_value")
 
     primogems_count = (await get_item(PRIMOGEM, message.from_id, message.peer_id))['count']
     if amount == -1:
@@ -43,18 +43,23 @@ async def buy_fates(message: Message, fate_type, amount: int = -1):
                 await give_item(message.from_id, message.peer_id, INTERTWINED_FATE, amount)
                 wish_type = "ивентовых"
             else:
-                return "Неа, таких молитв не существует!"
+                return await translate("shop", "unknown_wish")
 
             await give_item(message.from_id, message.peer_id, PRIMOGEM, -pay_count)
+            current_balance = primogems_count - pay_count
             await message.answer(
-                f"Вы купили {amount} {wish_type} молитв за {pay_count} примогемов!\n"
-                f"Ваш баланс: {primogems_count - pay_count}",
+                (await translate("shop", "buy_confirmation"))
+                .format(
+                    amount=amount,
+                    wish_type=wish_type,
+                    pay_count=pay_count,
+                    current_balance=current_balance
+                ),
                 keyboard=KEYBOARD_WISH
             )
         else:
             return (
-                f"Вам не хватает примогемов, {amount} молитв стоят "
-                f"{pay_count} примогемов.\n"
-                "Вы также можете использовать \"!купить молитвы все <тип молитвы>\", "
-                "что бы купить молитвы на все примогемы!"
+                (await translate("shop", "not_enough_primos"))
+                .format(amount=amount, pay_count=pay_count)+'\n'
+                + await translate("shop", "not_enough_primos_tip")
             )

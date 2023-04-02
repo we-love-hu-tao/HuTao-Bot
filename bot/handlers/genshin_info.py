@@ -9,7 +9,7 @@ from vkbottle.http import AiohttpClient
 
 import create_pool
 from utils import (
-    get_avatar_data, get_player_info, get_textmap, resolve_id, resolve_map_hash
+    get_avatar_data, get_player_info, get_textmap, resolve_id, resolve_map_hash, translate
 )
 from variables import FAV_AVATARS
 
@@ -74,10 +74,7 @@ async def genshin_info(message: Message, UID: Optional[int] = None):
                 )
 
                 if UID is None or UID["uid"] is None:
-                    return (
-                        "Вы не установили свой UID! "
-                        'Его можно установить с помощью команды "!установить айди <UID>"'
-                    )
+                    return await translate("genshin_info", "uid_not_set")
             else:
                 UID = await pool.fetchrow(
                     "SELECT uid FROM players WHERE user_id=$1 AND peer_id=$2",
@@ -86,13 +83,11 @@ async def genshin_info(message: Message, UID: Optional[int] = None):
                 )
 
                 if UID is None or UID["uid"] is None:
-                    return (
-                        "Человек, на которого вы ответили, еще не создал аккаунт "
-                        "/ не указал айди, однако он может это сделать, написав "
-                        '"!установить айди <UID>"'
-                    )
+                    return await translate("genshin_info", "replier_no_uid")
                 info_msg += (
-                    f"Информация об аккаунте [id{message.reply_message.from_id}|этого] игрока\n\n"
+                    (await translate("genshin_info", "player_info"))
+                    .format(from_id=message.reply_message.from_id)
+                    + "\n\n"
                 )
 
             UID = UID["uid"]
@@ -101,25 +96,19 @@ async def genshin_info(message: Message, UID: Optional[int] = None):
         player_info = (await get_player_info(http_client, UID, only_info=True)).player_info
     except Exception as e:
         logger.error(e)
-        return (
-            "Похоже, что сервис enka.network сейчас не работает!\n"
-            "Если же это не так, пожалуйста, сообщите об этой ошибке [id322615766|мне]"
-        )
+        return await translate("genshin_info", "enka_network_error")
 
     if not player_info:
         if UID is None:
-            return (
-                "Ээээ... Информацию об этом UID не получилось найти, "
-                "похоже этот аккаунт в геншине был забанен/удален\n"
-                "(или это ошибка enka.network)"
-            )
+            return await translate("genshin_info", "current_account_deleted")
         else:
-            return "Игрока с таким UID не существует!"
+            return await translate("genshin_info", "uid_not_found")
 
-    nickname = player_info.nickname or "[неизвестный]"
-    adv_rank = player_info.level or "[неизвестный]"
-    signature = player_info.signature or "[нету]"
-    world_level = player_info.world_level or "[неизвестен]"
+    unknown = await translate("genshin_info", "unknown_value")
+    nickname = player_info.nickname or unknown
+    adv_rank = player_info.level or unknown
+    signature = player_info.signature or unknown
+    world_level = player_info.world_level or unknown
     profile_picture = player_info.profile_picture.avatar_id or 0
     show_avatars = player_info.show_avatar_info_list or None
 
@@ -127,7 +116,7 @@ async def genshin_info(message: Message, UID: Optional[int] = None):
     textmap = await get_textmap()
     avatar_picture_info = resolve_id(profile_picture, avatar_data)
     if avatar_picture_info is None:
-        avatar_picture_name = "[неизвестный]"
+        avatar_picture_name = unknown
     else:
         avatar_picture_name = resolve_map_hash(textmap, avatar_picture_info["nameTextMapHash"])
 
@@ -135,20 +124,27 @@ async def genshin_info(message: Message, UID: Optional[int] = None):
     if show_avatars is not None and len(show_avatars) > 0:
         keyboard = await generate_avatars_kbd(message.from_id, UID, show_avatars)
 
-    info_msg += f"Айди в Genshin Impact: {UID}\nНик: {nickname}\n"
+    info_msg += (
+        await translate('genshin_info', 'info_msg_start')
+    ).format(uid=UID, nickname=nickname)
 
     if profile_picture in FAV_AVATARS:
-        info_msg += f"{avatar_picture_name} на аве, здоровья маме\n\n"
+        info_msg += (
+            await translate("genshin_info", "fav_avatar_profile_picture")
+        ).format(avatar_name=avatar_picture_name)
     elif avatar_picture_name is None:
-        info_msg += "На аватарке никого нету (как это возможно?)"
+        info_msg += (await translate("genshin_info", "no_avatar_profile_picture"))
     else:
-        info_msg += f"{avatar_picture_name} на аватарке\n\n"
+        info_msg += (
+            await translate("genshin_info", "avatar_profile_picture")
+        ).format(avatar_name=avatar_picture_name)
+    info_msg += '\n\n'
 
     info_msg += (
-        f"Ранг приключений: {adv_rank}\n"
-        f"Описание: {signature}\n"
-        f"Уровень мира: {world_level}\n\n"
-        f"Более подробная информация: https://enka.network/u/{UID}"
+        f"{await translate('genshin_info', 'adv_rank')}: {adv_rank}\n"
+        f"{await translate('genshin_info', 'description')}: {signature}\n"
+        f"{await translate('genshin_info', 'world_level')}: {world_level}\n\n"
+        f"{await translate('genshin_info', 'more_information')}: https://enka.network/u/{UID}"
     )
 
     await message.answer(info_msg, keyboard=keyboard)
@@ -212,7 +208,7 @@ async def show_avatar_info(event: MessageEvent):
             user_id=event.object.user_id,
             peer_id=event.object.peer_id,
             event_data=ShowSnackbarEvent(
-                text="Неа! Только вызывающий эту команду может увидеть билд этого персонажа"
+                text=await translate("genshin_info", "only_caller_build")
             ).json(),
         )
         return
@@ -224,17 +220,16 @@ async def show_avatar_info(event: MessageEvent):
         player_info = await get_player_info(http_client, uid)
     except Exception as e:
         logger.error(e)
-        await event.edit_message(
-            "Что-то пошло не так во время получения информации об этом персонаже"
-        )
+        await event.edit_message(await translate("genshin_info", "get_build_error"))
         return
 
-    msg = f"Информация о персонаже {avatar_name} игрока {uid}:\n"
+    msg = (
+        await translate("genshin_info", "avatar_info_start")
+    ).format(avatar_name=avatar_name, uid=uid)
+    msg += '\n'
     avatars_info = player_info.avatar_info_list
     if avatars_info is None:
-        await event.edit_message(
-            "У этого игрока отключены подробные детали персонажей"
-        )
+        await event.edit_message(await translate("genshin_info", "detailed_info_disabled"))
         return
     for avatar in avatars_info:
         if avatar.avatar_id == avatar_id:
