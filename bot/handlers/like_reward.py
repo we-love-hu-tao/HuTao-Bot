@@ -19,26 +19,29 @@ liked_local = {}
 
 @bl.raw_event(GroupEventType.LIKE_ADD, GroupTypes.LikeAdd)
 async def like_add(event: GroupTypes.LikeAdd):
-    logger.debug(liked_local)
-    if len(liked_local) >= 10:
-        liked_local.clear()
-
     # When user likes a post, he likes both
     # picture and a post, 2 events
-    if (event.object.object_type.value != "post"):
-        return
+    if event.object.object_type is not None:
+        if event.object.object_type.value != "post":
+            return
 
     post_id = event.object.object_id
     user_id = event.object.liker_id
     is_liked_post_id = liked_local.get(post_id)
     if is_liked_post_id is not None and user_id in is_liked_post_id:
         return
-    if liked_local.get("post_id") is not None:
-        if user_id in liked_local["post_id"]:
-            return
 
-    liked_post = await user.api.wall.get_by_id(f"-{GROUP_ID}_{post_id}")
-    liked_post_time = liked_post[0].date
+    logger.debug(liked_local)
+    if len(liked_local) >= 10:
+        liked_local.clear()
+
+    if liked_local.get(post_id) is not None:
+        liked_local[post_id].add(user_id)
+    else:
+        liked_local[post_id] = {user_id}
+
+    liked_post = await user.api.wall.get_by_id([f"-{GROUP_ID}_{post_id}"])
+    liked_post_time = liked_post[0].date or 0
 
     if int(time()) - liked_post_time > 86400:  # 86400 - 1 day
         return
@@ -64,10 +67,6 @@ async def like_add(event: GroupTypes.LikeAdd):
             post_id, user_id, add_to
         )
         await give_item(user_id, add_to, PRIMOGEM, 50)
-        if liked_local.get(post_id) is not None:
-            liked_local[post_id].append(user_id)
-        else:
-            liked_local[post_id] = [user_id]
 
     mention = f"[id{user_id}|{result['nickname']}]"
     link = f"vk.com/we_love_hu_tao?w=wall-{GROUP_ID}_{post_id}\n"

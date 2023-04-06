@@ -19,7 +19,7 @@ bl.vbml_ignore_case = True
 http_client = AiohttpClient()
 
 
-async def generate_avatars_kbd(from_id, UID, show_avatars):
+async def generate_avatars_kbd(from_id, uid, show_avatars):
     avatar_data = await get_avatar_data()
     textmap = await get_textmap()
 
@@ -47,7 +47,7 @@ async def generate_avatars_kbd(from_id, UID, show_avatars):
             avatar_name_text,
             payload={
                 "caller_id": from_id,
-                "uid": UID,
+                "uid": uid,
                 "avatar_id": avatar.avatar_id,
                 "avatar_name": avatar_name_text,
             },
@@ -60,29 +60,29 @@ async def generate_avatars_kbd(from_id, UID, show_avatars):
 @bl.message(
     text=("!геншин инфо", "!геншин инфо <UID:int>", "! геншин инфо", " ! геншин инфо <UID:int>")
 )
-async def genshin_info(message: Message, UID: Optional[int] = None):
+async def genshin_info(message: Message, uid: Optional[int] = None):
     info_msg = ""
 
-    if UID is None:
+    if uid is None:
         pool = create_pool.pool
         async with pool.acquire() as pool:
             if message.reply_message is None:
-                UID = await pool.fetchrow(
+                uid = await pool.fetchrow(
                     "SELECT uid FROM players WHERE user_id=$1 AND peer_id=$2",
                     message.from_id,
                     message.peer_id,
                 )
 
-                if UID is None or UID["uid"] is None:
+                if uid is None or uid["uid"] is None:
                     return await translate("genshin_info", "uid_not_set")
             else:
-                UID = await pool.fetchrow(
+                uid = await pool.fetchrow(
                     "SELECT uid FROM players WHERE user_id=$1 AND peer_id=$2",
                     message.reply_message.from_id,
                     message.peer_id,
                 )
 
-                if UID is None or UID["uid"] is None:
+                if uid is None or uid["uid"] is None:
                     return await translate("genshin_info", "replier_no_uid")
                 info_msg += (
                     (await translate("genshin_info", "player_info"))
@@ -90,16 +90,16 @@ async def genshin_info(message: Message, UID: Optional[int] = None):
                     + "\n\n"
                 )
 
-            UID = UID["uid"]
+            uid = uid["uid"]
 
     try:
-        player_info = (await get_player_info(http_client, UID, only_info=True)).player_info
+        player_info = (await get_player_info(http_client, uid, only_info=True)).player_info
     except Exception as e:
         logger.error(e)
         return await translate("genshin_info", "enka_network_error")
 
     if not player_info:
-        if UID is None:
+        if uid is None:
             return await translate("genshin_info", "current_account_deleted")
         else:
             return await translate("genshin_info", "uid_not_found")
@@ -122,11 +122,11 @@ async def genshin_info(message: Message, UID: Optional[int] = None):
 
     keyboard = None
     if show_avatars is not None and len(show_avatars) > 0:
-        keyboard = await generate_avatars_kbd(message.from_id, UID, show_avatars)
+        keyboard = await generate_avatars_kbd(message.from_id, uid, show_avatars)
 
     info_msg += (
         await translate('genshin_info', 'info_msg_start')
-    ).format(uid=UID, nickname=nickname)
+    ).format(uid=uid, nickname=nickname) + '\n'
 
     if profile_picture in FAV_AVATARS:
         info_msg += (
@@ -144,10 +144,10 @@ async def genshin_info(message: Message, UID: Optional[int] = None):
         f"{await translate('genshin_info', 'adv_rank')}: {adv_rank}\n"
         f"{await translate('genshin_info', 'description')}: {signature}\n"
         f"{await translate('genshin_info', 'world_level')}: {world_level}\n\n"
-        f"{await translate('genshin_info', 'more_information')}: https://enka.network/u/{UID}"
+        f"{await translate('genshin_info', 'more_information')}: https://enka.network/u/{uid}"
     )
 
-    await message.answer(info_msg, keyboard=keyboard)
+    await message.answer(info_msg, keyboard=keyboard, disable_mentions=True)
 
 
 # https://api.enka.network/#/api?id=fightprop
@@ -231,9 +231,12 @@ async def show_avatar_info(event: MessageEvent):
     if avatars_info is None:
         await event.edit_message(await translate("genshin_info", "detailed_info_disabled"))
         return
+    avatar = None
     for avatar in avatars_info:
         if avatar.avatar_id == avatar_id:
             break
+    if avatar is None:
+        await event.edit_message("Этого персонажа больше нету в ")
     fight_prop_map = avatar.fight_prop_map
     fight_prop_map = {k: v for k, v in fight_prop_map.items() if v > 0}
 

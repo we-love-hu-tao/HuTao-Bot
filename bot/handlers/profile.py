@@ -39,7 +39,7 @@ async def profile(message: Message):
         )
 
     nickname = result['nickname']
-    UID = result['uid']
+    uid = result['uid']
 
     gacha_info = msgspec.json.decode(result['gacha_info'].encode("utf-8"))
     if len(gacha_info) > 0:
@@ -77,7 +77,7 @@ async def profile(message: Message):
     if started_time + quest_time < int(time.time()) and doing_quest:
         keyboard.add(Text("Завершить поручения"), color=Color.POSITIVE)
     uid_not_set = await translate("profile", "anime_game_id_not_set")
-    UID = UID or uid_not_set
+    uid = uid or uid_not_set
 
     await message.answer(
         f"&#128100; | {await translate('profile', 'nickname')}: {nickname}\n"
@@ -89,7 +89,7 @@ async def profile(message: Message):
 
         f"&#10133; | {await translate('profile', 'event_gacha')}: {event_pity5}\n\n"
 
-        f"&#128100; | {await translate('profile', 'anime_game_id')}: {UID}",
+        f"&#128100; | {await translate('profile', 'anime_game_id')}: {uid}",
         keyboard=keyboard.get_json()
     )
 

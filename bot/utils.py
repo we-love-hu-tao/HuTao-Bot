@@ -13,10 +13,11 @@ from vkbottle.bot import Message
 from vkbottle.http import AiohttpClient
 
 import create_pool
+from config import CURRENT_LANG
 from item_names import ADVENTURE_EXP, INTERTWINED_FATE
+from keyboards import KEYBOARD_START
 from models.banner import Banner
 from models.player_profile import PlayerProfile
-from config import CURRENT_LANG
 
 rank_levels_exp = {
     1: 0,
@@ -83,8 +84,8 @@ rank_levels_exp = {
 
 
 def exp_to_level(exp: int):
-    for level, exp_to_level in rank_levels_exp.items():
-        if exp < exp_to_level:
+    for level, level_exp in rank_levels_exp.items():
+        if exp < level_exp:
             return level - 1
     return 60
 
@@ -356,10 +357,11 @@ async def exists(event: Message, pool=None) -> bool:
             return True
         else:
             await event.answer(
-                "Для начала нужно зайти в Genshin Impact командой !начать"
+                "Для начала нужно зайти в Genshin Impact командой !начать",
+                keyboard=KEYBOARD_START
             )
     else:
-        await event.answer("нет (разбан у [id322615766|меня]).")
+        await event.answer("нет (разбан у [id322615766|меня]).", disable_mentions=True)
 
     return False
 
@@ -390,20 +392,20 @@ def element_to_banner_bg(element_name):
 
 
 def check_item_type(item_id) -> int | None:
-    if item_id >= 11101 and item_id <= 15511:
+    if 11101 <= item_id <= 15511:
         # Weapon
         return -1
 
-    if item_id >= 10000000 and item_id <= 11000100:
+    if 10000000 <= item_id <= 11000100:
         item_id = item_id-9999000
 
-    if item_id >= 1002 and item_id <= 1100:
+    if 1002 <= item_id <= 1100:
         # Avatar
         return 0
 
 
 def create_item(item_id, count=1):
-    if item_id >= 11101 and item_id <= 20001:
+    if 11101 <= item_id <= 20001:
         item_type = "ITEM_WEAPON"
     else:
         item_type = "ITEM_OTHER"
@@ -573,7 +575,7 @@ def resolve_id(
     weapon_data: list | None = None
 ) -> dict | None:
     item_info = None
-    search_in = "both"
+    search_in: list = []
     if avatar_data is None and weapon_data is not None:
         search_in = weapon_data
     elif weapon_data is None and avatar_data is not None:
@@ -583,14 +585,14 @@ def resolve_id(
     elif avatar_data is None and weapon_data is None:
         raise ValueError("No data to resolve id provided")
 
-    if search_in != "both":
+    if not search_in:
         logger.info(f"Searching {item_id} in not empty data")
         for item in search_in:
             if item['id'] == item_id:
                 item_info = item
                 break
     else:
-        if item_id >= 11101 and item_id <= 20001:
+        if 11101 <= item_id <= 20001:
             search_in = weapon_data
         else:
             if item_id <= 10000000:

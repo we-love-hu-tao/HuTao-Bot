@@ -58,4 +58,3 @@ async def init():
                 picture_id text
             );
         ''')
-

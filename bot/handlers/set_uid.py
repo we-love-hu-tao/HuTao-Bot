@@ -14,13 +14,13 @@ bl = BotLabeler()
     "!айди <UID:int>",
     "!ид <UID:int>"
 ))
-async def change_ingame_uid(message: Message, UID: int):
+async def change_ingame_uid(message: Message, uid: int):
     if not await exists(message):
         return
 
     http_client = AiohttpClient()
     try:
-        player_info = await get_player_info(http_client, UID)
+        player_info = await get_player_info(http_client, uid)
     except Exception as e:
         logger.error(e)
         return (
@@ -40,7 +40,7 @@ async def change_ingame_uid(message: Message, UID: int):
     async with pool.acquire() as pool:
         await pool.execute(
             "UPDATE players SET uid=$1 WHERE user_id=$2 AND peer_id=$3",
-            UID, message.from_id, message.peer_id
+            uid, message.from_id, message.peer_id
         )
 
     text = (

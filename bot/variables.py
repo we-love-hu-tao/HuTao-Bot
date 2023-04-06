@@ -2,7 +2,7 @@ STANDARD_VARIANTS = ('ст', 'стандарт', 'standard')
 EVENT_VARIANTS = ('ив', 'ивент', 'событие', 'event')
 
 # List of favorite characters.
-# Will be used when reacting on a profile picture from enka.network
+# Used when reacting on a profile picture from enka.network
 FAV_AVATARS = (
     10000046,  # Hu Tao
     10000042,  # Keqing

@@ -36,6 +36,7 @@ NAMES = (
 PROFILE_INFO_KEYBOARD = (
     Keyboard(inline=True)
     .add(Text("Персонаж"))
+    .get_json()
 )
 
 
@@ -59,7 +60,7 @@ async def create_account(user_id, peer_id, pool):
         )
 
 
-@bl.message(text=("!начать", "Начать"))
+@bl.message(text=("!начать", "Начать", "[<!>|<!>] Начать"))
 async def start_game(message: Message):
     pool = create_pool.pool
     async with pool.acquire() as pool:

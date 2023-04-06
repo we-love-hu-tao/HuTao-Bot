@@ -51,7 +51,7 @@ async def list_user_chat(message: Message, mention=None):
 
 
 @bl.message(text="+примогемы всем <amount:int>")
-async def give_primogems_all(message: Message, amount: int):
+async def give_primogems_all(_: Message, amount: int):
     pool = create_pool.pool
     async with pool.acquire() as pool:
         users = await pool.fetch("SELECT user_id, peer_id FROM players")
@@ -237,7 +237,7 @@ async def unban_user(message: Message, mention=None):
         if message.reply_message is not None:
             mention_id = message.reply_message.from_id
         else:
-            await message.answer("так ответь на сообщение")
+            return "так ответь на сообщение"
     pool = create_pool.pool
     async with pool.acquire() as pool:
         is_exists = await pool.fetchrow(
@@ -287,18 +287,22 @@ async def create_new_promocode(message: Message):
 @bl.message(
     text="!удалить промокод <promocode_name>"
 )
-async def delete_promocode(message: Message, promocode_name):
+async def delete_promocode(_: Message, promocode_name):
     pool = create_pool.pool
     async with pool.acquire() as pool:
-        try:
-            await pool.execute("DELETE FROM promocodes WHERE promocode=$1", promocode_name)
-        except Exception:
+        is_exists = await pool.execute(
+            "SELECT promocode FROM promocodes WHERE promocode=$1",
+            promocode_name
+        )
+        if is_exists is None or is_exists[0] is None:
             return "Такого промокода не существует!"
+
+        await pool.execute("DELETE FROM promocodes WHERE promocode=$1", promocode_name)
     return "Промокод был удален!"
 
 
 @bl.message(text="!sql <!>")
-async def sql_request(message: Message):
+async def sql_request_handler(message: Message):
     sql_request = message.text[5:]
     sql_request = sql_request.replace('»', '>>')
     logger.debug(sql_request)

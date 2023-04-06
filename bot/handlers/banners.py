@@ -1,10 +1,10 @@
 import os
 
 import msgspec
-from aiocache import cached
-from loguru import logger
 from PIL import Image, ImageDraw, ImageFont
 from PIL.PngImagePlugin import PngImageFile
+from aiocache import cached
+from loguru import logger
 from vkbottle import Keyboard, Text
 from vkbottle.bot import BotLabeler, Message
 from vkbottle.tools import PhotoToAlbumUploader
@@ -35,11 +35,11 @@ BANNERS_NAMES = {
 
 # Each banner cache
 banners_cache = {
-    100: None,  # Баннер новичка
-    301: None,  # Ивент баннер 1
-    400: None,  # Ивент баннер 2
-    200: None,  # Стандартный баннер
-    302: None   # Баннер оружия
+    100: "",  # Баннер новичка
+    301: "",  # Ивент баннер 1
+    400: "",  # Ивент баннер 2
+    200: "",  # Стандартный баннер
+    302: ""  # Баннер оружия
 }
 
 # List of banners cache
@@ -51,14 +51,15 @@ banners_ui_path = 'resources/banners_ui/'
 banners_cache_path = 'banners_cache/'
 
 fnt_path = "resources/Genshin_Impact.ttf"
-fnt = ImageFont.truetype(fnt_path, 45)
+fnt_default = ImageFont.truetype(fnt_path, 45)
 fnt_weapon = ImageFont.truetype(fnt_path, 42)
 fnt_weapon_name = ImageFont.truetype(fnt_path, 28)
 
 
 class BannerPicture:
     def __init__(
-        self, bg: PngImageFile, main_rateup: PngImageFile, second_rateup: PngImageFile | None = None
+        self, bg: PngImageFile, main_rateup: PngImageFile | list[PngImageFile],
+        second_rateup: PngImageFile | None = None
     ):
         self.main_rateup = main_rateup
         self.second_rateup = second_rateup
@@ -67,11 +68,11 @@ class BannerPicture:
 
     def add_main_rateup_event(self):
         """Adds main rateup picture to event banner"""
-        self.main_rateup.thumbnail((self.main_rateup.size[0], self.main_rateup.size[1]-75))
+        self.main_rateup.thumbnail((self.main_rateup.size[0], self.main_rateup.size[1] - 75))
 
         bg_w, bg_h = self.bg.size
         im_w, im_h = self.main_rateup.size
-        offset = ((bg_w - im_w)//2, (bg_h-im_h)//2+75)
+        offset = ((bg_w - im_w) // 2, (bg_h - im_h) // 2 + 75)
 
         self.bg.paste(self.main_rateup, offset, self.main_rateup)
 
@@ -79,7 +80,8 @@ class BannerPicture:
         """Adds second rateup picture to event banner (4* characters)"""
         self.second_rateup.thumbnail((self.second_rateup.size[0], self.bg.size[1]))
         self.bg.paste(
-            self.second_rateup, (self.bg.size[0]-self.second_rateup.size[0], 0), self.second_rateup
+            self.second_rateup, (self.bg.size[0] - self.second_rateup.size[0], 0),
+            self.second_rateup
         )
 
     def add_main_rateup_weapon(self):
@@ -92,10 +94,10 @@ class BannerPicture:
         x_change = 50
         y_change = 0
         for weapon in self.main_rateup:
-            weapon.thumbnail((weapon.size[0], weapon.size[1]-size_change))
+            weapon.thumbnail((weapon.size[0], weapon.size[1] - size_change))
 
             im_w, im_h = weapon.size
-            offset = ((bg_w - im_w)//2+x_change, (bg_h-im_h)//2-y_change)
+            offset = ((bg_w - im_w) // 2 + x_change, (bg_h - im_h) // 2 - y_change)
             self.bg.paste(weapon, offset, weapon)
             size_change += 100
             x_change += 100
@@ -103,20 +105,20 @@ class BannerPicture:
 
     def add_main_rateup_standard(self):
         """Adds main rateup picture to standard banner"""
-        self.main_rateup.thumbnail((self.main_rateup.size[0], self.main_rateup.size[1]-300))
+        self.main_rateup.thumbnail((self.main_rateup.size[0], self.main_rateup.size[1] - 300))
         bg_w, bg_h = self.bg.size
         im_w, im_h = self.main_rateup.size
-        offset = ((bg_w-im_w)//2+140, (bg_h-im_h)//2-100)
+        offset = ((bg_w - im_w) // 2 + 140, (bg_h - im_h) // 2 - 100)
 
         self.bg.paste(self.main_rateup, offset, self.main_rateup)
 
     def add_main_rateup_noob(self):
         """Adds main rateup picture to beginner's banner"""
-        self.main_rateup.thumbnail((self.main_rateup.size[0], self.main_rateup.size[1]-75))
+        self.main_rateup.thumbnail((self.main_rateup.size[0], self.main_rateup.size[1] - 75))
 
         bg_w, bg_h = self.bg.size
         im_w, im_h = self.main_rateup.size
-        offset = ((bg_w - im_w)//2+154, (bg_h-im_h)//2+70)
+        offset = ((bg_w - im_w) // 2 + 154, (bg_h - im_h) // 2 + 70)
 
         self.bg.paste(self.main_rateup, offset, self.main_rateup)
 
@@ -124,10 +126,10 @@ class BannerPicture:
         draw = ImageDraw.Draw(self.bg)
 
         # Draw outline
-        draw.multiline_text((x-1, y-1), text, font=fnt, fill=fill_outline)
-        draw.multiline_text((x+1, y-1), text, font=fnt, fill=fill_outline)
-        draw.multiline_text((x-1, y+1), text, font=fnt, fill=fill_outline)
-        draw.multiline_text((x+1, y+1), text, font=fnt, fill=fill_outline)
+        draw.multiline_text((x - 1, y - 1), text, font=fnt, fill=fill_outline)
+        draw.multiline_text((x + 1, y - 1), text, font=fnt, fill=fill_outline)
+        draw.multiline_text((x - 1, y + 1), text, font=fnt, fill=fill_outline)
+        draw.multiline_text((x + 1, y + 1), text, font=fnt, fill=fill_outline)
 
         # Draw text
         draw.multiline_text((x, y), text, font=fnt, fill=fill)
@@ -139,14 +141,14 @@ class BannerPicture:
         if len(banner_name) > 10 and do_wrap:
             # Wrap banner name
             names_splitted = banner_name.split()
-            for i in range(len(names_splitted)-1):
-                if len(names_splitted[i])+len(names_splitted[i+1]) > 10:
-                    names_splitted.insert(i+1, '\n')
+            for i in range(len(names_splitted) - 1):
+                if len(names_splitted[i]) + len(names_splitted[i + 1]) > 10:
+                    names_splitted.insert(i + 1, '\n')
 
             banner_name = ""
             for i in names_splitted:
                 if i != "\n":
-                    banner_name += i+" "
+                    banner_name += i + " "
                 else:
                     banner_name += i
 
@@ -154,15 +156,15 @@ class BannerPicture:
 
     def draw_event_banner_name(self, banner_name):
         x, y = 40, 30
-        self.draw_banner_name(banner_name, x, y, fnt)
+        self.draw_banner_name(banner_name, x, y, fnt_default)
 
     def draw_weapon_banner_name(self, banner_name):
         x, y = 40, 72
-        self.draw_banner_name(banner_name, x, y, fnt)
+        self.draw_banner_name(banner_name, x, y, fnt_default)
 
     def draw_standard_banner_name(self, banner_name):
         x, y = 40, 30
-        self.draw_banner_name(banner_name, x, y, fnt)
+        self.draw_banner_name(banner_name, x, y, fnt_default)
 
     def draw_item_name(self, name, x, y, fnt):
         fill = "white"
@@ -207,20 +209,20 @@ class BannerPicture:
 
     def draw_event_name(self, name, rarity):
         position = (591, 360)
-        self.draw_item_name(name, position[0], position[1], fnt)
-        self.draw_stars(rarity, position[0], position[1]+60)
+        self.draw_item_name(name, position[0], position[1], fnt_default)
+        self.draw_stars(rarity, position[0], position[1] + 60)
 
     def draw_weapon_name(self, names):
         position = [398, 356]
-        self.draw_stars(5, position[0], position[1]+82)
+        self.draw_stars(5, position[0], position[1] + 82)
         for i in names:
             self.draw_item_name(i, position[0], position[1], fnt_weapon_name)
             position[1] += 41
 
     def draw_noob_name(self, name, rarity):
         position = (591, 350)
-        self.draw_stars(rarity, position[0], position[1]+57)
-        self.draw_item_name(name, position[0], position[1], fnt)
+        self.draw_stars(rarity, position[0], position[1] + 57)
+        self.draw_item_name(name, position[0], position[1], fnt_default)
 
     def draw_standard_names(self, names):
         if len(names) != 3:
@@ -244,7 +246,7 @@ class BannerPicture:
                 current_fnt = fnt_others
 
             self.draw_item_name(names[i], positions[i][0], positions[i][1], current_fnt)
-            self.draw_stars(5, positions[i][0]-3, star_y)
+            self.draw_stars(5, positions[i][0] - 3, star_y)
 
     def save_banner(self, name):
         path = f'{banners_cache_path}{name}.jpg'
@@ -527,10 +529,10 @@ KEYBOARD_STANDARD = (
 
 
 @bl.message(text=(
-    "!баннер",
-    "!мой баннер",
-    "!выбранный баннер",
-    "!текущий баннер"
+        "!баннер",
+        "!мой баннер",
+        "!выбранный баннер",
+        "!текущий баннер"
 ))
 async def show_my_banner(message: Message):
     if not await exists(message):
@@ -574,7 +576,7 @@ async def show_all_banners(message: Message):
     if all_banners_cache is not None:
         return all_banners_cache
 
-    new_msg = (await translate("banners", "list"))+"\n"
+    new_msg = (await translate("banners", "list")) + "\n"
 
     raw_banners = await get_banners()
     decoder = msgspec.json.Decoder(Banner)
@@ -587,7 +589,7 @@ async def show_all_banners(message: Message):
         try:
             new_msg += f"{BANNERS_NAMES[banner.gacha_type]}: "
         except IndexError:
-            new_msg += (await translate("banners", "unknown_banner"))+"\n"
+            new_msg += (await translate("banners", "unknown_banner")) + "\n"
             continue
 
         banner_name = await get_banner_name(banner.gacha_type, add_main=True)
@@ -598,9 +600,9 @@ async def show_all_banners(message: Message):
 
 
 @bl.message(text=(
-    "!выбрать баннер <banner>",
-    "[<!>|<!>] Выбрать баннер <banner>",
-    "Выбрать баннер <banner>",
+        "!выбрать баннер <banner>",
+        "[<!>|<!>] Выбрать баннер <banner>",
+        "Выбрать баннер <banner>",
 ))
 async def choose_banner(message: Message, banner):
     if not await exists(message):
@@ -643,8 +645,8 @@ async def choose_banner(message: Message, banner):
 
 
 @bl.message(text=(
-    "!баннер новичк<!>",
-    "!баннер нуба"
+        "!баннер новичк<!>",
+        "!баннер нуба"
 ))
 async def show_beginner_banner(message: Message):
     if not await exists(message):
@@ -656,7 +658,7 @@ async def show_beginner_banner(message: Message):
         return banner_attachment["error"]
     banner_attachment = banner_attachment.get("attachment")
 
-    if banners_cache[gacha_type] is not None:
+    if banners_cache[gacha_type]:
         ans_msg = banners_cache[gacha_type]
     else:
         raw_banners = await get_banner(gacha_type)
@@ -668,12 +670,12 @@ async def show_beginner_banner(message: Message):
 
 
 @bl.message(text=(
-    "!ив баннер <banner_id:int>",
-    "!ивентовый баннер <banner_id:int>",
-    "!баннер ивент <banner_id:int>",
-    "!баннер ивент",
-    "!ив баннер",
-    "!ивентовый баннер"
+        "!ив баннер <banner_id:int>",
+        "!ивентовый баннер <banner_id:int>",
+        "!баннер ивент <banner_id:int>",
+        "!баннер ивент",
+        "!ив баннер",
+        "!ивентовый баннер"
 ))
 async def show_event_banner(message: Message, banner_id: int = 1):
     if not await exists(message):
@@ -691,7 +693,7 @@ async def show_event_banner(message: Message, banner_id: int = 1):
         return banner_attachment["error"]
     banner_attachment = banner_attachment.get("attachment")
 
-    if banners_cache[gacha_type] is not None:
+    if banners_cache[gacha_type]:
         ans_msg = banners_cache[gacha_type]
     else:
         raw_banners = await get_banner(gacha_type)
@@ -705,10 +707,10 @@ async def show_event_banner(message: Message, banner_id: int = 1):
 
 
 @bl.message(text=(
-    "!оруж баннер",
-    "!оружейный баннер",
-    "!баннер оруж<!>",
-    "!оружие баннер"
+        "!оруж баннер",
+        "!оружейный баннер",
+        "!баннер оруж<!>",
+        "!оружие баннер"
 ))
 async def show_weapon_banner(message: Message):
     if not await exists(message):
@@ -720,7 +722,7 @@ async def show_weapon_banner(message: Message):
         return banner_attachment["error"]
     banner_attachment = banner_attachment.get("attachment")
 
-    if banners_cache[gacha_type] is not None:
+    if banners_cache[gacha_type]:
         ans_msg = banners_cache[gacha_type]
     else:
         raw_banners = await get_banner(gacha_type)
@@ -734,9 +736,9 @@ async def show_weapon_banner(message: Message):
 
 
 @bl.message(text=(
-    "!ст баннер",
-    "!стандартный баннер",
-    "!баннер стандарт<!>",
+        "!ст баннер",
+        "!стандартный баннер",
+        "!баннер стандарт<!>",
 ))
 async def show_standard_banner(message: Message):
     if not await exists(message):
@@ -748,7 +750,7 @@ async def show_standard_banner(message: Message):
         return banner_attachment["error"]
     banner_attachment = banner_attachment.get("attachment")
 
-    if banners_cache[gacha_type] is not None:
+    if banners_cache[gacha_type]:
         ans_msg = banners_cache[gacha_type]
     else:
         raw_banners = await get_banner(gacha_type)

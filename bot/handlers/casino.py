@@ -54,17 +54,16 @@ async def casino_handler(message: Message, amount: int, sel_color):
         results += "&#128994;"
     results += f" {ball}\n"
 
-    prim_count = 0
     if color == sel_color:
         match color:
             case "black" | "red":
-                prim_count = amount * 2
+                reward_count = amount * 2
             case _:
-                prim_count = amount * 3
+                reward_count = amount * 3
 
-        await give_item(message.from_id, message.peer_id, PRIMOGEM, prim_count)
+        await give_item(message.from_id, message.peer_id, PRIMOGEM, reward_count)
 
-        results += f"&#127881; Вы выиграли {prim_count} примогемов!"
+        results += f"&#127881; Вы выиграли {reward_count} примогемов!"
         return results
 
     return (

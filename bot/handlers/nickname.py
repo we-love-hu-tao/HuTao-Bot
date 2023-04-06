@@ -195,7 +195,7 @@ async def give_nickname(message: Message, nickname: str):
                 group_id=GROUP_ID,
                 owner_id=message.from_id,
                 comment="Оскорбление важного персонажа [bot]",
-                comment_visible=1,
+                comment_visible=True,
             )
             await message.answer(
                 "Вы были забанены в группе.\n"

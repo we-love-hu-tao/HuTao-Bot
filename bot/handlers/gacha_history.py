@@ -43,7 +43,7 @@ async def get_last_history(
     if type(message) == Message:
         user_id = message.from_id
         peer_id = message.peer_id
-    elif type(message) == MessageEvent:
+    else:
         user_id = message.object.user_id
         peer_id = message.object.peer_id
 
@@ -63,7 +63,7 @@ async def get_last_history(
     return records
 
 
-async def raw_history_to_normal(records: dict):
+async def raw_history_to_normal(records: list[dict]):
     """Formats history to make it human-readable"""
     textmap = await get_textmap()
     weapon_data = await get_weapon_data()

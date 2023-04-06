@@ -9,7 +9,7 @@ bl = BotLabeler()
 bl.vbml_ignore_case = True
 
 
-async def format_inventory(inventory: dict, rarity: int = 5):
+async def format_inventory(inventory: list[dict], rarity: int = 5):
     """Formats inventory to make it human-readable"""
     weapon_data = await get_weapon_data()
     textmap = await get_textmap()

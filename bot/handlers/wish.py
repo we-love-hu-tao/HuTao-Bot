@@ -136,7 +136,10 @@ class Wish:
                 return self.player_gacha_info[banner]
         raise ValueError(f"Banner with type {banner_type} not found")
 
-    def get_banner_type(self, gacha_type) -> str:
+    @staticmethod
+    def get_banner_type(gacha_type) -> Literal[
+        "standardBanner", "eventCharacterBanner", "eventWeaponBanner"
+    ]:
         if gacha_type in EVENT_BANNERS:
             return "eventCharacterBanner"
         elif gacha_type in STANDARD_BANNERS:
@@ -188,7 +191,13 @@ class Wish:
             fallback if fallback is not None else FALLBACK_ITEMS_5_POOL_2
         )
 
-    def get_failed_featured_item_pulls(self, banner_type: str, rarity):
+    def get_failed_featured_item_pulls(
+        self,
+        banner_type: Literal[
+            "standardBanner", "eventCharacterBanner", "eventWeaponBanner"
+        ],
+        rarity
+    ):
         match rarity:
             case 4: coinflip_name = "failedFeatured4ItemPulls"
             case _: coinflip_name = "failedFeaturedItemPulls"
@@ -197,7 +206,7 @@ class Wish:
 
         return banner[coinflip_name]
 
-    def set_failed_featured_item_pulls(self, banner_type: int, rarity, count: int):
+    def set_failed_featured_item_pulls(self, banner_type: str, rarity, count: int):
         match rarity:
             case 4: coinflip_name = "failedFeatured4ItemPulls"
             case _: coinflip_name = "failedFeaturedItemPulls"
@@ -209,7 +218,8 @@ class Wish:
                 self.player_gacha_info[banner][coinflip_name] = count
                 break
 
-    def lerp(self, x, xy_array):
+    @staticmethod
+    def lerp(x, xy_array):
         try:
             if x <= xy_array[0][0]:  # Clamp to first point
                 return xy_array[0][1]
@@ -344,21 +354,21 @@ class Wish:
                 break
 
     def check_avatar_constellation_level(self, item_id: int) -> int:
-        if item_id >= 11101 and item_id <= 15511:
+        if 11101 <= item_id <= 15511:
             # Weapon
             return -2
 
-        if item_id >= 10000000 and item_id <= 11000100:
+        if 10000000 <= item_id <= 11000100:
             item_id = item_id-9999000
 
-        if item_id >= 1002 and item_id <= 1100:
+        if 1002 <= item_id <= 1100:
             # Avatar
             for item in self.avatars:
                 if item['id'] == item_id:
                     return item['const']
             # New avatar
             return -1
-        if item_id >= 101 and item_id <= 917:
+        if 101 <= item_id <= 917:
             # Spendable item
             return -3
 
@@ -408,7 +418,8 @@ class Wish:
         else:
             raise ValueError(f"Unknown item (returned const: {item_const})")
 
-    def choose_gif(self, rarity: int, ten=False):
+    @staticmethod
+    def choose_gif(rarity: int, ten=False):
         match rarity:
             case 3:
                 match ten:
@@ -430,7 +441,8 @@ class Wish:
             case _:
                 raise ValueError(f"Выпал {rarity}* предмет, такого быть не может")
 
-    def draw_roulette(self, weights: list, cutoff) -> int:
+    @staticmethod
+    def draw_roulette(weights: tuple, cutoff: int) -> int:
         total = 0
         for weight in weights:
             if weight < 0:
@@ -438,7 +450,7 @@ class Wish:
             total += weight
 
         # In grasscutter it's ThreadLocalRandom.current().nextInt((total < cutoff)? total : cutoff);
-        # Which return value from 0 to total or cutoff -1,
+        # Which return value from 0 to total or cutoff - 1,
         # and that's why there is -1 in the end
         roll = random.randint(0, int((total if total < cutoff else cutoff))-1)
         sub_total = 0
@@ -471,8 +483,8 @@ class Wish:
             # Larger weight must come first for the
             # hard cutoff to function correctly
             match (1 if pity_pool_1 >= pity_pool_2 else 0):
-                case 1: chosen_pool = 1 + self.draw_roulette([pity_pool_1, pity_pool_2], 10000)
-                case _: chosen_pool = 2 - self.draw_roulette([pity_pool_2, pity_pool_1], 10000)
+                case 1: chosen_pool = 1 + self.draw_roulette((pity_pool_1, pity_pool_2), 10000)
+                case _: chosen_pool = 2 - self.draw_roulette((pity_pool_2, pity_pool_1), 10000)
 
             match chosen_pool:
                 case 1:
@@ -483,7 +495,6 @@ class Wish:
                     return random.choice(fallback2)
 
     def do_rare_pull(self, gacha_type, rarity, featured, fallback1, fallback2):
-        item_id = 0
         banner_type = self.get_banner_type(gacha_type)
         # TODO: Epitomized path
         pity_featured = self.get_failed_featured_item_pulls(banner_type, rarity)
@@ -575,8 +586,6 @@ class Wish:
 
         stardust = 0
         starglitter = 0
-        add_stardust = 0
-        add_starglitter = 0
 
         # Generate pools
         pools = {
@@ -647,7 +656,6 @@ class Wish:
 
         logger.info("Creating results text...")
         if times == 1:
-            results_msg = ""
             item = new_items[0]
             item_info = resolve_id(item, self.avatar_excel_data, self.weapon_excel_data)
             item_name = self.textmap.get(str(item_info['nameTextMapHash']))

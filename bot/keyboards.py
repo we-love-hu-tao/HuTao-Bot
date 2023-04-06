@@ -1,5 +1,11 @@
 from vkbottle import Keyboard, Text
 
+KEYBOARD_START = (
+    Keyboard(inline=True)
+    .add(Text("Начать"))
+    .get_json()
+)
+
 KEYBOARD_WISH = (
     Keyboard(inline=True)
     .add(Text("Помолиться 1 раз"))
@@ -7,4 +13,3 @@ KEYBOARD_WISH = (
     .add(Text("Помолиться 10 раз"))
     .get_json()
 )
-
