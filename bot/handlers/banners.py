@@ -529,10 +529,10 @@ KEYBOARD_STANDARD = (
 
 
 @bl.message(text=(
-        "!баннер",
-        "!мой баннер",
-        "!выбранный баннер",
-        "!текущий баннер"
+    "!баннер",
+    "!мой баннер",
+    "!выбранный баннер",
+    "!текущий баннер"
 ))
 async def show_my_banner(message: Message):
     if not await exists(message):
@@ -600,9 +600,9 @@ async def show_all_banners(message: Message):
 
 
 @bl.message(text=(
-        "!выбрать баннер <banner>",
-        "[<!>|<!>] Выбрать баннер <banner>",
-        "Выбрать баннер <banner>",
+    "!выбрать баннер <banner>",
+    "[<!>|<!>] Выбрать баннер <banner>",
+    "Выбрать баннер <banner>",
 ))
 async def choose_banner(message: Message, banner):
     if not await exists(message):
@@ -645,8 +645,8 @@ async def choose_banner(message: Message, banner):
 
 
 @bl.message(text=(
-        "!баннер новичк<!>",
-        "!баннер нуба"
+    "!баннер новичк<!>",
+    "!баннер нуба"
 ))
 async def show_beginner_banner(message: Message):
     if not await exists(message):
@@ -670,12 +670,12 @@ async def show_beginner_banner(message: Message):
 
 
 @bl.message(text=(
-        "!ив баннер <banner_id:int>",
-        "!ивентовый баннер <banner_id:int>",
-        "!баннер ивент <banner_id:int>",
-        "!баннер ивент",
-        "!ив баннер",
-        "!ивентовый баннер"
+    "!ив баннер <banner_id:int>",
+    "!ивентовый баннер <banner_id:int>",
+    "!баннер ивент <banner_id:int>",
+    "!баннер ивент",
+    "!ив баннер",
+    "!ивентовый баннер"
 ))
 async def show_event_banner(message: Message, banner_id: int = 1):
     if not await exists(message):
@@ -707,10 +707,10 @@ async def show_event_banner(message: Message, banner_id: int = 1):
 
 
 @bl.message(text=(
-        "!оруж баннер",
-        "!оружейный баннер",
-        "!баннер оруж<!>",
-        "!оружие баннер"
+    "!оруж баннер",
+    "!оружейный баннер",
+    "!баннер оруж<!>",
+    "!оружие баннер"
 ))
 async def show_weapon_banner(message: Message):
     if not await exists(message):
@@ -736,9 +736,9 @@ async def show_weapon_banner(message: Message):
 
 
 @bl.message(text=(
-        "!ст баннер",
-        "!стандартный баннер",
-        "!баннер стандарт<!>",
+    "!ст баннер",
+    "!стандартный баннер",
+    "!баннер стандарт<!>",
 ))
 async def show_standard_banner(message: Message):
     if not await exists(message):

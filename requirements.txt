@@ -1,9 +1,9 @@
 aiocache
 aiofiles
 aiohttp
-asyncpg
-loguru
-msgspec
+asyncpg>=0.26.0
+loguru>=0.6.0
+msgspec>=0.9.0
 pillow
-vkbottle
+vkbottle>=4.3.10
 vkbottle-types>=5.131.146.13

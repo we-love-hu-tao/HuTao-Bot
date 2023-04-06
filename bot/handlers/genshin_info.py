@@ -236,7 +236,7 @@ async def show_avatar_info(event: MessageEvent):
         if avatar.avatar_id == avatar_id:
             break
     if avatar is None:
-        await event.edit_message("Этого персонажа больше нету в ")
+        await event.edit_message(await translate("genshin_info", "avatar_removed_from_stand"))
     fight_prop_map = avatar.fight_prop_map
     fight_prop_map = {k: v for k, v in fight_prop_map.items() if v > 0}
 
