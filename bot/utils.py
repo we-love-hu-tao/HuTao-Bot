@@ -574,36 +574,28 @@ def resolve_id(
     avatar_data: list | None = None,
     weapon_data: list | None = None
 ) -> dict | None:
-    item_info = None
-    search_in: list = []
-    if avatar_data is None and weapon_data is not None:
-        search_in = weapon_data
-    elif weapon_data is None and avatar_data is not None:
-        search_in = avatar_data
-        if item_id <= 10000000:
-            item_id += 9999000
-    elif avatar_data is None and weapon_data is None:
+    if not avatar_data and not weapon_data:
         raise ValueError("No data to resolve id provided")
 
-    if not search_in:
-        logger.info(f"Searching {item_id} in not empty data")
-        for item in search_in:
-            if item['id'] == item_id:
-                item_info = item
-                break
+    if 11101 <= item_id <= 20001:
+        search_in = weapon_data
+        searched_in = "weapon data"
     else:
-        if 11101 <= item_id <= 20001:
-            search_in = weapon_data
-        else:
-            if item_id <= 10000000:
-                item_id += 9999000
-            search_in = avatar_data
+        if item_id <= 10000000:
+            item_id += 9999000
+        search_in = avatar_data
+        searched_in = "avatar data"
 
-        for item in search_in:
-            if item['id'] == item_id:
-                item_info = item
-                break
+    item_info = None
 
+    logger.info(f"Searching {item_id} in {searched_in}")
+    for item in search_in:
+        if item['id'] == item_id:
+            item_info = item
+            break
+
+    if item_info is None:
+        logger.warning(f"Couldn't find item with id {item_id}, searched in {searched_in}")
     return item_info
 
 
