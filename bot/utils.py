@@ -592,7 +592,15 @@ def resolve_id(
 def resolve_map_hash(textmap: dict, text_map_hash: int | str) -> str:
     """Gets a string from a text map hash"""
     text_map_hash = str(text_map_hash)
-    return textmap.get(text_map_hash) or "???"
+    result = textmap.get(text_map_hash)
+
+    if result:
+        # Don't ask
+        result = result.replace("Фавония", "Феврония")
+    else:
+        logger.error(f"Couldn't resolve textmap hash: {text_map_hash}")
+
+    return result or "???"
 
 
 async def report_error(api: API, error: Exception):
