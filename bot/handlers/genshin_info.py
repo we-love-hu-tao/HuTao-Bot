@@ -27,6 +27,8 @@ async def generate_avatars_kbd(from_id, uid, show_avatars):
     item_kbd = 0
     for avatar in show_avatars:
         avatar_show_info = resolve_id(avatar.avatar_id, avatar_data)
+        if avatar_show_info is None:
+            continue
 
         item_kbd += 1
         if item_kbd > 1:
@@ -58,7 +60,7 @@ async def generate_avatars_kbd(from_id, uid, show_avatars):
 
 
 @bl.message(
-    text=("!геншин инфо", "!геншин инфо <UID:int>", "! геншин инфо", " ! геншин инфо <UID:int>")
+    text=("!геншин инфо", "!геншин инфо <uid:int>", "! геншин инфо", " ! геншин инфо <uid:int>")
 )
 async def genshin_info(message: Message, uid: Optional[int] = None):
     info_msg = ""
@@ -67,30 +69,31 @@ async def genshin_info(message: Message, uid: Optional[int] = None):
         pool = create_pool.pool
         async with pool.acquire() as pool:
             if message.reply_message is None:
-                uid = await pool.fetchrow(
+                uid_request = await pool.fetchrow(
                     "SELECT uid FROM players WHERE user_id=$1 AND peer_id=$2",
                     message.from_id,
                     message.peer_id,
                 )
 
-                if uid is None or uid["uid"] is None:
+                if uid_request is None or uid_request["uid"] is None:
                     return await translate("genshin_info", "uid_not_set")
             else:
-                uid = await pool.fetchrow(
+                uid_request = await pool.fetchrow(
                     "SELECT uid FROM players WHERE user_id=$1 AND peer_id=$2",
                     message.reply_message.from_id,
                     message.peer_id,
                 )
 
-                if uid is None or uid["uid"] is None:
+                if uid_request is None or uid_request["uid"] is None:
                     return await translate("genshin_info", "replier_no_uid")
+
                 info_msg += (
                     (await translate("genshin_info", "player_info"))
                     .format(from_id=message.reply_message.from_id)
                     + "\n\n"
                 )
 
-            uid = uid["uid"]
+            uid = uid_request["uid"]
 
     try:
         player_info = (await get_player_info(http_client, uid, only_info=True)).player_info
@@ -201,6 +204,10 @@ FIGHT_PROP_DECIMAL = (
 )
 async def show_avatar_info(event: MessageEvent):
     payload = event.get_payload_json()
+    if payload is None:
+        logger.error("Couldn't get event payload")
+        return
+
     caller_id = payload['caller_id']
     if caller_id != event.object.user_id:
         await event.ctx_api.messages.send_message_event_answer(
@@ -237,6 +244,7 @@ async def show_avatar_info(event: MessageEvent):
             break
     if avatar is None:
         await event.edit_message(await translate("genshin_info", "avatar_removed_from_stand"))
+        return
     fight_prop_map = avatar.fight_prop_map
     fight_prop_map = {k: v for k, v in fight_prop_map.items() if v > 0}
 
@@ -246,6 +254,9 @@ async def show_avatar_info(event: MessageEvent):
             continue
 
         fight_prop_val = fight_prop_map.get(k)
+        if fight_prop_val is None:
+            logger.warning(f"Unknown fight prop value: {k}")
+            continue
         if k in FIGHT_PROP_DECIMAL:
             fight_prop_val = round(fight_prop_val * 100, 1)
         else:

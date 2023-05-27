@@ -77,6 +77,9 @@ async def raw_history_to_normal(records: list[dict]):
         ).strftime('%H:%M:%S - %d-%m-%Y')
 
         item_info = resolve_id(roll['item_id'], avatar_data, weapon_data)
+        if item_info is None:
+            logger.error(f"Unknown drop in history: {roll['item_id']}")
+            continue
         drop_name = resolve_map_hash(textmap, item_info['nameTextMapHash'])
 
         if drop_name is None:
@@ -185,13 +188,7 @@ async def gacha_history_move(event: MessageEvent):
 
     if direction == "forward":
         offset += 5
-        logger.debug("--------------")
-        logger.debug(f"Current offset: {offset}")
-        logger.debug("--------------")
     elif direction == "back":
-        logger.debug("--------------")
-        logger.debug(f"Current offset (back): {offset-5}")
-        logger.debug("--------------")
         if offset > 0:
             offset -= 5
         else:

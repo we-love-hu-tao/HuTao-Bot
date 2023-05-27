@@ -1,6 +1,5 @@
 from vkbottle.bot import BotLabeler, Message
 
-import create_pool
 from item_names import ACQUAINT_FATE, INTERTWINED_FATE, PRIMOGEM
 from keyboards import KEYBOARD_WISH
 from utils import exists, get_item, give_item, translate

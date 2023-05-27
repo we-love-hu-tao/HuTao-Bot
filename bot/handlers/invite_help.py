@@ -11,6 +11,8 @@ HELP_LINK = "https://github.com/timius100/HuTao-Bot#команды"
 @bl.message(action="chat_invite_user")
 async def invite_event_reaction(message: Message):
     """React when bot is invited to a chat"""
+    if message.action is None:
+        return
     if message.action.member_id == -GROUP_ID:
         return (
             "Добро пожаловать в Тейват!\n"

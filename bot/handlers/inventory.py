@@ -1,9 +1,13 @@
-from vkbottle.bot import BotLabeler, Message
-
+from loguru import logger
 from utils import (
-    exists, get_inventory, get_textmap, get_weapon_data, resolve_id,
+    exists,
+    get_inventory,
+    get_textmap,
+    get_weapon_data,
+    resolve_id,
     resolve_map_hash
 )
+from vkbottle.bot import BotLabeler, Message
 
 bl = BotLabeler()
 bl.vbml_ignore_case = True
@@ -19,6 +23,9 @@ async def format_inventory(inventory: list[dict], rarity: int = 5):
             continue
 
         item_excel = resolve_id(item['id'], weapon_data=weapon_data)
+        if item_excel is None:
+            logger.error(f"Unknown inventory item: {item['id']}")
+            continue
         item_rarity = item_excel['rankLevel']
 
         if item_rarity != rarity:

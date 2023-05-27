@@ -1,11 +1,18 @@
 from datetime import datetime
 
-import msgspec
-from vkbottle.bot import BotLabeler, Message
-
 import create_pool
-from utils import (color_to_rarity, exists, get_avatar_by_name,
-                   get_avatar_data, get_textmap, resolve_id, resolve_map_hash)
+import msgspec
+from loguru import logger
+from utils import (
+    color_to_rarity,
+    exists,
+    get_avatar_by_name,
+    get_avatar_data,
+    get_textmap,
+    resolve_id,
+    resolve_map_hash
+)
+from vkbottle.bot import BotLabeler, Message
 
 bl = BotLabeler()
 bl.vbml_ignore_case = True
@@ -30,11 +37,13 @@ async def format_characters(avatars: dict, rarity: int = 5):
     new_message = f"Персонажи ({'&#11088;' * rarity}):\n"
     for avatar in avatars:
         avatar_info = resolve_id(avatar['id'], avatars_info)
-        avatar_rarity = color_to_rarity(avatar_info['qualityType'])
-
-        if avatar_rarity != rarity:
+        if avatar_info is None:
+            logger.error(f"Unknown avatar in inventory: {avatar['id']}")
             continue
 
+        avatar_rarity = color_to_rarity(avatar_info['qualityType'])
+        if avatar_rarity != rarity:
+            continue
         avatar_name = resolve_map_hash(textmap, avatar_info['nameTextMapHash'])
         avatar_consts = avatar['const']
 

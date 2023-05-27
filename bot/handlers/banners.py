@@ -1,24 +1,42 @@
 import os
 
+import create_pool
 import msgspec
+from aiocache import cached
+from config import BANNERS_ALBUM_ID, GROUP_ID, TEST_MODE, VK_USER_TOKEN
+from gacha_banner_vars import FALLBACK_ITEMS_5_POOL_1
+from keyboards import (
+    KEYBOARD_BEGINNER,
+    KEYBOARD_EVENT,
+    KEYBOARD_EVENT_SECOND,
+    KEYBOARD_STANDARD,
+    KEYBOARD_WEAPON,
+    KEYBOARD_WISH
+)
+from loguru import logger
+from models.banner import Banner, BannerType
 from PIL import Image, ImageDraw, ImageFont
 from PIL.PngImagePlugin import PngImageFile
-from aiocache import cached
-from loguru import logger
+from utils import (
+    color_to_rarity,
+    element_to_banner_bg,
+    exists,
+    get_avatar_data,
+    get_banner,
+    get_banner_name,
+    get_banners,
+    get_skill_depot_data,
+    get_skill_excel_data,
+    get_textmap,
+    get_weapon_data,
+    resolve_id,
+    resolve_map_hash,
+    translate
+)
 from vkbottle import Keyboard, Text
 from vkbottle.bot import BotLabeler, Message
 from vkbottle.tools import PhotoToAlbumUploader
 from vkbottle.user import User
-
-import create_pool
-from config import BANNERS_ALBUM_ID, GROUP_ID, TEST_MODE, VK_USER_TOKEN
-from gacha_banner_vars import FALLBACK_ITEMS_5_POOL_1
-from keyboards import KEYBOARD_WISH
-from models.banner import Banner, BannerType
-from utils import (color_to_rarity, element_to_banner_bg, exists,
-                   get_avatar_data, get_banner, get_banner_name, get_banners,
-                   get_skill_depot_data, get_skill_excel_data, get_textmap,
-                   get_weapon_data, resolve_id, resolve_map_hash, translate)
 
 bl = BotLabeler()
 bl.vbml_ignore_case = True
@@ -497,35 +515,16 @@ async def format_banners(banner: Banner):
                 new_msg += f"&#129485; {item_name}\n"
     else:  # Standard banner
         new_msg = f"{'&#11088;' * 5}\n"
-        for item in FALLBACK_ITEMS_5_POOL_1:
-            item = resolve_id(item, raw_avatars, raw_weapons)
+        for item_id in FALLBACK_ITEMS_5_POOL_1:
+            item = resolve_id(item_id, raw_avatars, raw_weapons)
+            if item is None:
+                logger.error(f"Banner item not found (id {item_id})")
+                continue
             item_name = textmap[str(item['nameTextMapHash'])]
             new_msg += f"&#129485; {item_name}\n"
 
     banners_cache[banner.gacha_type] = new_msg
     return new_msg
-
-
-KEYBOARD_BEGINNER = (
-    Keyboard(inline=True)
-    .add(Text("Выбрать баннер новичка"))
-)
-KEYBOARD_EVENT = (
-    Keyboard(inline=True)
-    .add(Text("Выбрать баннер ивент"))
-)
-KEYBOARD_EVENT_SECOND = (
-    Keyboard(inline=True)
-    .add(Text("Выбрать баннер ивент 2"))
-)
-KEYBOARD_WEAPON = (
-    Keyboard(inline=True)
-    .add(Text("Выбрать баннер оружие"))
-)
-KEYBOARD_STANDARD = (
-    Keyboard(inline=True)
-    .add(Text("Выбрать баннер стандарт"))
-)
 
 
 @bl.message(text=(
@@ -622,7 +621,10 @@ async def choose_banner(message: Message, banner):
     if banner not in banners:
         return await translate("banners", "selected_unknown")
 
-    choiced_banner: Banner = await get_banner(banners[banner])
+    choiced_banner: Banner | None = await get_banner(banners[banner])
+    if choiced_banner is None:
+        logger.error(f"Known banner not found (gacha_type {banners[banner]})")
+        return await translate("banners", "unknown_banner")
 
     pool = create_pool.pool
     async with pool.acquire() as pool:

@@ -9,10 +9,10 @@ bl = BotLabeler()
 
 
 @bl.message(text=(
-    "!установить айди <UID:int>",
-    "!поменять айди <UID:int>",
-    "!айди <UID:int>",
-    "!ид <UID:int>"
+    "!установить айди <uid:int>",
+    "!поменять айди <uid:int>",
+    "!айди <uid:int>",
+    "!ид <uid:int>"
 ))
 async def change_ingame_uid(message: Message, uid: int):
     if not await exists(message):

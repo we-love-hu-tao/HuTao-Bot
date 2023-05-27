@@ -13,7 +13,6 @@ from vkbottle.bot import Message
 from vkbottle.http import AiohttpClient
 
 import create_pool
-from config import CURRENT_LANG
 from item_names import ADVENTURE_EXP, INTERTWINED_FATE
 from keyboards import KEYBOARD_START
 from models.banner import Banner
@@ -193,7 +192,7 @@ async def get_weapon_data():
 
 
 @cached(key="language_bot")
-async def get_language_file(language):
+async def get_language_file(language: str) -> dict:
     file_exists = os.path.exists(f"languages/{language}.json")
     if not file_exists:
         logger.warning(f"Language file {language}.json doesn't exists, fallback to ru.json")
@@ -203,36 +202,23 @@ async def get_language_file(language):
         f"languages/{language}.json", mode='rb'
     ) as file:
         content = await file.read()
+
     return msgspec.json.decode(content)
 
 
-async def translate(category: str, value: str, language: str | None = None):
-    language = language or CURRENT_LANG
+async def translate(category_name: str, value_name: str, language: str | None = "ru") -> str:
+    language_file: dict = await get_language_file(language)
 
-    language_file = await get_language_file(language)
-    fallback_language_file = {}
-    if language != "ru":
-        fallback_language_file = await get_language_file("ru")
-
-    using_fallback = False
-    if language_file.get(category) is None:
-        if fallback_language_file.get(category) is None:
-            raise ValueError(f"Wrong language category: {category}")
-        else:
-            using_fallback = True
-
-    if using_fallback:
-        if fallback_language_file[category].get(value) is None:
-            raise ValueError(f"Wrong translate value (in fallback): {value}")
-
+    category = language_file.get(category_name)
+    if category is None:
+        logger.warning(f"Category name not found: {category_name}")
     else:
-        if language_file[category].get(value) is None:
-            if fallback_language_file[category].get(value) is None:
-                raise ValueError(f"Wrong translate value: {value}")
-            else:
-                return fallback_language_file[category][value]
+        value = category.get(value_name)
+        if value:
+            return value
         else:
-            return language_file[category][value]
+            logger.warning(f"String value not found ({category_name}): {value_name}")
+    return "???"
 
 
 async def get_inventory(user_id: int, peer_id: int) -> list:
@@ -317,7 +303,7 @@ async def get_banner_name(gacha_type, add_main=False) -> str:
     return banner_name
 
 
-async def get_banner(gacha_type) -> Banner | None:
+async def get_banner(gacha_type: int) -> Banner | None:
     """Returns banner from `Banners.json`, converted into a `Banner` object"""
     raw_banners = await get_banners()
 
@@ -366,7 +352,7 @@ async def exists(event: Message, pool=None) -> bool:
     return False
 
 
-def color_to_rarity(color_name) -> int | None:
+def color_to_rarity(color_name) -> int:
     colors = {
         "QUALITY_ORANGE_SP": 5,  # Aloy rarity
         "QUALITY_ORANGE": 5,
@@ -375,7 +361,7 @@ def color_to_rarity(color_name) -> int | None:
         "QUALITY_GREEN": 2,
         # There is no mention of 1* color anywhere in excel datas
     }
-    return colors.get(color_name)
+    return colors.get(color_name) or 2
 
 
 def element_to_banner_bg(element_name):
@@ -586,6 +572,10 @@ def resolve_id(
         search_in = avatar_data
         searched_in = "avatar data"
 
+    if search_in is None:
+        logger.error(f"Wrong item_id or data provided (item_id {item_id})")
+        return
+
     item_info = None
 
     logger.info(f"Searching {item_id} in {searched_in}")
@@ -595,14 +585,14 @@ def resolve_id(
             break
 
     if item_info is None:
-        logger.warning(f"Couldn't find item with id {item_id}, searched in {searched_in}")
+        logger.error(f"Couldn't find item with id {item_id}, searched in {searched_in}")
     return item_info
 
 
-def resolve_map_hash(textmap: dict, text_map_hash: int | str) -> str | None:
+def resolve_map_hash(textmap: dict, text_map_hash: int | str) -> str:
     """Gets a string from a text map hash"""
     text_map_hash = str(text_map_hash)
-    return textmap.get(text_map_hash)
+    return textmap.get(text_map_hash) or "???"
 
 
 async def report_error(api: API, error: Exception):

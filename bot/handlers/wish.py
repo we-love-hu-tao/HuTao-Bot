@@ -1,27 +1,50 @@
 import asyncio
 import random
 import time
-from typing import Optional, Literal
+from typing import Literal, Optional
 
+import create_pool
 import msgspec
+from gacha_banner_vars import (
+    EVENT_BANNERS,
+    FALLBACK_ITEMS_3,
+    FALLBACK_ITEMS_4_POOL_1,
+    FALLBACK_ITEMS_4_POOL_2,
+    FALLBACK_ITEMS_5_POOL_1,
+    FALLBACK_ITEMS_5_POOL_2,
+    POOL_BALANCE_WEIGHTS4,
+    POOL_BALANCE_WEIGHTS5,
+    STANDARD_BANNERS,
+    STARDUST_ID,
+    STARGLITTER_ID,
+    WEIGHTS4,
+    WEIGHTS5
+)
 from loguru import logger
+from utils import (
+    color_to_rarity,
+    exists,
+    get_avatar_data,
+    get_banner_name,
+    get_banners,
+    get_item,
+    get_textmap,
+    get_weapon_data,
+    give_avatar,
+    give_item_local,
+    resolve_id,
+    translate
+)
+from variables import (
+    FIVE_STAR,
+    FIVE_STAR_TEN,
+    FOUR_STAR,
+    FOUR_STAR_TEN,
+    THREE_STAR
+)
 from vkbottle import Keyboard, Text
 from vkbottle.bot import BotLabeler, Message
 from vkbottle_types.objects import UsersUserFull
-
-import create_pool
-from gacha_banner_vars import (EVENT_BANNERS, FALLBACK_ITEMS_3,
-                               FALLBACK_ITEMS_4_POOL_1,
-                               FALLBACK_ITEMS_4_POOL_2,
-                               FALLBACK_ITEMS_5_POOL_1,
-                               FALLBACK_ITEMS_5_POOL_2, POOL_BALANCE_WEIGHTS4,
-                               POOL_BALANCE_WEIGHTS5, STANDARD_BANNERS,
-                               STARDUST_ID, STARGLITTER_ID, WEIGHTS4, WEIGHTS5)
-from utils import (color_to_rarity, exists, get_avatar_data, get_banner_name,
-                   get_banners, get_item, get_textmap, get_weapon_data,
-                   give_avatar, give_item_local, resolve_id, translate)
-from variables import (FIVE_STAR, FIVE_STAR_TEN, FOUR_STAR, FOUR_STAR_TEN,
-                       THREE_STAR)
 
 bl = BotLabeler()
 bl.vbml_ignore_case = True
@@ -62,7 +85,6 @@ class Wish:
         self.result_records = []
         self.avatars = []
         self.result_inventory = None
-        self.keyboard = Keyboard(inline=True)
         self.encoder = msgspec.json.Encoder()
         self.decoder = msgspec.json.Decoder()
 
@@ -683,6 +705,9 @@ class Wish:
             results_msg = (await translate("wish", "results")).format(mention=mention) + '\n'
             for item in new_items:
                 item_info = resolve_id(item, self.avatar_excel_data, self.weapon_excel_data)
+                if item_info is None:
+                    logger.error(f"Unknown item in ten-time pull: {item}")
+                    continue
                 item_name = self.textmap.get(str(item_info['nameTextMapHash']))
                 if item_name is None:
                     item_name = await translate("wish", "unknown_item")
@@ -714,7 +739,7 @@ class Wish:
         else:
             button_text = "Помолиться 1 раз"
 
-        self.keyboard.add(Text(button_text)).get_json()
+        keyboard = Keyboard(inline=True).add(Text(button_text)).get_json()
 
         output_gif = self.choose_gif(max_rarity, (True if times == 10 else False))
         if self.info:
@@ -739,7 +764,7 @@ class Wish:
             self.peer_id,
             results_msg,
             conversation_message_id=wish_process_id,
-            keyboard=self.keyboard,
+            keyboard=keyboard,
             disable_mentions=(True if max_rarity < 5 else False)
         )
 
