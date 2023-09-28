@@ -1,0 +1,212 @@
+{
+    "admin": {
+        "chats": {
+            "list_user_chats": "User [id{mention_id}|id] chats:",
+            "current_chat": " - this chat"
+        },
+        "primos": {
+            "primos_to_one": "{amount} {item_name} added to [id{mention_id}|this user]",
+            "primos_to_all": "{amount} primogems given to all players successfully",
+            "must_be_number": "The amount of primogems must be a number!",
+            "user_not_found": "This user is not found in the game!"
+        },
+        "ban": {
+            "ban_user": "This person did something terrible and was banned",
+            "unban_user": "This person became cool again and was unbanned",
+            "not_banned_user": "This person is not banned, luckily"
+        },
+        "promocodes": {
+            "new_promocode_syntax": "!новый промокод <колчество> <время (unix time)> <название>",
+            "new_promocode_generated": "Promocode {new_promocode} has been generated!",
+            "delete_promocode": "Promocode has been deleted!",
+            "incorrect_time_format": "Incorrect time format!",
+            "promocode_not_found": "This promocode does not exist!"
+        },
+        "serverside": {
+            "sql_result": "SQL query returned this: {result}",
+            "execute_result": "Output: {command_output}",
+            "execute_nonzero": "Non-zero exit status: {e}"
+        }
+    },
+    "banners": {
+        "current": "Your selected banner: {banner_name} ({banner_fallback_name})",
+        "list": "List of all banners:",
+        "selected": "You have selected \"{banner_name}\" banner!",
+        "selected_unknown": "This banner does not exist!\nThese options are available: novice, event, event 2, standard, weapon",
+        "unknown_banner": "Unknown banner",
+        "unknown_id": "Incorrect banner ID!"
+    },
+    "shop": {
+        "wish_type_standard": "standard",
+        "wish_type_event": "event",
+        "buy_confirmation": "You have purchased {amount} {wish_type} wishes for {pay_count} primogems!\nYour balance: {current_balance}",
+        "zero_value": "Are you drunk?",
+        "too_big_value": "You cannot buy this much at once!",
+        "unknown_wish": "These wishes do not exist!",
+        "not_enough_primos": "You don't have enough primogems, {amount} wishes cost {pay_count} primogems!",
+        "not_enough_primos_tip": "You can also use \"!купить молитвы все <тип молитвы>\" to buy wishes for all your Primogems!"
+    },
+    "casino": {
+        "drop_color": "You got ",
+        "won": "&#127881; You won {prim_count} primogems!",
+        "lost": "{results}&#128128; Tough luck, you lost all your primogems! Maybe next time...",
+        "minimum_error": "Hey, what's the matter? You must bet at least 50 primogems",
+        "maximum_error": "You can't bet that much, or you'll end up broke!",
+        "unknown_color": "That color doesn't exist! The only options are: {colors_types}",
+        "not_enough_primos": "You don't have enough primogems!"
+    },
+    "avatars": {
+        "list": "Characters",
+        "empty_rarity": "You don't have any {rarity} rarity characters yet!",
+        "empty": "You don't have any characters yet! You can obtain them through banners",
+        "unknown": "You haven't obtained this character yet / it doesn't exist!",
+        "drop_date": "Obtained on: {drop_date}",
+        "constellation": "Constellation: {const}"
+    },
+    "daily_rewards": {
+        "reward_answers": [
+            "You woke up and found {amount} primogems on your desk! \nI wonder how they got there?",
+            "You went outside and found {amount} primogems on the ground",
+            "Some hilichurl found {amount} primogems, and you \"borrowed\" them from him"
+        ],
+        "no_reward_answers": [
+            "No luck today, you didn't find any primogems...",
+            "On your way home, you dropped all the primogems you found in the river..."
+        ],
+        "already_used": "You have already tried to find primogems today, try again tomorrow!"
+    },
+    "fun": {
+        "regex_long_waiting": "Searching using regular expressions can take a while, please wait...",
+        "phrase_not_found": "Phrase not found!",
+        "maximum_phrases_exceeded": "You can only search for more than 10 random phrases in a private message!"
+    },
+    "gacha_history": {
+        "result_time": "Time: {drop_time} (GMT+3)",
+        "no_rolls_found": "You haven't obtained anything in the banner you selected yet!",
+        "no_future_items": "You can't see what you'll get in the future!",
+        "history_exceeded": "You didn't obtain anything at this time!",
+        "unknown_item_error": "Unknown item"
+    },
+    "genshin_info": {
+        "kbd_avatar_level": "(Lv. {level})",
+        "uid_not_set": "You haven't set your UID yet! You can set it using the command \"!set uid <UID>\"",
+        "replier_no_uid": "The person you replied to has not created an account/has not set their UID yet, but they can do so by typing \"!set uid <UID>\"",
+        "player_info": "Information about [id{from_id}|this] player's account",
+        "enka_network_error": "It looks like enka.network is currently down!\nIf this isn't the case, please let me know [id322615766|here]",
+        "current_account_deleted": "Uh... I couldn't find any information on this UID, it seems this Genshin account was banned/deleted\n(or it's an enka.network error)",
+        "uid_not_found": "There is no player with that UID!",
+        "unknown_value": "[unknown]",
+        "info_msg_start": "Genshin Impact UID: {uid}\nNickname: {nickname}",
+        "fav_avatar_profile_picture": "{avatar_name} on pfp, he's amazing",
+        "no_avatar_profile_picture": "No character on pfp (how is that possible?)",
+        "avatar_profile_picture": "{avatar_name} on pfp",
+        "adv_rank": "Adventure rank",
+        "description": "Description",
+        "world_level": "World level",
+        "more_information": "More information",
+        "only_caller_build": "Nope! Only caller may see the build of this player",
+        "get_build_error": "Something went wrong while getting information about this character",
+        "avatar_info_start": "Information of character {avatar_name} of player {uid}:",
+        "detailed_info_disabled": "У этого игрока отключены подробные детали персонажей",
+        "avatar_removed_from_stand": "This character is not on showcase anymore!"
+    },
+    "inventory": {
+        "weapons": "Weapons ({rarity}):",
+        "weapons_not_found": "It's empty!",
+        "empty_inventory": "Your inventory is empty!"
+    },
+    "invite_help": {
+        "invite_welcome": "Welcome to Teyvat!",
+        "read_right": "Now I need to be given read message permissions and admin rights for correct operation!",
+        "commands_repository": "Repository with all commands:",
+        "help_commands": "Main commands:\n!начать - create a profile\n!перс - view character\n!установить ник [никнейм] - sets a nickname for your character",
+        "help_repository": "All other commands can be viewed in the repository:",
+        "private_start": "To work correctly, you need to add me to any conversation and grant me access to the messages!\nCommands can be viewed here:"
+    },
+    "leave": {
+        "warning": "Are you sure you want to delete your account?\nAfter this, your account will be deleted forever.\nWrite \"!точно удалить геншин\" to delete the account",
+        "confirmed": "You have left the best bot in the entire Discord..."
+    },
+    "like_reward": {
+        "on_like": "{mention}, thank you for liking the post {link}\nFor this you get 50 primogems! ❀",
+        "on_like_rare": "aww, {mention}, t-thank you for a l-like on the post {link}, it m-makes me so happy... ahh~... \nfor this i'll g-give you... 50 primogems!! enjoy, cutie :3"
+    },
+    "minigames": {
+        "start": "You have started to complete the assignments. Come back in {time} minute{ending}!",
+        "already_started": "You have already started or completed the assignments!",
+        "end": "Today, Katerina paid you a bonus of {primogems_reward} primogems and {experience_reward} experience!",
+        "not_started": "You have not started or have already completed the assignments!",
+        "time_left": "You can only complete the assignments in {ending}!"
+    },
+    "nickname": {
+        "set_confirmation": "Вы успешно поменяли никнейм",
+        "dot_found": "В нике не может быть точка!",
+        "length_exceeded": "В нике не может быть больше 35 символов (включая пробел)",
+        "swear_ban": "Вы были забанены в группе.\nДля разбана, напишите [id322615766|мне в личные сообщения]",
+        "ban_error": "А, ещё, просьба к администратору беседы - выдайте мне пожалуйста админку, что бы я мог нормально работать (точно никак не связано с предыдущими событиями)"
+    },
+    "ping": {
+        "pong": "Понг!"
+    },
+    "print_id": {
+        "answer": "Ваш айди: {from_id}\nАйди беседы: {peer_id}"
+    },
+    "profile": {
+        "nickname": "Ник",
+        "level": "Уровень",
+        "primogems": "Примогемы",
+        "standard_wish": "Стандартных молитв",
+        "event_wish": "Молитв события",
+        "event_gacha": "Гарант в ивентовых баннерах",
+        "anime_game_id": "Айди в Genshin Impact",
+        "anime_game_id_not_set": "не установлен!"
+    },
+    "promocodes": {
+        "promocode_not_found": "Такого промокода не существует!",
+        "same_author": "Пока мы живем в 2023, этот человек живет в 2032 (Вы владелец этого промокода)",
+        "promocode_expired": "У этого промокода истек срок!",
+        "already_redeemed": "Вы уже забрали этот промокод!",
+        "user_already_redeemed": "Вы можете использовать только 1 промокод игрока",
+        "promocode_author_deleted": "Автор этого промокода - ишак, который удалил свой аккаунт из всех бесед",
+        "promocode_author_reward": "[id{author}|{nickname_author}], [id{from_id}|этот игрок] актививировал ваш промокод, вы получили 4800 примогемов!",
+        "promocode_redeemer_reward": "Вы успешно активировали промокод игрока [id{author}|{nickname_author}]!\nЗа это вы получаете 800 примогемов",
+        "normal_promocode_reward": "Вы успешно получили {reward} примогемов!",
+        "your_promocode": "Ваш промокод: \"{promocode}\"",
+        "share_promocode": "Поделитесь им с друзьями, что бы они могли его использовать!",
+        "share_promocode_reward": "За каждого приглашенного человека вы получите 4800 примогемов (30 круток)"
+    },
+    "set_uid": {
+        "enka_network_error": "Похоже, что сервис enka.network сейчас не работает!\nЕсли же это не так, пожалуйста, сообщите об этой ошибке [id322615766|мне]",
+        "player_not_found": "Такого игрока не существует!",
+        "unknown_nickname": "[неизвестный ник]",
+        "unknown_adv_rank": "[неизвестный]",
+        "set_success": "Вы успешно установили UID игрока \"{nickname}\" (AR: {adv_rank})",
+        "HuTao_easter_egg": "Ху Тао на аве, здоровья маме"
+    },
+    "create_accoutn": {
+        "already_created": "В этом чате вы уже присоединились к боту",
+        "new_user": "Вы присоединились к боту!\nНапишите !персонаж, что бы увидеть ваш никнейм и количество примогемов"
+    },
+    "top": {
+        "we_will_come_back": "Топ вернется в будущем!"
+    },
+    "wish": {
+        "group": "Группа",
+        "group_dat": "Группе",
+        "group_gen": "Группы",
+        "not_enough_standard_wishes": "У вас не достаточно стандартных молитв!",
+        "not_enough_event_wishes": "У вас не достаточно ивентовых молитв!",
+        "how_to_buy_standard": "стандарт",
+        "how_to_buy_event": "ивент",
+        "how_to_buy": "Купить их можно с помощью команды \"!купить молитвы {wish_type} <число>\"!",
+        "unknown_item": "Неизвестный предмет",
+        "unknown_description": "Без описания",
+        "results": "Результаты {mention}:",
+        "chosen_banner": "Ваш выбранный баннер",
+        "five_star_gacha": "Гарант 5*",
+        "four_star_gacha": "Гарант 4*",
+        "wish_process": "{mention} молится...",
+        "maximum_ten_wishes": "Можно помолиться только 1 или 10 раз!",
+        "not_enough_wishes": "У вас нет {fail_text} круток!\nИх можно купить с помощью команды \"!купить молитвы {banner_type} <число>\""
+    }
+}

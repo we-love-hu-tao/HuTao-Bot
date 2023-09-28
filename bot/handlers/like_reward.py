@@ -71,7 +71,7 @@ async def like_add(event: GroupTypes.LikeAdd):
     mention = f"[id{user_id}|{result['nickname']}]"
     link = f"vk.com/we_love_hu_tao?w=wall-{GROUP_ID}_{post_id}\n"
 
-    if random.random() < 0.01:
+    if random.random() < 0.005:
         ans_message = await translate("like_reward", "on_like_rare")
     else:
         ans_message = await translate("like_reward", "on_like")
