@@ -33,7 +33,6 @@ from utils import (
     resolve_map_hash,
     translate
 )
-from vkbottle import Keyboard, Text
 from vkbottle.bot import BotLabeler, Message
 from vkbottle.tools import PhotoToAlbumUploader
 from vkbottle.user import User
@@ -389,6 +388,7 @@ async def create_banner(gacha_type) -> dict | None:
                 main_rateup_rarity = color_to_rarity(item_info['qualityType'])
 
                 if main_rateup is None or second_rateup is None:
+                    logger.error("Couldn't find main/second rateup picture for banner")
                     return {
                         "error": (
                             "В данный момент невозможно сгенерировать "
@@ -448,7 +448,7 @@ async def create_banner(gacha_type) -> dict | None:
                 item_info = resolve_id(i, avatar_data)
                 item_name = resolve_map_hash(textmap, item_info['nameTextMapHash'])
                 items_names.append(item_name)
-            rateup_picture = await get_second_rateup_picture(banner['prefabPath'].split('_')[1])
+            rateup_picture = await get_second_rateup_picture(banner.prefab_path.split('_')[1])
 
             banner_bg = Image.open(f"{banners_bg_path}{banner_bg}")
             main_rateup = Image.open(f"{banners_items_path}{rateup_picture}")
