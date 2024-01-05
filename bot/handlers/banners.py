@@ -1,8 +1,14 @@
 import os
 
-import create_pool
-import msgspec
+from PIL import ImageDraw, ImageFont, Image
+from PIL.Image import Image as ImageType
 from aiocache import cached
+from loguru import logger
+from vkbottle.bot import BotLabeler, Message
+from vkbottle.tools import PhotoToAlbumUploader
+from vkbottle.user import User
+
+import create_pool
 from config import BANNERS_ALBUM_ID, GROUP_ID, TEST_MODE, VK_USER_TOKEN
 from gacha_banner_vars import FALLBACK_ITEMS_5_POOL_1
 from keyboards import (
@@ -13,29 +19,21 @@ from keyboards import (
     KEYBOARD_WEAPON,
     KEYBOARD_WISH
 )
-from loguru import logger
+from models.avatar import Avatar
 from models.banner import Banner, BannerType
-from PIL import Image, ImageDraw, ImageFont
-from PIL.PngImagePlugin import PngImageFile
+from models.weapon import Weapon
 from utils import (
-    color_to_rarity,
-    element_to_banner_bg,
     exists,
     get_avatar_data,
     get_banner,
     get_banner_name,
     get_banners,
-    get_skill_depot_data,
-    get_skill_excel_data,
-    get_textmap,
+    get_text_map,
     get_weapon_data,
     resolve_id,
     resolve_map_hash,
     translate
 )
-from vkbottle.bot import BotLabeler, Message
-from vkbottle.tools import PhotoToAlbumUploader
-from vkbottle.user import User
 
 bl = BotLabeler()
 bl.vbml_ignore_case = True
@@ -59,7 +57,6 @@ banners_cache = {
     302: ""  # Баннер оружия
 }
 
-# List of banners cache
 all_banners_cache = None
 
 banners_items_path = 'resources/banners_items/'
@@ -75,42 +72,42 @@ fnt_weapon_name = ImageFont.truetype(fnt_path, 28)
 
 class BannerPicture:
     def __init__(
-        self, bg: PngImageFile, main_rateup: PngImageFile | list[PngImageFile],
-        second_rateup: PngImageFile | None = None
+        self, bg: Image, main_rate_up: ImageType | tuple[ImageType, ImageType],
+        second_rate_up: ImageType | None = None
     ):
-        self.main_rateup = main_rateup
-        self.second_rateup = second_rateup
+        self.main_rate_up = main_rate_up
+        self.second_rate_up = second_rate_up
         self.bg = bg
         self.star = Image.open(f"{banners_ui_path}star.png").resize((18, 18))
 
-    def add_main_rateup_event(self):
-        """Adds main rateup picture to event banner"""
-        self.main_rateup.thumbnail((self.main_rateup.size[0], self.main_rateup.size[1] - 75))
+    def add_main_rate_up_event(self):
+        """Adds main rate up picture to event banner"""
+        self.main_rate_up.thumbnail((self.main_rate_up.size[0], self.main_rate_up.size[1] - 75))
 
         bg_w, bg_h = self.bg.size
-        im_w, im_h = self.main_rateup.size
+        im_w, im_h = self.main_rate_up.size
         offset = ((bg_w - im_w) // 2, (bg_h - im_h) // 2 + 75)
 
-        self.bg.paste(self.main_rateup, offset, self.main_rateup)
+        self.bg.paste(self.main_rate_up, offset, self.main_rate_up)
 
-    def add_second_rateup_event(self):
-        """Adds second rateup picture to event banner (4* characters)"""
-        self.second_rateup.thumbnail((self.second_rateup.size[0], self.bg.size[1]))
+    def add_second_rate_up_event(self):
+        """Adds second rate up picture to event banner (4* characters)"""
+        self.second_rate_up.thumbnail((self.second_rate_up.size[0], self.bg.size[1]))
         self.bg.paste(
-            self.second_rateup, (self.bg.size[0] - self.second_rateup.size[0], 0),
-            self.second_rateup
+            self.second_rate_up, (self.bg.size[0] - self.second_rate_up.size[0], 0),
+            self.second_rate_up
         )
 
-    def add_main_rateup_weapon(self):
-        """Adds main rateup picture to weapon banner"""
-        if len(self.main_rateup) != 2:
-            raise ValueError("Incorrect weapon rateup list count")
+    def add_main_rate_up_weapon(self):
+        """Adds main rate up picture to weapon banner"""
+        if len(self.main_rate_up) != 2:
+            raise ValueError("Incorrect weapon rate_up list count")
 
         bg_w, bg_h = self.bg.size
         size_change = 400
         x_change = 50
         y_change = 0
-        for weapon in self.main_rateup:
+        for weapon in self.main_rate_up:
             weapon.thumbnail((weapon.size[0], weapon.size[1] - size_change))
 
             im_w, im_h = weapon.size
@@ -120,24 +117,24 @@ class BannerPicture:
             x_change += 100
             y_change += 20
 
-    def add_main_rateup_standard(self):
-        """Adds main rateup picture to standard banner"""
-        self.main_rateup.thumbnail((self.main_rateup.size[0], self.main_rateup.size[1] - 300))
+    def add_main_rate_up_standard(self):
+        """Adds main rate up picture to standard banner"""
+        self.main_rate_up.thumbnail((self.main_rate_up.size[0], self.main_rate_up.size[1] - 300))
         bg_w, bg_h = self.bg.size
-        im_w, im_h = self.main_rateup.size
+        im_w, im_h = self.main_rate_up.size
         offset = ((bg_w - im_w) // 2 + 140, (bg_h - im_h) // 2 - 100)
 
-        self.bg.paste(self.main_rateup, offset, self.main_rateup)
+        self.bg.paste(self.main_rate_up, offset, self.main_rate_up)
 
-    def add_main_rateup_noob(self):
-        """Adds main rateup picture to beginner's banner"""
-        self.main_rateup.thumbnail((self.main_rateup.size[0], self.main_rateup.size[1] - 75))
+    def add_main_rate_up_noob(self):
+        """Adds main rate up picture to beginner's banner"""
+        self.main_rate_up.thumbnail((self.main_rate_up.size[0], self.main_rate_up.size[1] - 75))
 
         bg_w, bg_h = self.bg.size
-        im_w, im_h = self.main_rateup.size
+        im_w, im_h = self.main_rate_up.size
         offset = ((bg_w - im_w) // 2 + 154, (bg_h - im_h) // 2 + 70)
 
-        self.bg.paste(self.main_rateup, offset, self.main_rateup)
+        self.bg.paste(self.main_rate_up, offset, self.main_rate_up)
 
     def draw_outlined_text(self, text, x, y, fill_outline, fill, fnt):
         draw = ImageDraw.Draw(self.bg)
@@ -157,13 +154,13 @@ class BannerPicture:
 
         if len(banner_name) > 10 and do_wrap:
             # Wrap banner name
-            names_splitted = banner_name.split()
-            for i in range(len(names_splitted) - 1):
-                if len(names_splitted[i]) + len(names_splitted[i + 1]) > 10:
-                    names_splitted.insert(i + 1, '\n')
+            names_splintered = banner_name.split()
+            for i in range(len(names_splintered) - 1):
+                if len(names_splintered[i]) + len(names_splintered[i + 1]) > 10:
+                    names_splintered.insert(i + 1, '\n')
 
             banner_name = ""
-            for i in names_splitted:
+            for i in names_splintered:
                 if i != "\n":
                     banner_name += i + " "
                 else:
@@ -272,7 +269,7 @@ class BannerPicture:
         return path
 
 
-async def get_main_rateup_picture(item_name):
+async def get_main_rate_up_picture(item_name: str):
     for filename in os.listdir(banners_items_path):
         if not filename.endswith('.png'):
             continue
@@ -288,10 +285,10 @@ async def get_main_rateup_picture(item_name):
 
         if item_name.lower() == name.lower():
             return filename
-    logger.warning(f"Picture of main rateup ({item_name}) not found!")
+    logger.warning(f"Picture of main rate up ({item_name}) not found!")
 
 
-async def get_second_rateup_picture(banner_id):
+async def get_second_rate_up_picture(banner_id: str):
     for filename in os.listdir(banners_items_path):
         if not filename.endswith('.png'):
             continue
@@ -307,19 +304,20 @@ async def get_background_by_elem(element):
             return filename
 
 
-async def check_banner_cache(prefab_path):
-    logger.info(f"Checking if {prefab_path} exists in cache")
+async def check_banner_cache(prefab_id):
+    logger.info(f"Checking if {prefab_id} exists in cache")
     pool = create_pool.pool
     async with pool.acquire() as pool:
         result = await pool.fetchrow(
             "SELECT picture_name, picture_id FROM pictures WHERE picture_name=$1",
-            prefab_path
+            prefab_id
         )
     if result is not None:
         logger.info(f"Cache exists, results: {result}")
         return result
 
 
+"""
 async def get_element(avatar_info):
     skill_depot_data = await get_skill_depot_data()
     skill_data = await get_skill_excel_data()
@@ -331,6 +329,7 @@ async def get_element(avatar_info):
             for skill in skill_data:
                 if skill['id'] == energy_skill:
                     return skill['costElemType']
+"""
 
 
 async def create_banner(gacha_type) -> dict | None:
@@ -339,125 +338,119 @@ async def create_banner(gacha_type) -> dict | None:
 
     # Return cache if exists
     banner: Banner = await get_banner(gacha_type)
-    prefab_path = banner.prefab_path
-    banner_cache = await check_banner_cache(prefab_path)
+    prefab_id = banner.prefab_id
+    banner_cache = await check_banner_cache(prefab_id)
     if banner_cache is not None:
         return {"attachment": banner_cache['picture_id']}
 
     avatar_data = await get_avatar_data()
     weapon_data = await get_weapon_data()
-    textmap = await get_textmap()
+    text_map = await get_text_map()
 
     banner_type = banner.banner_type
     banner_name = await get_banner_name(gacha_type)
-    rateup5 = banner.rate_up_items_5
-    rateup4 = banner.rate_up_items_4
+    rate_up5 = banner.rate_up_5
+    rate_up4 = banner.rate_up_4
 
     # TODO: How to make this cleaner?
     match banner_type:
         case BannerType.EVENT:
-            if rateup5 is None or len(rateup5) == 0:
+            if rate_up5 is None or len(rate_up5) == 0:
                 # Beginner's banner
-                rateup4 = rateup4[0]
-                item_info = resolve_id(rateup4, avatar_data)
-                element = await get_element(item_info)
-                element = element_to_banner_bg(element)
+                rate_up4 = rate_up4[0]
+                avatar: Avatar = resolve_id(rate_up4, avatar_data)
+                element = avatar.element
                 banner_bg = await get_background_by_elem(element)
-                main_rateup = await get_main_rateup_picture(item_info['iconName'].split('_')[2])
-                main_rateup_name = resolve_map_hash(textmap, item_info['nameTextMapHash'])
-                main_rateup_rarity = color_to_rarity(item_info['qualityType'])
+                main_rate_up_picture_path = avatar.gacha_img
+                main_rate_up_name = resolve_map_hash(text_map, avatar.name_text_map_hash)
+                main_rate_up_rarity = avatar.quality
 
                 banner_bg = Image.open(f"{banners_bg_path}{banner_bg}")
-                main_rateup = Image.open(f"{banners_items_path}{main_rateup}")
+                main_rate_up_picture = Image.open(f"{banners_items_path}{main_rate_up_picture_path}")
 
-                banner_picture = BannerPicture(banner_bg, main_rateup)
-                banner_picture.add_main_rateup_noob()
+                banner_picture = BannerPicture(banner_bg, main_rate_up_picture)
+                banner_picture.add_main_rate_up_noob()
                 banner_picture.draw_event_banner_name(banner_name)
                 banner_picture.draw_noob_box()
-                banner_picture.draw_noob_name(main_rateup_name, main_rateup_rarity)
+                banner_picture.draw_noob_name(main_rate_up_name, main_rate_up_rarity)
             else:
                 # Character banner
-                rateup5 = rateup5[0]
-                item_info = resolve_id(rateup5, avatar_data)
-                element = await get_element(item_info)
-                element = element_to_banner_bg(element)
+                rate_up5 = rate_up5[0]
+                avatar: Avatar = resolve_id(rate_up5, avatar_data)
+                element = avatar.element
                 banner_bg = await get_background_by_elem(element)
-                main_rateup = await get_main_rateup_picture(item_info['iconName'].split('_')[2])
-                second_rateup = await get_second_rateup_picture(banner.prefab_path.split('_')[1])
-                main_rateup_name = resolve_map_hash(textmap, item_info['nameTextMapHash'])
-                main_rateup_rarity = color_to_rarity(item_info['qualityType'])
+                main_rate_up_picture_path = avatar.gacha_img
+                second_rate_up_picture_path = await get_second_rate_up_picture(banner.prefab_id)
+                main_rate_up_name = resolve_map_hash(text_map, avatar.name_text_map_hash)
+                main_rate_up_rarity = avatar.quality
 
-                if main_rateup is None or second_rateup is None:
-                    logger.error("Couldn't find main/second rateup picture for banner")
+                if main_rate_up_picture_path is None or second_rate_up_picture_path is None:
+                    logger.error("Couldn't find main/second rate up picture for banner")
                     return {
                         "error": (
                             "В данный момент невозможно сгенерировать "
                             "баннер, попробуйте позже!\n"
-                            f"item_info id: {item_info.get('id')}"
+                            f"avatar id: {avatar.id}"
                         )
                     }
 
                 banner_bg = Image.open(f"{banners_bg_path}{banner_bg}")
-                main_rateup = Image.open(f"{banners_items_path}{main_rateup}")
-                second_rateup = Image.open(f"{banners_items_path}{second_rateup}")
+                main_rate_up_picture = Image.open(f"{banners_items_path}{main_rate_up_picture_path}")
+                second_rate_up_picture = Image.open(f"{banners_items_path}{second_rate_up_picture_path}")
 
-                banner_picture = BannerPicture(banner_bg, main_rateup, second_rateup)
-                banner_picture.add_main_rateup_event()
-                banner_picture.add_second_rateup_event()
+                banner_picture = BannerPicture(banner_bg, main_rate_up_picture, second_rate_up_picture)
+                banner_picture.add_main_rate_up_event()
+                banner_picture.add_second_rate_up_event()
                 banner_picture.draw_event_banner_name(banner_name)
                 banner_picture.draw_event_box()
-                banner_picture.draw_event_name(main_rateup_name, main_rateup_rarity)
+                banner_picture.draw_event_name(main_rate_up_name, main_rate_up_rarity)
 
         case BannerType.WEAPON:
             # Weapon banner
-            # TODO: Use rateup 4
+            # TODO: Use rate up 4
             banner_bg = "UI_GachaShowPanel_Bg_Weapon.png"
-            main_rateup1 = rateup5[0]
-            main_rateup2 = rateup5[1]
-            rateup1_info = resolve_id(main_rateup1, weapon_data=weapon_data)
-            rateup2_info = resolve_id(main_rateup2, weapon_data=weapon_data)
-            rateup1_name = resolve_map_hash(textmap, rateup1_info['nameTextMapHash'])
-            rateup2_name = resolve_map_hash(textmap, rateup2_info['nameTextMapHash'])
-            main_rateup1 = await get_main_rateup_picture(
-                '_'.join(rateup1_info['icon'].split('_')[2:4])
-            )
-            main_rateup2 = await get_main_rateup_picture(
-                '_'.join(rateup2_info['icon'].split('_')[2:4])
-            )
+            main_rate_up1 = rate_up5[0]
+            main_rate_up2 = rate_up5[1]
+            weapon1: Weapon = resolve_id(main_rate_up1, weapon_data=weapon_data)
+            weapon2: Weapon = resolve_id(main_rate_up2, weapon_data=weapon_data)
+            weapon1_name = resolve_map_hash(text_map, weapon1.name_text_map_hash)
+            weapon2_name = resolve_map_hash(text_map, weapon2.name_text_map_hash)
+            weapon1_picture_path = weapon1.gacha_img
+            weapon2_picture_path = weapon2.gacha_img
 
             banner_bg = Image.open(f"{banners_bg_path}{banner_bg}")
-            main_rateup1 = Image.open(f"{banners_items_path}{main_rateup1}")
-            main_rateup2 = Image.open(f"{banners_items_path}{main_rateup2}")
+            weapon1_picture = Image.open(f"{banners_items_path}{weapon1_picture_path}")
+            weapon2_picture = Image.open(f"{banners_items_path}{weapon2_picture_path}")
 
-            banner_picture = BannerPicture(banner_bg, (main_rateup1, main_rateup2))
-            banner_picture.add_main_rateup_weapon()
+            banner_picture = BannerPicture(banner_bg, (weapon1_picture, weapon2_picture))
+            banner_picture.add_main_rate_up_weapon()
             banner_picture.draw_weapon_banner_name(banner_name)
             banner_picture.draw_weapon_box()
-            banner_picture.draw_weapon_name((rateup1_name, rateup2_name))
+            banner_picture.draw_weapon_name((weapon1_name, weapon2_name))
 
         case _:
             # Standard banner
             banner_bg = "UI_GachaShowPanel_Bg_Nomal.png"
-            items_show = (
+            avatars_show = (
                 1042,  # Keqing
                 1041,  # Mona
                 1035,  # Qiqi
             )
-            items_names = []
-            for i in items_show:
-                item_info = resolve_id(i, avatar_data)
-                item_name = resolve_map_hash(textmap, item_info['nameTextMapHash'])
-                items_names.append(item_name)
-            rateup_picture = await get_second_rateup_picture(banner.prefab_path.split('_')[1])
+            avatars_names = []
+            for i in avatars_show:
+                avatar: Avatar = resolve_id(i, avatar_data)
+                avatar_name = resolve_map_hash(text_map, avatar.name_text_map_hash)
+                avatars_names.append(avatar_name)
+            rate_up_picture_path = await get_second_rate_up_picture(banner.prefab_id)
 
             banner_bg = Image.open(f"{banners_bg_path}{banner_bg}")
-            main_rateup = Image.open(f"{banners_items_path}{rateup_picture}")
+            main_rate_up_picture = Image.open(f"{banners_items_path}{rate_up_picture_path}")
 
-            banner_picture = BannerPicture(banner_bg, main_rateup)
-            banner_picture.add_main_rateup_standard()
+            banner_picture = BannerPicture(banner_bg, main_rate_up_picture)
+            banner_picture.add_main_rate_up_standard()
             banner_picture.draw_standard_banner_name(banner_name)
             banner_picture.draw_standard_boxes()
-            banner_picture.draw_standard_names(items_names)
+            banner_picture.draw_standard_names(avatars_names)
 
     # Saving image to local storage and group album
     banner_result = banner_picture.save_banner(f"banner_{gacha_type}")
@@ -469,31 +462,31 @@ async def create_banner(gacha_type) -> dict | None:
         await pool.execute(
             "INSERT INTO pictures (picture_name, picture_id) "
             "VALUES ($1, $2)",
-            prefab_path, banner_attachment
+            prefab_id, banner_attachment
         )
     return {"attachment": banner_attachment}
 
 
 @cached()
-async def format_banners(banner: Banner):
+async def format_banner(banner: Banner):
     new_msg = ""
 
     raw_avatars = await get_avatar_data()
     raw_weapons = await get_weapon_data()
-    textmap = await get_textmap()
+    text_map = await get_text_map()
 
-    if banner.gacha_type != 200:  # Not standard banner
-        if banner.rate_up_items_5:
+    if banner.gacha_type != 200:  # Not a standard banner
+        if banner.rate_up_5:
             new_msg += f"{'&#11088;' * 5}\n"
-            for rateupitem5 in banner.rate_up_items_5:
-                item = resolve_id(rateupitem5, raw_avatars, raw_weapons)
+            for rate_up_item5 in banner.rate_up_5:
+                item = resolve_id(rate_up_item5, raw_avatars, raw_weapons)
 
                 if item is None:
                     new_msg += "? Неизвестный предмет\n"
                     continue
 
-                item_name = textmap[str(item['nameTextMapHash'])]
-                if rateupitem5 > 11100:  # Weapon
+                item_name = text_map[str(item.name_text_map_hash)]
+                if rate_up_item5 > 11100:  # Weapon
                     new_msg += f"&#128481; {item_name}\n"
                 else:
                     new_msg += f"&#129485; {item_name}\n"
@@ -501,15 +494,15 @@ async def format_banners(banner: Banner):
             new_msg += "\n"
 
         new_msg += f"{'&#11088;' * 4}\n"
-        for rateupitem4 in banner.rate_up_items_4:
-            item = resolve_id(rateupitem4, raw_avatars, raw_weapons)
+        for rate_up_item4 in banner.rate_up_4:
+            item = resolve_id(rate_up_item4, raw_avatars, raw_weapons)
 
             if item is None:
                 new_msg += "? Неизвестный предмет\n"
                 continue
 
-            item_name = textmap[str(item['nameTextMapHash'])]
-            if rateupitem4 > 11100:  # Weapon
+            item_name = text_map[str(item.name_text_map_hash)]
+            if rate_up_item4 > 11100:  # Weapon
                 new_msg += f"&#128481; {item_name}\n"
             else:
                 new_msg += f"&#129485; {item_name}\n"
@@ -520,7 +513,7 @@ async def format_banners(banner: Banner):
             if item is None:
                 logger.error(f"Banner item not found (id {item_id})")
                 continue
-            item_name = textmap[str(item['nameTextMapHash'])]
+            item_name = text_map[str(item.name_text_map_hash)]
             new_msg += f"&#129485; {item_name}\n"
 
     banners_cache[banner.gacha_type] = new_msg
@@ -577,14 +570,8 @@ async def show_all_banners(message: Message):
 
     new_msg = (await translate("banners", "list")) + "\n"
 
-    raw_banners = await get_banners()
-    decoder = msgspec.json.Decoder(Banner)
-    encoder = msgspec.json.Encoder()
-    for raw_banner in raw_banners:
-        # Converting to json
-        banner = encoder.encode(raw_banner)
-        # Converting to `Banner` object
-        banner = decoder.decode(banner)
+    banners = await get_banners()
+    for banner in banners:
         try:
             new_msg += f"{BANNERS_NAMES[banner.gacha_type]}: "
         except IndexError:
@@ -621,8 +608,8 @@ async def choose_banner(message: Message, banner):
     if banner not in banners:
         return await translate("banners", "selected_unknown")
 
-    choiced_banner: Banner | None = await get_banner(banners[banner])
-    if choiced_banner is None:
+    selected_banner: Banner | None = await get_banner(banners[banner])
+    if selected_banner is None:
         logger.error(f"Known banner not found (gacha_type {banners[banner]})")
         return await translate("banners", "unknown_banner")
 
@@ -633,8 +620,8 @@ async def choose_banner(message: Message, banner):
             banners[banner], message.from_id, message.peer_id
         )
 
-    banner_name = await get_banner_name(choiced_banner.gacha_type)
-    banner_attachment = await create_banner(choiced_banner.gacha_type) or {}
+    banner_name = await get_banner_name(selected_banner.gacha_type)
+    banner_attachment = await create_banner(selected_banner.gacha_type) or {}
     if banner_attachment.get("error"):
         return banner_attachment["error"]
     banner_attachment = banner_attachment.get("attachment")
@@ -663,8 +650,8 @@ async def show_beginner_banner(message: Message):
     if banners_cache[gacha_type]:
         ans_msg = banners_cache[gacha_type]
     else:
-        raw_banners = await get_banner(gacha_type)
-        ans_msg = await format_banners(raw_banners)
+        banner = await get_banner(gacha_type)
+        ans_msg = await format_banner(banner)
 
     await message.answer(
         ans_msg, attachment=banner_attachment, keyboard=KEYBOARD_BEGINNER
@@ -698,8 +685,8 @@ async def show_event_banner(message: Message, banner_id: int = 1):
     if banners_cache[gacha_type]:
         ans_msg = banners_cache[gacha_type]
     else:
-        raw_banners = await get_banner(gacha_type)
-        ans_msg = await format_banners(raw_banners)
+        banner = await get_banner(gacha_type)
+        ans_msg = await format_banner(banner)
 
     await message.answer(
         ans_msg,
@@ -727,8 +714,8 @@ async def show_weapon_banner(message: Message):
     if banners_cache[gacha_type]:
         ans_msg = banners_cache[gacha_type]
     else:
-        raw_banners = await get_banner(gacha_type)
-        ans_msg = await format_banners(raw_banners)
+        banner = await get_banner(gacha_type)
+        ans_msg = await format_banner(banner)
 
     await message.answer(
         ans_msg,
@@ -755,8 +742,8 @@ async def show_standard_banner(message: Message):
     if banners_cache[gacha_type]:
         ans_msg = banners_cache[gacha_type]
     else:
-        raw_banners = await get_banner(gacha_type)
-        ans_msg = await format_banners(raw_banners)
+        banner = await get_banner(gacha_type)
+        ans_msg = await format_banner(banner)
 
     await message.answer(
         ans_msg,

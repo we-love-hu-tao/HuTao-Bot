@@ -8,15 +8,16 @@ import aiofiles
 import msgspec
 from aiocache import cached
 from loguru import logger
-from vkbottle import API
 from vkbottle.bot import Message
 from vkbottle.http import AiohttpClient
 
 import create_pool
 from item_names import ADVENTURE_EXP, INTERTWINED_FATE
 from keyboards import KEYBOARD_START
+from models.avatar import Avatar
 from models.banner import Banner
 from models.player_profile import PlayerProfile
+from models.weapon import Weapon
 
 rank_levels_exp = {
     1: 0,
@@ -114,81 +115,52 @@ def count_quests_time(exp):
     return quest_time
 
 
-@cached(key="textmap")
-async def get_textmap():
-    logger.info("Loading textmap data...")
+@cached(key="text_map")
+async def get_text_map() -> dict:
+    logger.info("Loading text_map data...")
     async with aiofiles.open(
         "resources/TextMapRU.json", mode='rb'
     ) as file:
-        textmap = await file.read()
-        textmap = msgspec.json.decode(textmap)
-        return textmap
+        text_map = await file.read()
 
-
-@cached(key="manual_textmap")
-async def get_manual_textmap():
-    logger.info("Loading manual textmap data...")
-    async with aiofiles.open(
-        "resources/ManualTextMapConfigData.json", mode='rb'
-    ) as file:
-        manual_textmap = await file.read()
-        manual_textmap = msgspec.json.decode(manual_textmap)
-        return manual_textmap
+    text_map = msgspec.json.decode(text_map)
+    return text_map
 
 
 @cached(key="banners")
-async def get_banners():
+async def get_banners() -> list[Banner]:
     logger.info("Loading banner data...")
     async with aiofiles.open(
         "resources/Banners.json", mode='rb'
     ) as file:
         banners_raw = await file.read()
-        banners = msgspec.json.decode(banners_raw)
-        return tuple(banners)
+
+    banners = msgspec.json.decode(banners_raw, type=list[Banner])
+    return banners
 
 
 @cached(key="avatar_data")
-async def get_avatar_data():
+async def get_avatar_data() -> list[Avatar]:
     logger.info("Loading avatar data...")
     async with aiofiles.open(
-        "resources/AvatarExcelConfigData.json", mode='rb'
+        "resources/AvatarData.json", mode='rb'
     ) as file:
-        avatar_data = await file.read()
-        avatar_data = msgspec.json.decode(avatar_data)
-        return avatar_data
+        avatar_data_raw = await file.read()
 
-
-@cached(key="skill_depot_data")
-async def get_skill_depot_data():
-    logger.info("Loading skill depot data...")
-    async with aiofiles.open(
-        "resources/AvatarSkillDepotExcelConfigData.json", mode='rb'
-    ) as file:
-        skill_depot_data = await file.read()
-        skill_depot_data = msgspec.json.decode(skill_depot_data)
-        return tuple(skill_depot_data)
-
-
-@cached(key="skill_excel_data")
-async def get_skill_excel_data():
-    logger.info("Loading skill excel data...")
-    async with aiofiles.open(
-        "resources/AvatarSkillExcelConfigData.json", mode='rb'
-    ) as file:
-        skill_data = await file.read()
-        skill_data = msgspec.json.decode(skill_data)
-        return tuple(skill_data)
+    avatar_data = msgspec.json.decode(avatar_data_raw, type=list[Avatar])
+    return avatar_data
 
 
 @cached(key="weapon_data")
-async def get_weapon_data():
+async def get_weapon_data() -> list[Weapon]:
     logger.info("Loading weapon data...")
     async with aiofiles.open(
-        "resources/WeaponExcelConfigData.json", mode='rb'
+        "resources/WeaponData.json", mode='rb'
     ) as file:
-        weapon_data = await file.read()
-        weapon_data = msgspec.json.decode(weapon_data)
-        return tuple(weapon_data)
+        weapon_data_raw = await file.read()
+
+    weapon_data = msgspec.json.decode(weapon_data_raw, type=list[Weapon])
+    return weapon_data
 
 
 @cached(key="language_bot")
@@ -252,29 +224,17 @@ async def get_peer_id_by_exp(user_id) -> int:
 
 
 async def get_banner_name(gacha_type, add_main=False) -> str:
-    banner = await get_banner(gacha_type)
+    banner: Banner = await get_banner(gacha_type)
     if banner is None:
         return "Несуществующий баннер"
 
-    title_path = banner.title_path
+    text_map_hash = banner.name_text_map_hash
+    text_map = await get_text_map()
 
-    textmap = await get_textmap()
-    raw_banner_names = await get_manual_textmap()
-
-    name_id = None
-    for item in raw_banner_names:
-        if item['textMapId'] == title_path:
-            name_id = item['textMapContentTextMapHash']
-            break
-
-    if name_id is None:
-        logger.warning(f"Unknown title path passed: {title_path}")
-        return "Неизвестный баннер"
-
-    banner_name = resolve_map_hash(textmap, name_id)
+    banner_name = resolve_map_hash(text_map, text_map_hash)
     if banner_name is None:
         logger.warning(
-            f"Textmap hash {name_id} doesn't exist, title_path: {title_path}"
+            f"Text map hash {text_map_hash} doesn't exist (banner)"
         )
         return "Неизвестное имя баннера"
 
@@ -283,33 +243,33 @@ async def get_banner_name(gacha_type, add_main=False) -> str:
     banner_name = re.sub("(<([^>]+)>)", "", banner_name)
 
     if add_main:
-        main_rateup = None
-        if len(banner.rate_up_items_5) > 0:
-            main_rateup = banner.rate_up_items_5[0]
-        elif len(banner.rate_up_items_4) > 0:
-            main_rateup = banner.rate_up_items_4[0]
-        if main_rateup is None:
+        main_rate_up = None
+        if banner.rate_up_5 and len(banner.rate_up_5) > 0:
+            main_rate_up = banner.rate_up_5[0]
+        elif banner.rate_up_4 and len(banner.rate_up_4) > 0:
+            main_rate_up = banner.rate_up_4[0]
+        if main_rate_up is None:
             return banner_name
 
         avatar_data = await get_avatar_data()
         weapon_data = await get_weapon_data()
-        item_data = resolve_id(main_rateup, avatar_data, weapon_data)
+        item_data = resolve_id(main_rate_up, avatar_data, weapon_data)
         if item_data is None:
-            logger.warning(f"Couldn't resolve item {main_rateup}")
+            logger.warning(f"Couldn't resolve item {main_rate_up}")
         else:
-            item_name = resolve_map_hash(textmap, item_data['nameTextMapHash'])
+            item_name = resolve_map_hash(text_map, item_data.name_text_map_hash)
             banner_name += f' ({item_name})'
 
     return banner_name
 
 
 async def get_banner(gacha_type: int) -> Banner | None:
-    """Returns banner from `Banners.json`, converted into a `Banner` object"""
-    raw_banners = await get_banners()
+    """Returns banner from `Banners.json`"""
+    banners: list[Banner] = await get_banners()
 
-    for raw_banner in raw_banners:
-        if raw_banner['gachaType'] == gacha_type:
-            return msgspec.json.decode(msgspec.json.encode(raw_banner), type=Banner)
+    for banner in banners:
+        if banner.gacha_type == gacha_type:
+            return banner
 
 
 def give_avatar(avatars, avatar_id):
@@ -362,19 +322,6 @@ def color_to_rarity(color_name) -> int:
         # There is no mention of 1* color anywhere in excel datas
     }
     return colors.get(color_name) or 2
-
-
-def element_to_banner_bg(element_name):
-    elements = {
-        "electric": "Elect",
-        "fire": "Fire",
-        "grass": "Grass",
-        "ice": "Ice",
-        "rock": "Rock",
-        "water": "Water",
-        "wind": "Wind",
-    }
-    return elements.get(element_name.lower())
 
 
 def check_item_type(item_id) -> int | None:
@@ -476,7 +423,7 @@ async def get_avatar(user_id, peer_id, avatar_id):
             return avatar
 
 
-async def get_avatar_by_name(user_id, peer_id, avatar_name):
+async def get_avatar_by_name(user_id, peer_id, avatar_name) -> dict | None:
     avatar_name = avatar_name.lower()
     pool = create_pool.pool
     async with pool.acquire() as pool:
@@ -487,12 +434,12 @@ async def get_avatar_by_name(user_id, peer_id, avatar_name):
         avatars = msgspec.json.decode(avatars['avatars'].encode("utf-8"))
 
     avatar_data = await get_avatar_data()
-    textmap = await get_textmap()
+    text_map = await get_text_map()
     for avatar in avatars:
-        avatar_excel = resolve_id(avatar['id'], avatar_data)
+        avatar_excel: Avatar = resolve_id(avatar['id'], avatar_data)
 
         if avatar_excel is not None:
-            name = textmap.get(str(avatar_excel['nameTextMapHash'])).lower()
+            name = text_map.get(str(avatar_excel.name_text_map_hash)).lower()
             if name == avatar_name:
                 return avatar
         else:
@@ -533,33 +480,33 @@ async def give_exp(new_exp: int, user_id: int, peer_id: int, api):
             await give_item(user_id, peer_id, ADVENTURE_EXP, rank_levels_exp[60], "set")
 
 
-async def gen_promocode(reward, author_id=0, expire_time=0, custom_text=None) -> str:
+async def gen_promo_code(reward, author_id=0, expire_time=0, custom_text=None) -> str:
     """
-    Generates promocode.
-    This may be either player promocode, or original promocode
+    Generates promo code.
+    It might be either player promo code or original promo code
     """
     if custom_text is not None:
-        promocode_text = custom_text
+        promo_code_text = custom_text
     else:
         token = os.urandom(9)
-        promocode_text = base64.b64encode(token).decode("utf-8")
+        promo_code_text = base64.b64encode(token).decode("utf-8")
 
     pool = create_pool.pool
     async with pool.acquire() as pool:
         await pool.execute(
             "INSERT INTO promocodes (promocode, author, expire_time, promocode_reward) "
             "VALUES ($1, $2, $3, $4)",
-            promocode_text, author_id, expire_time, reward
+            promo_code_text, author_id, expire_time, reward
         )
 
-    return promocode_text
+    return promo_code_text
 
 
 def resolve_id(
     item_id: int,
-    avatar_data: list | None = None,
-    weapon_data: list | None = None
-) -> dict | None:
+    avatar_data: list[Avatar] | None = None,
+    weapon_data: list[Weapon] | None = None
+) -> Avatar | Weapon | None:
     if not avatar_data and not weapon_data:
         raise ValueError("No data to resolve id provided")
 
@@ -580,7 +527,7 @@ def resolve_id(
 
     logger.info(f"Searching {item_id} in {searched_in}")
     for item in search_in:
-        if item['id'] == item_id:
+        if item.id == item_id:
             item_info = item
             break
 
@@ -589,23 +536,18 @@ def resolve_id(
     return item_info
 
 
-def resolve_map_hash(textmap: dict, text_map_hash: int | str) -> str:
+def resolve_map_hash(text_map: dict, text_map_hash: int | str) -> str:
     """Gets a string from a text map hash"""
     text_map_hash = str(text_map_hash)
-    result = textmap.get(text_map_hash)
+    result = text_map.get(text_map_hash)
 
     if result:
         # Don't ask
         result = result.replace("Фавония", "Феврония")
     else:
-        logger.error(f"Couldn't resolve textmap hash: {text_map_hash}")
+        logger.error(f"Couldn't resolve text_map hash: {text_map_hash}")
 
     return result or "???"
-
-
-async def report_error(api: API, error: Exception):
-    # TODO: report errors in group dms
-    pass
 
 
 @cached(ttl=60)

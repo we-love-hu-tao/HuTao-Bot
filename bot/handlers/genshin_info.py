@@ -8,8 +8,9 @@ from vkbottle.bot import BotLabeler, Message, MessageEvent, rules
 from vkbottle.http import AiohttpClient
 
 import create_pool
+from models.avatar import Avatar
 from utils import (
-    get_avatar_data, get_player_info, get_textmap, resolve_id, resolve_map_hash, translate
+    get_avatar_data, get_player_info, get_text_map, resolve_id, resolve_map_hash, translate
 )
 from variables import FAV_AVATARS
 
@@ -21,12 +22,12 @@ http_client = AiohttpClient()
 
 async def generate_avatars_kbd(from_id, uid, show_avatars):
     avatar_data = await get_avatar_data()
-    textmap = await get_textmap()
+    text_map = await get_text_map()
 
     keyboard = Keyboard(inline=True)
     item_kbd = 0
     for avatar in show_avatars:
-        avatar_show_info = resolve_id(avatar.avatar_id, avatar_data)
+        avatar_show_info: Avatar = resolve_id(avatar.avatar_id, avatar_data)
         if avatar_show_info is None:
             continue
 
@@ -35,7 +36,7 @@ async def generate_avatars_kbd(from_id, uid, show_avatars):
             keyboard.row()
             item_kbd = 0
 
-        avatar_name_text = resolve_map_hash(textmap, avatar_show_info["nameTextMapHash"])
+        avatar_name_text = resolve_map_hash(text_map, avatar_show_info.name_text_map_hash)
         color = Color.SECONDARY
         if avatar.level >= 90:
             color = Color.PRIMARY
@@ -116,12 +117,12 @@ async def genshin_info(message: Message, uid: Optional[int] = None):
     show_avatars = player_info.show_avatar_info_list or None
 
     avatar_data = await get_avatar_data()
-    textmap = await get_textmap()
-    avatar_picture_info = resolve_id(profile_picture, avatar_data)
+    text_map = await get_text_map()
+    avatar_picture_info: Avatar = resolve_id(profile_picture, avatar_data)
     if avatar_picture_info is None:
         avatar_picture_name = unknown
     else:
-        avatar_picture_name = resolve_map_hash(textmap, avatar_picture_info["nameTextMapHash"])
+        avatar_picture_name = resolve_map_hash(text_map, avatar_picture_info.name_text_map_hash)
 
     keyboard = None
     if show_avatars is not None and len(show_avatars) > 0:
@@ -248,7 +249,7 @@ async def show_avatar_info(event: MessageEvent):
     fight_prop_map = avatar.fight_prop_map
     fight_prop_map = {k: v for k, v in fight_prop_map.items() if v > 0}
 
-    textmap = await get_textmap()
+    text_map = await get_text_map()
     for k, v in FIGHT_PROP_NAMES.items():
         if k not in fight_prop_map:
             continue
@@ -266,7 +267,7 @@ async def show_avatar_info(event: MessageEvent):
         if k in FIGHT_PROP_EMOJIS:
             emoji = FIGHT_PROP_EMOJIS[k] + ' | '
 
-        msg += f"{emoji}{resolve_map_hash(textmap, v)}: {fight_prop_val}\n"
+        msg += f"{emoji}{resolve_map_hash(text_map, v)}: {fight_prop_val}\n"
 
     # We use `copy()` since `get_player_info()` is cached, if we change
     # `show_avatar_info_list` without using `copy()`, then

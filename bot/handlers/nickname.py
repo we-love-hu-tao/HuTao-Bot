@@ -21,7 +21,6 @@ ONCHANGE_ANS = (
     "{} норм перс кста",
 )
 
-# ну, теперь тут хотя бы нету оскорбления персонажей
 PROTECTED_CHAR = (
     "ху тао",
     "ху",
@@ -35,6 +34,8 @@ PROTECTED_CHAR = (
     "кусанали",
     "чокола",
     "ванилла",
+    "сироко",
+    "серика"
 )
 
 POSSIBLE_SWEARS = (
@@ -134,7 +135,7 @@ QIQI_ANS = (
 
 async def change_nickname(user_id: int, peer_id: int, nickname: str, pool):
     logger.info(
-        f'Устанавливание никнейма "{nickname}" пользователю {user_id} в беседе {peer_id}'
+        f'Установка никнейма "{nickname}" пользователю {user_id} в беседе {peer_id}'
     )
     await pool.execute(
         "UPDATE players SET nickname=$1 WHERE user_id=$2 AND peer_id=$3",

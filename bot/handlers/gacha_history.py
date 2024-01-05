@@ -8,7 +8,7 @@ from vkbottle.bot import BotLabeler, Message, MessageEvent, rules
 
 import create_pool
 from utils import (check_item_type, color_to_rarity, exists, get_avatar_data,
-                   get_textmap, get_weapon_data, resolve_id, resolve_map_hash)
+                   get_text_map, get_weapon_data, resolve_id, resolve_map_hash)
 
 bl = BotLabeler()
 bl.vbml_ignore_case = True
@@ -40,7 +40,7 @@ async def get_last_history(
     gacha_type,
     offset: int = 0
 ):
-    if type(message) == Message:
+    if isinstance(message, Message):
         user_id = message.from_id
         peer_id = message.peer_id
     else:
@@ -65,7 +65,7 @@ async def get_last_history(
 
 async def raw_history_to_normal(records: list[dict]):
     """Formats history to make it human-readable"""
-    textmap = await get_textmap()
+    text_map = await get_text_map()
     weapon_data = await get_weapon_data()
     avatar_data = await get_avatar_data()
 
@@ -80,16 +80,18 @@ async def raw_history_to_normal(records: list[dict]):
         if item_info is None:
             logger.error(f"Unknown drop in history: {roll['item_id']}")
             continue
-        drop_name = resolve_map_hash(textmap, item_info['nameTextMapHash'])
+        drop_name = resolve_map_hash(text_map, item_info.name_text_map_hash)
 
         if drop_name is None:
             drop_name = "Неизвестный предмет"
 
-        if check_item_type(item_info['id']) == 0:
-            drop_rarity = color_to_rarity(item_info['qualityType'])
+        if check_item_type(item_info.id) == 0:
+            # Avatar
+            drop_rarity = color_to_rarity(item_info.quality)
             drop_emoji = "&#129485;"
         else:
-            drop_rarity = item_info['rankLevel']
+            # Weapon
+            drop_rarity = item_info.rank
             drop_emoji = "&#128481;"
 
         history += (

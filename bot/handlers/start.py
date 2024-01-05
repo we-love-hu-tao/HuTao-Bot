@@ -5,6 +5,7 @@ from loguru import logger
 from vkbottle import Keyboard, Text
 from vkbottle.bot import BotLabeler, Message
 
+from utils import translate
 import create_pool
 from item_names import PRIMOGEM
 from utils import give_avatar, give_item
@@ -40,13 +41,13 @@ PROFILE_INFO_KEYBOARD = (
 )
 
 
-async def create_account(user_id, peer_id, pool):
+async def create_account(user_id, peer_id, pool) -> None | str:
     is_exists = await pool.fetchrow(
         "SELECT user_id FROM players WHERE user_id=$1 AND peer_id=$2",
         user_id, peer_id
     )
     if is_exists is not None:
-        return "В этом чате вы уже присоединились к боту"
+        return await translate("create_account", "already_created")
     else:
         new_nickname = random.choice(NAMES)
         logger.info(
@@ -85,8 +86,6 @@ async def start_game(message: Message):
         )
 
         await message.answer(
-            "Вы присоединились к боту!\n"
-            "Напишите !персонаж, что бы увидеть ваш никнейм "
-            "и количество примогемов",
+            (await translate("create_account", "new_player")),
             keyboard=PROFILE_INFO_KEYBOARD
         )

@@ -1,0 +1,704 @@
+[
+    {
+        "id": 10000002,
+        "avatar_name": "Ayaka",
+        "quality": 5,
+        "name_text_map_hash": 1006042610,
+        "desc_text_map_hash": 3703438153,
+        "element": "Ice",
+        "gacha_img": "UI_Gacha_AvatarImg_Ayaka.png"
+    },
+    {
+        "id": 10000003,
+        "avatar_name": "Qin",
+        "quality": 5,
+        "name_text_map_hash": 3221566250,
+        "desc_text_map_hash": 2215890689,
+        "element": "Wind",
+        "gacha_img": "UI_Gacha_AvatarImg_Qin.png"
+    },
+    {
+        "id": 10000005,
+        "avatar_name": "PlayerBoy",
+        "quality": 5,
+        "name_text_map_hash": 1533656818,
+        "desc_text_map_hash": 1204666377,
+        "element": null,
+        "gacha_img": "UI_Gacha_AvatarImg_PlayerBoy.png"
+    },
+    {
+        "id": 10000006,
+        "avatar_name": "Lisa",
+        "quality": 4,
+        "name_text_map_hash": 3344622722,
+        "desc_text_map_hash": 1387136209,
+        "element": "Elect",
+        "gacha_img": "UI_Gacha_AvatarImg_Lisa.png"
+    },
+    {
+        "id": 10000007,
+        "avatar_name": "PlayerGirl",
+        "quality": 5,
+        "name_text_map_hash": 3816664530,
+        "desc_text_map_hash": 4261991457,
+        "element": null,
+        "gacha_img": "UI_Gacha_AvatarImg_PlayerGirl.png"
+    },
+    {
+        "id": 10000014,
+        "avatar_name": "Barbara",
+        "quality": 4,
+        "name_text_map_hash": 3775299170,
+        "desc_text_map_hash": 1566920073,
+        "element": "Water",
+        "gacha_img": "UI_Gacha_AvatarImg_Barbara.png"
+    },
+    {
+        "id": 10000015,
+        "avatar_name": "Kaeya",
+        "quality": 4,
+        "name_text_map_hash": 4119663210,
+        "desc_text_map_hash": 783578577,
+        "element": "Ice",
+        "gacha_img": "UI_Gacha_AvatarImg_Kaeya.png"
+    },
+    {
+        "id": 10000016,
+        "avatar_name": "Diluc",
+        "quality": 5,
+        "name_text_map_hash": 3608180322,
+        "desc_text_map_hash": 2413312897,
+        "element": "Fire",
+        "gacha_img": "UI_Gacha_AvatarImg_Diluc.png"
+    },
+    {
+        "id": 10000020,
+        "avatar_name": "Razor",
+        "quality": 4,
+        "name_text_map_hash": 4160147242,
+        "desc_text_map_hash": 3901895113,
+        "element": "Elect",
+        "gacha_img": "UI_Gacha_AvatarImg_Razor.png"
+    },
+    {
+        "id": 10000021,
+        "avatar_name": "Ambor",
+        "quality": 4,
+        "name_text_map_hash": 1966438658,
+        "desc_text_map_hash": 3898061993,
+        "element": "Fire",
+        "gacha_img": "UI_Gacha_AvatarImg_Ambor.png"
+    },
+    {
+        "id": 10000022,
+        "avatar_name": "Venti",
+        "quality": 5,
+        "name_text_map_hash": 2466140362,
+        "desc_text_map_hash": 4137166409,
+        "element": "Wind",
+        "gacha_img": "UI_Gacha_AvatarImg_Venti.png"
+    },
+    {
+        "id": 10000023,
+        "avatar_name": "Xiangling",
+        "quality": 4,
+        "name_text_map_hash": 1130996346,
+        "desc_text_map_hash": 2058084377,
+        "element": "Fire",
+        "gacha_img": "UI_Gacha_AvatarImg_Xiangling.png"
+    },
+    {
+        "id": 10000024,
+        "avatar_name": "Beidou",
+        "quality": 4,
+        "name_text_map_hash": 2646367730,
+        "desc_text_map_hash": 2910785993,
+        "element": "Elect",
+        "gacha_img": "UI_Gacha_AvatarImg_Beidou.png"
+    },
+    {
+        "id": 10000025,
+        "avatar_name": "Xingqiu",
+        "quality": 4,
+        "name_text_map_hash": 4197635682,
+        "desc_text_map_hash": 3660176857,
+        "element": "Water",
+        "gacha_img": "UI_Gacha_AvatarImg_Xingqiu.png"
+    },
+    {
+        "id": 10000026,
+        "avatar_name": "Xiao",
+        "quality": 5,
+        "name_text_map_hash": 1021947690,
+        "desc_text_map_hash": 2789047073,
+        "element": "Wind",
+        "gacha_img": "UI_Gacha_AvatarImg_Xiao.png"
+    },
+    {
+        "id": 10000027,
+        "avatar_name": "Ningguang",
+        "quality": 4,
+        "name_text_map_hash": 4127888970,
+        "desc_text_map_hash": 2174640361,
+        "element": "Rock",
+        "gacha_img": "UI_Gacha_AvatarImg_Ningguang.png"
+    },
+    {
+        "id": 10000029,
+        "avatar_name": "Klee",
+        "quality": 5,
+        "name_text_map_hash": 3339083250,
+        "desc_text_map_hash": 2313554193,
+        "element": "Fire",
+        "gacha_img": "UI_Gacha_AvatarImg_Klee.png"
+    },
+    {
+        "id": 10000030,
+        "avatar_name": "Zhongli",
+        "quality": 5,
+        "name_text_map_hash": 3862787418,
+        "desc_text_map_hash": 2898546105,
+        "element": "Rock",
+        "gacha_img": "UI_Gacha_AvatarImg_Zhongli.png"
+    },
+    {
+        "id": 10000031,
+        "avatar_name": "Fischl",
+        "quality": 4,
+        "name_text_map_hash": 3277782506,
+        "desc_text_map_hash": 1695621873,
+        "element": "Elect",
+        "gacha_img": "UI_Gacha_AvatarImg_Fischl.png"
+    },
+    {
+        "id": 10000032,
+        "avatar_name": "Bennett",
+        "quality": 4,
+        "name_text_map_hash": 968893378,
+        "desc_text_map_hash": 3696214329,
+        "element": "Fire",
+        "gacha_img": "UI_Gacha_AvatarImg_Bennett.png"
+    },
+    {
+        "id": 10000033,
+        "avatar_name": "Tartaglia",
+        "quality": 5,
+        "name_text_map_hash": 3847143266,
+        "desc_text_map_hash": 1915755417,
+        "element": "Water",
+        "gacha_img": "UI_Gacha_AvatarImg_Tartaglia.png"
+    },
+    {
+        "id": 10000034,
+        "avatar_name": "Noel",
+        "quality": 4,
+        "name_text_map_hash": 1921418842,
+        "desc_text_map_hash": 1136975897,
+        "element": "Rock",
+        "gacha_img": "UI_Gacha_AvatarImg_Noel.png"
+    },
+    {
+        "id": 10000035,
+        "avatar_name": "Qiqi",
+        "quality": 5,
+        "name_text_map_hash": 168956722,
+        "desc_text_map_hash": 3128332321,
+        "element": "Ice",
+        "gacha_img": "UI_Gacha_AvatarImg_Qiqi.png"
+    },
+    {
+        "id": 10000036,
+        "avatar_name": "Chongyun",
+        "quality": 4,
+        "name_text_map_hash": 2876340530,
+        "desc_text_map_hash": 572700337,
+        "element": "Ice",
+        "gacha_img": "UI_Gacha_AvatarImg_Chongyun.png"
+    },
+    {
+        "id": 10000037,
+        "avatar_name": "Ganyu",
+        "quality": 5,
+        "name_text_map_hash": 2679781122,
+        "desc_text_map_hash": 313187777,
+        "element": "Ice",
+        "gacha_img": "UI_Gacha_AvatarImg_Ganyu.png"
+    },
+    {
+        "id": 10000038,
+        "avatar_name": "Albedo",
+        "quality": 5,
+        "name_text_map_hash": 4108620722,
+        "desc_text_map_hash": 3544652497,
+        "element": "Rock",
+        "gacha_img": "UI_Gacha_AvatarImg_Albedo.png"
+    },
+    {
+        "id": 10000039,
+        "avatar_name": "Diona",
+        "quality": 4,
+        "name_text_map_hash": 1468367538,
+        "desc_text_map_hash": 3149724857,
+        "element": "Ice",
+        "gacha_img": "UI_Gacha_AvatarImg_Diona.png"
+    },
+    {
+        "id": 10000041,
+        "avatar_name": "Mona",
+        "quality": 5,
+        "name_text_map_hash": 1113306282,
+        "desc_text_map_hash": 506249649,
+        "element": "Water",
+        "gacha_img": "UI_Gacha_AvatarImg_Mona.png"
+    },
+    {
+        "id": 10000042,
+        "avatar_name": "Keqing",
+        "quality": 5,
+        "name_text_map_hash": 1864015138,
+        "desc_text_map_hash": 2249961857,
+        "element": "Elect",
+        "gacha_img": "UI_Gacha_AvatarImg_Keqing.png"
+    },
+    {
+        "id": 10000043,
+        "avatar_name": "Sucrose",
+        "quality": 4,
+        "name_text_map_hash": 1053433018,
+        "desc_text_map_hash": 4249311673,
+        "element": "Wind",
+        "gacha_img": "UI_Gacha_AvatarImg_Sucrose.png"
+    },
+    {
+        "id": 10000044,
+        "avatar_name": "Xinyan",
+        "quality": 4,
+        "name_text_map_hash": 4273845410,
+        "desc_text_map_hash": 2430683361,
+        "element": "Fire",
+        "gacha_img": "UI_Gacha_AvatarImg_Xinyan.png"
+    },
+    {
+        "id": 10000045,
+        "avatar_name": "Rosaria",
+        "quality": 4,
+        "name_text_map_hash": 4260733330,
+        "desc_text_map_hash": 1025256649,
+        "element": "Ice",
+        "gacha_img": "UI_Gacha_AvatarImg_Rosaria.png"
+    },
+    {
+        "id": 10000046,
+        "avatar_name": "Hutao",
+        "quality": 5,
+        "name_text_map_hash": 1940919994,
+        "desc_text_map_hash": 223073489,
+        "element": "Fire",
+        "gacha_img": "UI_Gacha_AvatarImg_Hutao.png"
+    },
+    {
+        "id": 10000047,
+        "avatar_name": "Kazuha",
+        "quality": 5,
+        "name_text_map_hash": 88505754,
+        "desc_text_map_hash": 174508593,
+        "element": "Wind",
+        "gacha_img": "UI_Gacha_AvatarImg_Kazuha.png"
+    },
+    {
+        "id": 10000048,
+        "avatar_name": "Feiyan",
+        "quality": 4,
+        "name_text_map_hash": 697277554,
+        "desc_text_map_hash": 1827440433,
+        "element": "Fire",
+        "gacha_img": "UI_Gacha_AvatarImg_Feiyan.png"
+    },
+    {
+        "id": 10000049,
+        "avatar_name": "Yoimiya",
+        "quality": 5,
+        "name_text_map_hash": 2504399314,
+        "desc_text_map_hash": 1813152017,
+        "element": "Fire",
+        "gacha_img": "UI_Gacha_AvatarImg_Yoimiya.png"
+    },
+    {
+        "id": 10000050,
+        "avatar_name": "Tohma",
+        "quality": 4,
+        "name_text_map_hash": 3555115602,
+        "desc_text_map_hash": 3062484009,
+        "element": "Fire",
+        "gacha_img": "UI_Gacha_AvatarImg_Tohma.png"
+    },
+    {
+        "id": 10000051,
+        "avatar_name": "Eula",
+        "quality": 5,
+        "name_text_map_hash": 3717667418,
+        "desc_text_map_hash": 490802649,
+        "element": "Ice",
+        "gacha_img": "UI_Gacha_AvatarImg_Eula.png"
+    },
+    {
+        "id": 10000052,
+        "avatar_name": "Shougun",
+        "quality": 5,
+        "name_text_map_hash": 3024507506,
+        "desc_text_map_hash": 553307289,
+        "element": "Elect",
+        "gacha_img": "UI_Gacha_AvatarImg_Shougun.png"
+    },
+    {
+        "id": 10000053,
+        "avatar_name": "Sayu",
+        "quality": 4,
+        "name_text_map_hash": 2388785242,
+        "desc_text_map_hash": 3029516969,
+        "element": "Wind",
+        "gacha_img": "UI_Gacha_AvatarImg_Sayu.png"
+    },
+    {
+        "id": 10000054,
+        "avatar_name": "Kokomi",
+        "quality": 5,
+        "name_text_map_hash": 3914045794,
+        "desc_text_map_hash": 505027577,
+        "element": "Water",
+        "gacha_img": "UI_Gacha_AvatarImg_Kokomi.png"
+    },
+    {
+        "id": 10000055,
+        "avatar_name": "Gorou",
+        "quality": 4,
+        "name_text_map_hash": 3400133546,
+        "desc_text_map_hash": 2692321673,
+        "element": "Rock",
+        "gacha_img": "UI_Gacha_AvatarImg_Gorou.png"
+    },
+    {
+        "id": 10000056,
+        "avatar_name": "Sara",
+        "quality": 4,
+        "name_text_map_hash": 1483922610,
+        "desc_text_map_hash": 148777793,
+        "element": "Elect",
+        "gacha_img": "UI_Gacha_AvatarImg_Sara.png"
+    },
+    {
+        "id": 10000057,
+        "avatar_name": "Itto",
+        "quality": 5,
+        "name_text_map_hash": 3068316954,
+        "desc_text_map_hash": 3512498385,
+        "element": "Rock",
+        "gacha_img": "UI_Gacha_AvatarImg_Itto.png"
+    },
+    {
+        "id": 10000058,
+        "avatar_name": "Yae",
+        "quality": 5,
+        "name_text_map_hash": 2713453234,
+        "desc_text_map_hash": 1170085417,
+        "element": "Elect",
+        "gacha_img": "UI_Gacha_AvatarImg_Yae.png"
+    },
+    {
+        "id": 10000059,
+        "avatar_name": "Heizo",
+        "quality": 4,
+        "name_text_map_hash": 646032090,
+        "desc_text_map_hash": 3971624201,
+        "element": "Wind",
+        "gacha_img": "UI_Gacha_AvatarImg_Heizo.png"
+    },
+    {
+        "id": 10000060,
+        "avatar_name": "Yelan",
+        "quality": 5,
+        "name_text_map_hash": 2848374378,
+        "desc_text_map_hash": 2689854257,
+        "element": "Water",
+        "gacha_img": "UI_Gacha_AvatarImg_Yelan.png"
+    },
+    {
+        "id": 10000061,
+        "avatar_name": "Momoka",
+        "quality": 4,
+        "name_text_map_hash": 1456643042,
+        "desc_text_map_hash": 3108007489,
+        "element": "Grass",
+        "gacha_img": "UI_Gacha_AvatarImg_Momoka.png"
+    },
+    {
+        "id": 10000062,
+        "avatar_name": "Aloy",
+        "quality": 5,
+        "name_text_map_hash": 3689108098,
+        "desc_text_map_hash": 2468599457,
+        "element": "Ice",
+        "gacha_img": "UI_Gacha_AvatarImg_Aloy.png"
+    },
+    {
+        "id": 10000063,
+        "avatar_name": "Shenhe",
+        "quality": 5,
+        "name_text_map_hash": 334242634,
+        "desc_text_map_hash": 373064729,
+        "element": "Ice",
+        "gacha_img": "UI_Gacha_AvatarImg_Shenhe.png"
+    },
+    {
+        "id": 10000064,
+        "avatar_name": "Yunjin",
+        "quality": 4,
+        "name_text_map_hash": 655825874,
+        "desc_text_map_hash": 4037633993,
+        "element": "Rock",
+        "gacha_img": "UI_Gacha_AvatarImg_Yunjin.png"
+    },
+    {
+        "id": 10000065,
+        "avatar_name": "Shinobu",
+        "quality": 4,
+        "name_text_map_hash": 1940821986,
+        "desc_text_map_hash": 738455441,
+        "element": "Elect",
+        "gacha_img": "UI_Gacha_AvatarImg_Shinobu.png"
+    },
+    {
+        "id": 10000066,
+        "avatar_name": "Ayato",
+        "quality": 5,
+        "name_text_map_hash": 1588620330,
+        "desc_text_map_hash": 2887592185,
+        "element": "Water",
+        "gacha_img": "UI_Gacha_AvatarImg_Ayato.png"
+    },
+    {
+        "id": 10000067,
+        "avatar_name": "Collei",
+        "quality": 4,
+        "name_text_map_hash": 2948362178,
+        "desc_text_map_hash": 2491093329,
+        "element": "Grass",
+        "gacha_img": "UI_Gacha_AvatarImg_Collei.png"
+    },
+    {
+        "id": 10000068,
+        "avatar_name": "Dori",
+        "quality": 4,
+        "name_text_map_hash": 388272194,
+        "desc_text_map_hash": 71570297,
+        "element": "Elect",
+        "gacha_img": "UI_Gacha_AvatarImg_Dori.png"
+    },
+    {
+        "id": 10000069,
+        "avatar_name": "Tighnari",
+        "quality": 5,
+        "name_text_map_hash": 2506955778,
+        "desc_text_map_hash": 2793013657,
+        "element": "Grass",
+        "gacha_img": "UI_Gacha_AvatarImg_Tighnari.png"
+    },
+    {
+        "id": 10000070,
+        "avatar_name": "Nilou",
+        "quality": 5,
+        "name_text_map_hash": 3850149970,
+        "desc_text_map_hash": 3126933153,
+        "element": "Water",
+        "gacha_img": "UI_Gacha_AvatarImg_Nilou.png"
+    },
+    {
+        "id": 10000071,
+        "avatar_name": "Cyno",
+        "quality": 5,
+        "name_text_map_hash": 1049891906,
+        "desc_text_map_hash": 2253913929,
+        "element": "Elect",
+        "gacha_img": "UI_Gacha_AvatarImg_Cyno.png"
+    },
+    {
+        "id": 10000072,
+        "avatar_name": "Candace",
+        "quality": 4,
+        "name_text_map_hash": 3092975658,
+        "desc_text_map_hash": 369426969,
+        "element": "Water",
+        "gacha_img": "UI_Gacha_AvatarImg_Candace.png"
+    },
+    {
+        "id": 10000073,
+        "avatar_name": "Nahida",
+        "quality": 5,
+        "name_text_map_hash": 712501082,
+        "desc_text_map_hash": 2629071729,
+        "element": "Grass",
+        "gacha_img": "UI_Gacha_AvatarImg_Nahida.png"
+    },
+    {
+        "id": 10000074,
+        "avatar_name": "Layla",
+        "quality": 4,
+        "name_text_map_hash": 2889777514,
+        "desc_text_map_hash": 2729249993,
+        "element": "Ice",
+        "gacha_img": "UI_Gacha_AvatarImg_Layla.png"
+    },
+    {
+        "id": 10000075,
+        "avatar_name": "Wanderer",
+        "quality": 5,
+        "name_text_map_hash": 3230559562,
+        "desc_text_map_hash": 431267537,
+        "element": "Wind",
+        "gacha_img": "UI_Gacha_AvatarImg_Wanderer.png"
+    },
+    {
+        "id": 10000076,
+        "avatar_name": "Faruzan",
+        "quality": 4,
+        "name_text_map_hash": 2387711994,
+        "desc_text_map_hash": 4013065569,
+        "element": "Wind",
+        "gacha_img": "UI_Gacha_AvatarImg_Faruzan.png"
+    },
+    {
+        "id": 10000077,
+        "avatar_name": "Yaoyao",
+        "quality": 4,
+        "name_text_map_hash": 1732418482,
+        "desc_text_map_hash": 1595771809,
+        "element": "Grass",
+        "gacha_img": "UI_Gacha_AvatarImg_Yaoyao.png"
+    },
+    {
+        "id": 10000078,
+        "avatar_name": "Alhatham",
+        "quality": 5,
+        "name_text_map_hash": 4002157418,
+        "desc_text_map_hash": 2584161865,
+        "element": "Grass",
+        "gacha_img": "UI_Gacha_AvatarImg_Alhatham.png"
+    },
+    {
+        "id": 10000079,
+        "avatar_name": "Dehya",
+        "quality": 5,
+        "name_text_map_hash": 2360533154,
+        "desc_text_map_hash": 1894790521,
+        "element": "Fire",
+        "gacha_img": "UI_Gacha_AvatarImg_Dehya.png"
+    },
+    {
+        "id": 10000080,
+        "avatar_name": "Mika",
+        "quality": 4,
+        "name_text_map_hash": 231911858,
+        "desc_text_map_hash": 3487590873,
+        "element": "Ice",
+        "gacha_img": "UI_Gacha_AvatarImg_Mika.png"
+    },
+    {
+        "id": 10000081,
+        "avatar_name": "Kaveh",
+        "quality": 4,
+        "name_text_map_hash": 466355514,
+        "desc_text_map_hash": 2545348585,
+        "element": "Grass",
+        "gacha_img": "UI_Gacha_AvatarImg_Kaveh.png"
+    },
+    {
+        "id": 10000082,
+        "avatar_name": "Baizhuer",
+        "quality": 5,
+        "name_text_map_hash": 2984815066,
+        "desc_text_map_hash": 3312539857,
+        "element": "Grass",
+        "gacha_img": "UI_Gacha_AvatarImg_Baizhuer.png"
+    },
+    {
+        "id": 10000083,
+        "avatar_name": "Linette",
+        "quality": 4,
+        "name_text_map_hash": 1225226258,
+        "desc_text_map_hash": 3450878153,
+        "element": "Wind",
+        "gacha_img": "UI_Gacha_AvatarImg_Linette.png"
+    },
+    {
+        "id": 10000084,
+        "avatar_name": "Liney",
+        "quality": 5,
+        "name_text_map_hash": 2472444970,
+        "desc_text_map_hash": 3225015385,
+        "element": "Fire",
+        "gacha_img": "UI_Gacha_AvatarImg_Liney.png"
+    },
+    {
+        "id": 10000085,
+        "avatar_name": "Freminet",
+        "quality": 4,
+        "name_text_map_hash": 4201964354,
+        "desc_text_map_hash": 2838709961,
+        "element": "Ice",
+        "gacha_img": "UI_Gacha_AvatarImg_Freminet.png"
+    },
+    {
+        "id": 10000086,
+        "avatar_name": "Wriothesley",
+        "quality": 5,
+        "name_text_map_hash": 370151050,
+        "desc_text_map_hash": 3963795561,
+        "element": "Ice",
+        "gacha_img": "UI_Gacha_AvatarImg_Wriothesley.png"
+    },
+    {
+        "id": 10000087,
+        "avatar_name": "Neuvillette",
+        "quality": 5,
+        "name_text_map_hash": 1504902330,
+        "desc_text_map_hash": 3918027945,
+        "element": "Water",
+        "gacha_img": "UI_Gacha_AvatarImg_Neuvillette.png"
+    },
+    {
+        "id": 10000088,
+        "avatar_name": "Charlotte",
+        "quality": 4,
+        "name_text_map_hash": 3831162130,
+        "desc_text_map_hash": 3090032161,
+        "element": "Ice",
+        "gacha_img": "UI_Gacha_AvatarImg_Charlotte.png"
+    },
+    {
+        "id": 10000089,
+        "avatar_name": "Furina",
+        "quality": 5,
+        "name_text_map_hash": 2180900234,
+        "desc_text_map_hash": 2843800569,
+        "element": "Water",
+        "gacha_img": "UI_Gacha_AvatarImg_Furina.png"
+    },
+    {
+        "id": 10000090,
+        "avatar_name": "Chevreuse",
+        "quality": 4,
+        "name_text_map_hash": 540313842,
+        "desc_text_map_hash": 3743936161,
+        "element": "Fire",
+        "gacha_img": "UI_Gacha_AvatarImg_Chevreuse.png"
+    },
+    {
+        "id": 10000091,
+        "avatar_name": "Navia",
+        "quality": 5,
+        "name_text_map_hash": 2877588578,
+        "desc_text_map_hash": 251470345,
+        "element": "Rock",
+        "gacha_img": "UI_Gacha_AvatarImg_Navia.png"
+    }
+]

@@ -3,23 +3,23 @@ import re
 
 from vkbottle.bot import BotLabeler, Message
 
-from utils import get_textmap
+from utils import get_text_map
 
 bl = BotLabeler()
 bl.vbml_ignore_case = True
 
 
-def delete_tags(textmap_string):
+def delete_tags(text_map_string):
     # Remove HTML Tags
-    textmap_string = re.sub(r"(<([^>]+)>)", "", textmap_string)
+    text_map_string = re.sub(r"(<([^>]+)>)", "", text_map_string)
 
-    # Change {NICKNAME} to Timius100 (my nickname)
-    textmap_string = textmap_string.replace(r"{NICKNAME}", "Timius100")
+    # Change {NICKNAME} to F1zzTao (my nickname)
+    text_map_string = text_map_string.replace(r"{NICKNAME}", "F1zzTao")
 
     # Replace fake newlines with real newlines
-    textmap_string = textmap_string.replace(r"\n", "\n")
+    text_map_string = text_map_string.replace(r"\n", "\n")
 
-    return textmap_string
+    return text_map_string
 
 
 @bl.message(text=(
@@ -31,14 +31,14 @@ async def generate_random_phrase(message: Message, count=1):
         if message.peer_id != message.from_id:
             return "Больше 10 случайных фраз можно искать только в лс!"
 
-    textmap = await get_textmap()
-    textmap = list(textmap.values())
+    text_map = await get_text_map()
+    text_map = list(text_map.values())
 
     to_send = ""
     i = 0
     while i < count:
         i += 1
-        random_line = random.choice(textmap)
+        random_line = random.choice(text_map)
         random_line = delete_tags(random_line)
         to_send += f"{random_line}\n\n"
 
@@ -55,8 +55,8 @@ async def find_phrase(message: Message, search_for, count=1):
         if message.peer_id != message.from_id:
             return "Больше 10 фраз можно искать только в лс!"
 
-    textmap = await get_textmap()
-    textmap = list(textmap.values())
+    text_map = await get_text_map()
+    text_map = list(text_map.values())
 
     search_mode = "s"
     please_wait_id = 0
@@ -72,21 +72,21 @@ async def find_phrase(message: Message, search_for, count=1):
     found_texts = []
     i = 0
     while i < count:
-        for textmap_string in textmap:
+        for text_map_string in text_map:
             found = False
             if search_mode == "r":
-                if re.search(search_for, textmap_string):
+                if re.search(search_for, text_map_string):
                     found = True
             else:
-                if search_for.lower() in textmap_string.lower():
+                if search_for.lower() in text_map_string.lower():
                     found = True
 
             if found:
-                textmap.remove(textmap_string)
+                text_map.remove(text_map_string)
                 if search_mode != "r":
-                    textmap_string = delete_tags(textmap_string)
+                    text_map_string = delete_tags(text_map_string)
 
-                found_texts.append(textmap_string)
+                found_texts.append(text_map_string)
                 break
         i += 1
 

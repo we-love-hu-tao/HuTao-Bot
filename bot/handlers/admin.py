@@ -8,7 +8,7 @@ from vkbottle.dispatch.rules import ABCRule
 
 import create_pool
 from item_names import PRIMOGEM
-from utils import gen_promocode, give_exp, give_item
+from utils import gen_promo_code, give_exp, give_item
 
 
 class AdminRule(ABCRule[Message]):
@@ -149,7 +149,7 @@ async def take_primogems(
 
             await give_item(mention_id, peer_id, PRIMOGEM, -amount)
 
-            return f"У [id{mention_id}|этого пользователч] было отнято {amount} примогемов"
+            return f"У [id{mention_id}|этого пользователя] было отнято {amount} примогемов"
         else:
             return "Такого пользователя нет в игре!"
 
@@ -263,7 +263,7 @@ async def unban_user(message: Message, mention=None):
         "!новый промокод"
     )
 )
-async def create_new_promocode(message: Message):
+async def create_new_promo_code(message: Message):
     if len(message.text.split()) == 2:
         return "!новый промокод <количество> <время (unix time)> <название>"
 
@@ -276,28 +276,28 @@ async def create_new_promocode(message: Message):
         if expire_time < int(time.time()) and expire_time != 0:
             return "Некорректное время!"
 
-        new_promocode = await gen_promocode(
+        new_promo_code = await gen_promo_code(
             amount, expire_time=expire_time, custom_text=custom_text
         )
-        return f"Промокод {new_promocode} сгенерирован!"
+        return f"Промокод {new_promo_code} сгенерирован!"
     except Exception as e:
         return f"Ошибка: {e}"
 
 
 @bl.message(
-    text="!удалить промокод <promocode_name>"
+    text="!удалить промокод <promo_code_name>"
 )
-async def delete_promocode(_: Message, promocode_name):
+async def delete_promo_code(_: Message, promo_code_name):
     pool = create_pool.pool
     async with pool.acquire() as pool:
         is_exists = await pool.execute(
             "SELECT promocode FROM promocodes WHERE promocode=$1",
-            promocode_name
+            promo_code_name
         )
         if is_exists is None or is_exists[0] is None:
             return "Такого промокода не существует!"
 
-        await pool.execute("DELETE FROM promocodes WHERE promocode=$1", promocode_name)
+        await pool.execute("DELETE FROM promocodes WHERE promocode=$1", promo_code_name)
     return "Промокод был удален!"
 
 

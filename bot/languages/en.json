@@ -16,7 +16,7 @@
             "not_banned_user": "This person is not banned, luckily"
         },
         "promocodes": {
-            "new_promocode_syntax": "!новый промокод <колчество> <время (unix time)> <название>",
+            "new_promocode_syntax": "!новый промокод <количество> <время (unix time)> <название>",
             "new_promocode_generated": "Promocode {new_promocode} has been generated!",
             "delete_promocode": "Promocode has been deleted!",
             "incorrect_time_format": "Incorrect time format!",
@@ -183,9 +183,9 @@
         "set_success": "Вы успешно установили UID игрока \"{nickname}\" (AR: {adv_rank})",
         "HuTao_easter_egg": "Ху Тао на аве, здоровья маме"
     },
-    "create_accoutn": {
+    "create_account": {
         "already_created": "В этом чате вы уже присоединились к боту",
-        "new_user": "Вы присоединились к боту!\nНапишите !персонаж, что бы увидеть ваш никнейм и количество примогемов"
+        "new_player": "Вы присоединились к боту!\nНапишите !персонаж, что бы увидеть ваш никнейм и количество примогемов"
     },
     "top": {
         "we_will_come_back": "Топ вернется в будущем!"

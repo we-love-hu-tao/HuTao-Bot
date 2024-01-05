@@ -1,18 +1,20 @@
 from datetime import datetime
 
-import create_pool
 import msgspec
 from loguru import logger
+from vkbottle.bot import BotLabeler, Message
+
+import create_pool
+from models.avatar import Avatar
 from utils import (
     color_to_rarity,
     exists,
     get_avatar_by_name,
     get_avatar_data,
-    get_textmap,
+    get_text_map,
     resolve_id,
     resolve_map_hash
 )
-from vkbottle.bot import BotLabeler, Message
 
 bl = BotLabeler()
 bl.vbml_ignore_case = True
@@ -31,20 +33,20 @@ async def format_characters(avatars: dict, rarity: int = 5):
         ...
     ]
     """
-    textmap = await get_textmap()
-    avatars_info = await get_avatar_data()
+    text_map = await get_text_map()
+    avatars_excel = await get_avatar_data()
 
     new_message = f"Персонажи ({'&#11088;' * rarity}):\n"
     for avatar in avatars:
-        avatar_info = resolve_id(avatar['id'], avatars_info)
-        if avatar_info is None:
+        avatar_excel: Avatar = resolve_id(avatar['id'], avatars_excel)
+        if avatar_excel is None:
             logger.error(f"Unknown avatar in inventory: {avatar['id']}")
             continue
 
-        avatar_rarity = color_to_rarity(avatar_info['qualityType'])
+        avatar_rarity = color_to_rarity(avatar_excel.quality)
         if avatar_rarity != rarity:
             continue
-        avatar_name = resolve_map_hash(textmap, avatar_info['nameTextMapHash'])
+        avatar_name = resolve_map_hash(text_map, avatar_excel.name_text_map_hash)
         avatar_consts = avatar['const']
 
         if avatar == avatars[-1]:
@@ -68,8 +70,8 @@ async def format_characters(avatars: dict, rarity: int = 5):
     return new_message
 
 
-@bl.message(text=("!персы", "!персонажи", "!мои персонажы"))
-async def list_chatacters(message: Message):
+@bl.message(text=("!персы", "!персонажи", "!мои персонажи"))
+async def list_characters(message: Message):
     if not await exists(message):
         return
     pool = create_pool.pool
@@ -101,12 +103,12 @@ async def character_info(message: Message, avatar_name):
         return "Вы еще не выбили этого персонажа / его не существует!"
 
     avatar_data = await get_avatar_data()
-    textmap = await get_textmap()
+    text_map = await get_text_map()
 
-    avatar_excel = resolve_id(avatar['id'], avatar_data)
-    avatar_name = resolve_map_hash(textmap, avatar_excel['nameTextMapHash'])
-    avatar_desc = resolve_map_hash(textmap, avatar_excel['descTextMapHash'])
-    avatar_rarity = color_to_rarity(avatar_excel['qualityType'])
+    avatar_excel: Avatar = resolve_id(avatar['id'], avatar_data)
+    avatar_name = resolve_map_hash(text_map, avatar_excel.name_text_map_hash)
+    avatar_desc = resolve_map_hash(text_map, avatar_excel.desc_text_map_hash)
+    avatar_rarity = color_to_rarity(avatar_excel.quality)
     drop_date = avatar['date']
     const = avatar['const']
 

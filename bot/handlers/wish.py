@@ -3,8 +3,13 @@ import random
 import time
 from typing import Literal, Optional
 
-import create_pool
 import msgspec
+from loguru import logger
+from vkbottle import Keyboard, Text
+from vkbottle.bot import BotLabeler, Message
+from vkbottle_types.objects import UsersUserFull
+
+import create_pool
 from gacha_banner_vars import (
     EVENT_BANNERS,
     FALLBACK_ITEMS_3,
@@ -20,7 +25,9 @@ from gacha_banner_vars import (
     WEIGHTS4,
     WEIGHTS5
 )
-from loguru import logger
+from models.avatar import Avatar
+from models.banner import Banner
+from models.weapon import Weapon
 from utils import (
     color_to_rarity,
     exists,
@@ -28,7 +35,7 @@ from utils import (
     get_banner_name,
     get_banners,
     get_item,
-    get_textmap,
+    get_text_map,
     get_weapon_data,
     give_avatar,
     give_item_local,
@@ -42,9 +49,6 @@ from variables import (
     FOUR_STAR_TEN,
     THREE_STAR
 )
-from vkbottle import Keyboard, Text
-from vkbottle.bot import BotLabeler, Message
-from vkbottle_types.objects import UsersUserFull
 
 bl = BotLabeler()
 bl.vbml_ignore_case = True
@@ -57,10 +61,10 @@ class Wish:
         message: Message,
         info: UsersUserFull | None,
         pool,
-        banners,
-        textmap,
-        weapon_excel_data,
-        avatar_excel_data
+        banners: list[Banner],
+        text_map: dict,
+        weapon_excel_data: list[Weapon],
+        avatar_excel_data: list[Avatar]
     ):
         self.user_id = message.from_id
         self.peer_id = message.peer_id
@@ -78,7 +82,7 @@ class Wish:
             self.full_name_gen = "Группы"
         self.pool = pool
         self.banners = banners
-        self.textmap = textmap
+        self.text_map = text_map
         self.weapon_excel_data = weapon_excel_data
         self.avatar_excel_data = avatar_excel_data
         self.player_gacha_info = []
@@ -141,9 +145,9 @@ class Wish:
         )
         self.result_inventory = self.decoder.decode(inventory['inventory'].encode("utf-8"))
 
-    def get_banner(self, gacha_type: int) -> dict:
+    def get_banner(self, gacha_type: int) -> Banner:
         for banner in self.banners:
-            if banner['gachaType'] == gacha_type:
+            if banner.gacha_type == gacha_type:
                 return banner
         raise ValueError(f"Banner {gacha_type} not found")
 
@@ -171,46 +175,16 @@ class Wish:
 
     def get_rate_up_items4(self, gacha_type: int) -> tuple:
         banner = self.get_banner(gacha_type)
-        rate_up_items4 = banner.get('rateUpItems4')
+        rate_up_items4 = banner.rate_up_4
         return (
             rate_up_items4 if rate_up_items4 is not None else FALLBACK_ITEMS_4_POOL_1
         )
 
     def get_rate_up_items5(self, gacha_type: int) -> tuple:
         banner = self.get_banner(gacha_type)
-        rate_up_items5 = banner.get('rateUpItems5')
+        rate_up_items5 = banner.rate_up_5
         return (
             rate_up_items5 if rate_up_items5 is not None else FALLBACK_ITEMS_5_POOL_1
-        )
-
-    def get_fallback_items_4_pool_1(self, gacha_type: int) -> tuple:
-        banner = self.get_banner(gacha_type)
-        fallback = banner.get('fallbackItems4Pool1')
-        return (
-            fallback if fallback is not None else FALLBACK_ITEMS_4_POOL_1
-        )
-
-    def get_fallback_items_4_pool_2(self, gacha_type: int) -> tuple:
-        banner = self.get_banner(gacha_type)
-        fallback = banner.get('fallbackItems4Pool2')
-        return (
-            fallback if fallback is not None else FALLBACK_ITEMS_4_POOL_2
-        )
-
-    def get_fallback_items_5_pool_1(self, gacha_type: int) -> tuple:
-        banner = self.get_banner(gacha_type)
-        fallback = banner.get('fallbackItems5Pool1')
-        return (
-            fallback if fallback is not None else FALLBACK_ITEMS_5_POOL_1
-        )
-
-    def get_fallback_items_5_pool_2(self, gacha_type: int) -> tuple:
-        if self.get_banner_type(gacha_type) == 'eventCharacterBanner':
-            return ()
-        banner = self.get_banner(gacha_type)
-        fallback = banner.get('fallbackItems5Pool2')
-        return (
-            fallback if fallback is not None else FALLBACK_ITEMS_5_POOL_2
         )
 
     def get_failed_featured_item_pulls(
@@ -235,8 +209,8 @@ class Wish:
 
         for banner in self.player_gacha_info:
             if banner == banner_type:
-                # i accidently put 2 equal signs instead of 1
-                # entire 100% system stopped working
+                # i accidentally put 2 equal signs below instead of 1.
+                # the entire 100% system stopped working. i love python.
                 self.player_gacha_info[banner][coinflip_name] = count
                 break
 
@@ -256,7 +230,7 @@ class Wish:
 
                 if x < xy_array[i+1][0]:
                     # We are between [i] and [i+1], interpolation time!
-                    # Using floats would be slightly cleaner but we can just as
+                    # Using floats would be slightly cleaner, but we can just as
                     # easily use ints if we're careful with order of operations.
                     position = x - xy_array[i][0]
                     full_dist = xy_array[i+1][0] - xy_array[i][0]
@@ -273,7 +247,10 @@ class Wish:
 
     def get_weights(self, gacha_type: int, rarity):
         banner = self.get_banner(gacha_type)
-        weights = banner.get(f"weights{rarity}")
+        if rarity == 5:
+            weights = banner.weights_5
+        else:
+            weights = banner.weights_4
         fallback_weights = (WEIGHTS5 if rarity == 5 else WEIGHTS4)
 
         weights = (fallback_weights if weights is None else weights)
@@ -314,7 +291,7 @@ class Wish:
                     case _: return banner['pity5Pool2']
 
     def get_cost_item(self, gacha_type) -> int:
-        return self.get_banner(gacha_type)['costItemId']
+        return self.get_banner(gacha_type).cost_item_id
 
     def get_item_count(self, item_id) -> int:
         for item in self.result_inventory:
@@ -327,13 +304,13 @@ class Wish:
         if item_const >= -1:
             item_id += 9999000
             for avatar in self.avatar_excel_data:
-                if avatar['id'] == item_id:
-                    return color_to_rarity(avatar['qualityType']) or 1
+                if avatar.id == item_id:
+                    return avatar.quality
         else:
             for weapon in self.weapon_excel_data:
-                if weapon['id'] == item_id:
-                    return weapon['rankLevel']
-        logger.warning(f"Unknow item rarity, item_type is {item_const}, id {item_id}")
+                if weapon.id == item_id:
+                    return weapon.rank
+        logger.warning(f"Unknown item rarity, item_type is {item_const}, id {item_id}")
         return 1
 
     def add_to_records(self, gacha_type, item_type, item_id: int):
@@ -446,7 +423,7 @@ class Wish:
             case 3:
                 match ten:
                     case True:
-                        raise ValueError("В 10 крутках не найдено ни одного 4* предмета")
+                        raise ValueError("No 4* item found in ten roll")
                 return THREE_STAR
             case 4:
                 match ten:
@@ -461,7 +438,7 @@ class Wish:
                     case False:
                         return FIVE_STAR
             case _:
-                raise ValueError(f"Выпал {rarity}* предмет, такого быть не может")
+                raise ValueError(f"{rarity}* item dropped, it's impossible")
 
     @staticmethod
     def draw_roulette(weights: tuple, cutoff: int) -> int:
@@ -471,8 +448,8 @@ class Wish:
                 raise ValueError("Weights must be non-negative!")
             total += weight
 
-        # In grasscutter it's ThreadLocalRandom.current().nextInt((total < cutoff)? total : cutoff);
-        # Which return value from 0 to total or cutoff - 1,
+        # In grasscutter, it's ThreadLocalRandom.current().nextInt((total < cutoff)? total : cutoff);
+        # Which returns value from 0 to total or cutoff - 1,
         # and that's why there is -1 in the end
         roll = random.randint(0, int((total if total < cutoff else cutoff))-1)
         sub_total = 0
@@ -613,10 +590,10 @@ class Wish:
         pools = {
             'rate_up_items_5': self.get_rate_up_items5(gacha_type),
             'rate_up_items_4': self.get_rate_up_items4(gacha_type),
-            'fallback_items_4_pool_1': self.get_fallback_items_4_pool_1(gacha_type),
-            'fallback_items_4_pool_2': self.get_fallback_items_4_pool_2(gacha_type),
-            'fallback_items_5_pool_1': self.get_fallback_items_5_pool_1(gacha_type),
-            'fallback_items_5_pool_2': self.get_fallback_items_5_pool_2(gacha_type)
+            'fallback_items_4_pool_1': FALLBACK_ITEMS_4_POOL_1,
+            'fallback_items_4_pool_2': FALLBACK_ITEMS_4_POOL_2,
+            'fallback_items_5_pool_1': FALLBACK_ITEMS_5_POOL_1,
+            'fallback_items_5_pool_2': FALLBACK_ITEMS_5_POOL_2
         }
 
         max_rarity = 3
@@ -680,20 +657,22 @@ class Wish:
         if times == 1:
             item = new_items[0]
             item_info = resolve_id(item, self.avatar_excel_data, self.weapon_excel_data)
-            item_name = self.textmap.get(str(item_info['nameTextMapHash']))
+            item_name = self.text_map.get(str(item_info.name_text_map_hash))
             if item_name is None:
                 item_name = await translate("wish", "unknown_item")
-            item_desc = self.textmap.get(str(item_info['descTextMapHash']))
+            item_desc = self.text_map.get(str(item_info.desc_text_map_hash))
             if item_desc is None:
                 item_desc = await translate("wish", "unknown_description")
-            item_type = self.check_avatar_constellation_level(item_info['id'])
+            item_type = self.check_avatar_constellation_level(item_info.id)
 
             if item_type >= -1:
+                # Avatar
                 drop_emoji = "&#129485;"
-                rarity = color_to_rarity(item_info['qualityType'])
+                rarity = color_to_rarity(item_info.quality)
             else:
+                # Weapon
                 drop_emoji = "&#128481;"
-                rarity = item_info['rankLevel']
+                rarity = item_info.rank
 
             results_msg = f"{'&#11088;' * rarity} {drop_emoji}: {item_name}\n\"{item_desc}\"\n"
         else:
@@ -708,15 +687,17 @@ class Wish:
                 if item_info is None:
                     logger.error(f"Unknown item in ten-time pull: {item}")
                     continue
-                item_name = self.textmap.get(str(item_info['nameTextMapHash']))
+                item_name = self.text_map.get(str(item_info.name_text_map_hash))
                 if item_name is None:
                     item_name = await translate("wish", "unknown_item")
-                item_type = self.check_avatar_constellation_level(item_info['id'])
+                item_type = self.check_avatar_constellation_level(item_info.id)
 
                 if item_type >= -1:
-                    rarity = color_to_rarity(item_info['qualityType'])
+                    # Avatar
+                    rarity = item_info.quality
                 else:
-                    rarity = item_info['rankLevel']
+                    # Weapon
+                    rarity = item_info.rank
 
                 if item_type >= -1:
                     drop_emoji = "&#129485;"
@@ -859,11 +840,11 @@ async def use_wish(message: Message, count: Optional[int] = 1):
             info = None
 
         banners = await get_banners()
-        textmap = await get_textmap()
+        text_map = await get_text_map()
         weapon_data = await get_weapon_data()
         avatar_data = await get_avatar_data()
         wish = Wish(
-            message, info, pool, banners, textmap, weapon_data, avatar_data
+            message, info, pool, banners, text_map, weapon_data, avatar_data
         )
         await wish.set_player_info()
 

@@ -1,6 +1,8 @@
 import asyncpg
 from loguru import logger
 
+pool = None
+
 
 async def init():
     global pool
@@ -40,7 +42,9 @@ async def init():
             );
         ''')
 
-        # Promocodes
+        # Promo codes
+        # Yeah, I know it's called promo codes instead of "promocodes",
+        # but I'm too lazy to change everything...
         await db.execute('''
             CREATE TABLE IF NOT EXISTS public.promocodes (
                 promocode text,

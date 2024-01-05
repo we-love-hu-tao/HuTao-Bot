@@ -26,7 +26,7 @@ async def invite_event_reaction(message: Message):
 @bl.message(text="!помощь")
 async def help_handler(message: Message):
     await message.answer(
-        "Основные команыды:\n"
+        "Основные команды:\n"
         "!начать - создать профиль\n"
         "!перс - просмотреть персонажа\n"
         "!установить ник [никнейм] - устанавливает ник для вашего персонажа\n"
