@@ -100,7 +100,7 @@ async def genshin_info(message: Message, uid: Optional[int] = None):
         player_info = (await get_player_info(http_client, uid, only_info=True)).player_info
     except Exception as e:
         logger.error(e)
-        return await translate("genshin_info", "enka_network_error")
+        return (await translate("genshin_info", "enka_network_error")) + "\n" + e
 
     if not player_info:
         if uid is None:

@@ -298,7 +298,7 @@ async def get_second_rate_up_picture(banner_id: str):
             return filename
 
 
-async def get_background_by_elem(element):
+async def get_background_by_elem(element: str) -> str | None:
     for filename in os.listdir(banners_bg_path):
         if filename == f'UI_GachaShowPanel_Bg_{element}.png':
             return filename
@@ -315,21 +315,6 @@ async def check_banner_cache(prefab_id):
     if result is not None:
         logger.info(f"Cache exists, results: {result}")
         return result
-
-
-"""
-async def get_element(avatar_info):
-    skill_depot_data = await get_skill_depot_data()
-    skill_data = await get_skill_excel_data()
-
-    skill_depot_id = avatar_info['skillDepotId']
-    for skill_depot in skill_depot_data:
-        if skill_depot['id'] == skill_depot_id:
-            energy_skill = skill_depot['energySkill']
-            for skill in skill_data:
-                if skill['id'] == energy_skill:
-                    return skill['costElemType']
-"""
 
 
 async def create_banner(gacha_type) -> dict | None:
@@ -359,7 +344,7 @@ async def create_banner(gacha_type) -> dict | None:
                 # Beginner's banner
                 rate_up4 = rate_up4[0]
                 avatar: Avatar = resolve_id(rate_up4, avatar_data)
-                element = avatar.element
+                element = avatar.element.value
                 banner_bg = await get_background_by_elem(element)
                 main_rate_up_picture_path = avatar.gacha_img
                 main_rate_up_name = resolve_map_hash(text_map, avatar.name_text_map_hash)
@@ -377,7 +362,7 @@ async def create_banner(gacha_type) -> dict | None:
                 # Character banner
                 rate_up5 = rate_up5[0]
                 avatar: Avatar = resolve_id(rate_up5, avatar_data)
-                element = avatar.element
+                element = avatar.element.value
                 banner_bg = await get_background_by_elem(element)
                 main_rate_up_picture_path = avatar.gacha_img
                 second_rate_up_picture_path = await get_second_rate_up_picture(banner.prefab_id)
