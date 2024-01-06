@@ -130,3 +130,9 @@ dmypy.json
 
 # Bot cache
 banners_cache/
+
+# PyCharm profile folder
+.idea/
+
+# PostgreSQL config
+pgpass.conf
