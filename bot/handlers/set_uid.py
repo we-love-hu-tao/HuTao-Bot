@@ -3,7 +3,8 @@ from vkbottle.bot import BotLabeler, Message
 from vkbottle.http import AiohttpClient
 
 import create_pool
-from utils import exists, get_player_info
+from config import ADMIN_IDS
+from utils import exists, get_player_info, translate
 
 bl = BotLabeler()
 
@@ -23,17 +24,14 @@ async def change_ingame_uid(message: Message, uid: int):
         player_info = await get_player_info(http_client, uid)
     except Exception as e:
         logger.error(e)
-        return (
-            "Похоже, что сервис enka.network сейчас не работает!\n"
-            "Если же это не так, пожалуйста, сообщите об этой ошибке [id322615766|мне]"
-        )
+        return (await translate("set_uid", "enka_network_error")).format(user_id=ADMIN_IDS[0])
 
     if not player_info:
-        return "Такого игрока не существует!"
+        return await translate("set_uid", "player_not_found")
     player_info = player_info.player_info
 
-    nickname = player_info.nickname or "неизвестный ник"
-    adv_rank = player_info.level or "неизвестный"
+    nickname = player_info.nickname or await translate("set_uid", "unknown_nickname")
+    adv_rank = player_info.level or await translate("set_uid", "unknown_adv_rank")
     profile_picture = player_info.profile_picture.avatar_id
 
     pool = create_pool.pool
@@ -44,10 +42,9 @@ async def change_ingame_uid(message: Message, uid: int):
         )
 
     text = (
-        f'Вы успешно установили UID игрока "{nickname}" '
-        f'(AR: {adv_rank})'
-    )
+        await translate("set_uid", "set_success")
+    ).format(nickname=nickname, adv_rank=adv_rank)
     if profile_picture == 10000046:
-        text += "\nХу Тао на аве, здоровья маме"
+        text += "\n" + await translate("set_uid", "HuTao_easter_egg")
 
     return text

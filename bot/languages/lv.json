@@ -34,7 +34,7 @@
         "uid_not_set": "Jūs neesat iestatījis savu UID! To var izdarīt, izmantojot komandu \"!установить айди <UID>\"",
         "replier_no_uid": "Persona, uz kuru jūs atbildat, vēl nav izveidojusi kontu / nav norādījusi ID, taču viņa to var izdarīt, rakstot \"!установить айди <UID>\"",
         "player_info": "Informācija par [id{from_id}|šī] spēlētāja kontu",
-        "enka_network_error": "Izskatās, ka enka.network pakalpojums pašlaik nedarbojas!\nJa tā nav, lūdzu, informējiet [id322615766|main] par to]",
+        "enka_network_error": "Izskatās, ka enka.network pakalpojums pašlaik nedarbojas!\nJa tā nav, lūdzu, informējiet [id{user_id}|main] par to]",
         "current_account_deleted": "Vai nu neizdevās atrast informāciju par šo UID, vai arī šis Genshin Impact konts tika aizliegts / dzēsts\n(vai arī tā ir enka.network kļūda)",
         "uid_not_found": "Spēlētāja ar šādu UID nav",
         "unknown_value": "[nezināms]",

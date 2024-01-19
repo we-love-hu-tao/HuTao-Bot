@@ -18,6 +18,7 @@ from models.avatar import Avatar
 from models.banner import Banner
 from models.player_profile import PlayerProfile
 from models.weapon import Weapon
+from config import ADMIN_IDS
 
 rank_levels_exp = {
     1: 0,
@@ -307,7 +308,7 @@ async def exists(event: Message, pool=None) -> bool:
                 keyboard=KEYBOARD_START
             )
     else:
-        await event.answer("нет (разбан у [id322615766|меня]).", disable_mentions=True)
+        await event.answer(f"нет (разбан у [id{ADMIN_IDS[0]}|меня]).", disable_mentions=True)
 
     return False
 

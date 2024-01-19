@@ -7,6 +7,7 @@ from vkbottle.bot import BotLabeler, Message
 from vkbottle.dispatch.rules import ABCRule
 
 import create_pool
+from config import ADMIN_IDS
 from item_names import PRIMOGEM
 from utils import gen_promo_code, give_exp, give_item
 
@@ -14,14 +15,12 @@ from utils import gen_promo_code, give_exp, give_item
 class AdminRule(ABCRule[Message]):
     """Rule which checks, if user id is admin"""
     async def check(self, event: Message) -> bool:
-        return event.from_id in admin_list
+        return event.from_id in ADMIN_IDS
 
 
 bl = BotLabeler()
 bl.auto_rules = [AdminRule()]
 bl.vbml_ignore_case = True
-
-admin_list = (322615766, 328328155)
 
 
 @bl.message(text=("!беседы <mention>", "!беседы"))
@@ -317,7 +316,7 @@ async def sql_request_handler(message: Message):
 
 @bl.message(text="!execute <!>")
 async def execute_shell_command(message: Message):
-    if message.from_id != 322615766:
+    if message.from_id != ADMIN_IDS[0]:
         return "а тебе зачем?"
 
     cmd_command = message.text[9:]

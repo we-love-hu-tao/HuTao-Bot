@@ -6,8 +6,8 @@ from vkbottle.bot import BotLabeler, Message
 from vkbottle.user import User
 
 import create_pool
-from config import GROUP_ID, VK_USER_TOKEN
-from utils import exists
+from config import GROUP_ID, VK_USER_TOKEN, ADMIN_IDS
+from utils import exists, translate
 
 bl = BotLabeler()
 bl.vbml_ignore_case = True
@@ -174,7 +174,7 @@ async def give_nickname(message: Message, nickname: str):
         return
 
     if "." in nickname:
-        return "В нике не может быть точка!"
+        return translate("nickname", "dot_found")
 
     pool = create_pool.pool
     async with pool.acquire() as pool:
@@ -187,7 +187,7 @@ async def give_nickname(message: Message, nickname: str):
             if len(nickname) < 35:
                 await change_nickname(message.from_id, message.peer_id, nickname, pool)
             else:
-                return "В нике не может быть больше 35 символов (включая пробел)"
+                return translate("nickname", "length_exceeded")
         else:
             # There is a swear of protected character in the nickname.
             # We love our waifus! That's why we are banning this user.
@@ -203,13 +203,11 @@ async def give_nickname(message: Message, nickname: str):
                 comment="Оскорбление важного персонажа [bot]",
                 comment_visible=True,
             )
-            await message.answer(
-                "Вы были забанены в группе.\n"
-                "Для разбана, напишите "
-                "[id322615766|мне в личные сообщения]\n"
-                f'"{random.choice(BETTER_NOT_USE_ANS)}"',
-                disable_mentions=True
-            )
+
+            ban_message = (await translate("nickname", "swear_ban")).format(user_id=ADMIN_IDS[0])
+            ban_message += "\n" + random.choice(BETTER_NOT_USE_ANS)
+
+            await message.answer(ban_message, disable_mentions=True)
 
             try:
                 logger.info(
@@ -223,11 +221,7 @@ async def give_nickname(message: Message, nickname: str):
                     f'К сожалению, забанить пользователя {message.from_id} '
                     f'в беседе {message.peer_id} не получилось, ошибка: {error}'
                 )
-                return (
-                    "А, еще, просьба к администратору беседы - выдайте мне пожалуйста "
-                    "админку, что бы я мог нормально работать (точно никак не связано "
-                    "с предыдущими событиями)"
-                )
+                return translate("nickname", "ban_error")
 
             return
 
@@ -259,4 +253,7 @@ async def give_nickname(message: Message, nickname: str):
                 reaction_answer = random.choice(QIQI_ANS)
             else:
                 reaction_answer = random.choice(ONCHANGE_ANS)
-        return reaction_answer.format(nickname) + "\n" + "Вы успешно поменяли никнейм"
+        return (
+            reaction_answer.format(nickname)
+            + "\n" + await translate("nickname", "set_confirmation")
+        )

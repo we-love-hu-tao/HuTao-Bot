@@ -8,6 +8,7 @@ from vkbottle.bot import BotLabeler, Message, MessageEvent, rules
 from vkbottle.http import AiohttpClient
 
 import create_pool
+from config import ADMIN_IDS
 from models.avatar import Avatar
 from utils import (
     get_avatar_data, get_player_info, get_text_map, resolve_id, resolve_map_hash, translate
@@ -100,7 +101,9 @@ async def genshin_info(message: Message, uid: Optional[int] = None):
         player_info = (await get_player_info(http_client, uid, only_info=True)).player_info
     except Exception as e:
         logger.error(e)
-        return (await translate("genshin_info", "enka_network_error")) + "\n" + e
+        return (
+            await translate("genshin_info", "enka_network_error")
+        ).format(user_id=ADMIN_IDS[0]) + "\n" + str(e)
 
     if not player_info:
         if uid is None:

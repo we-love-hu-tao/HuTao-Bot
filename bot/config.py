@@ -8,6 +8,7 @@ else:
     GROUP_ID = 0
 
 VK_USER_TOKEN = ""  # noqa: E501
+ADMIN_IDS = (322615766,)
 
 BANNERS_ALBUM_ID = 0
 CURRENT_LANG = "ru"
