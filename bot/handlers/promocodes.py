@@ -27,7 +27,7 @@ async def redeem_promo_code(message: Message, promo_code):
 
         if promo_code_query['author'] == message.from_id:
             return (
-                "Пока мы живем в 2022, этот человек живет в 2032 "
+                "Пока мы живем в 2024, этот человек живет в 2032 "
                 "(Вы владелец этого промокода)"
             )
 
