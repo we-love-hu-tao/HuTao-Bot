@@ -2,6 +2,7 @@ aiocache
 aiofiles
 aiohttp
 asyncpg>=0.26.0
+dotenv
 loguru>=0.6.0
 msgspec>=0.9.0
 pillow

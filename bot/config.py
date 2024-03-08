@@ -1,14 +1,22 @@
-TEST_MODE = False
+import os
 
-if not TEST_MODE:
-    VK_GROUP_TOKEN = ""  # noqa: E501
-    GROUP_ID = 0
-else:
-    VK_GROUP_TOKEN = ""  # noqa: E501
-    GROUP_ID = 0
+from dotenv import load_dotenv
 
-VK_USER_TOKEN = ""  # noqa: E501
-ADMIN_IDS = (322615766,)
+load_dotenv()
 
-BANNERS_ALBUM_ID = 0
-CURRENT_LANG = "ru"
+# ! Do not change anything in this file.
+# ! Use .env for configuring the bot.
+
+try:
+    VK_GROUP_TOKEN = os.getenv("VK_GROUP_TOKEN")
+    GROUP_ID = int(os.getenv("GROUP_ID"))
+
+    VK_USER_TOKEN = os.getenv("VK_USER_TOKEN")
+
+    # Removing empty string elements and converting them to int
+    ADMIN_IDS = (int(i) for i in os.getenv("ADMIN_IDS") if i)
+
+    BANNERS_ALBUM_ID = int(os.getenv("BANNERS_ALBUM_ID"))
+    CURRENT_LANG = os.getenv("LANG")
+except ValueError as e:
+    raise ValueError(f"Empty or invalid variables in .env: {e}")

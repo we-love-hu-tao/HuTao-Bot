@@ -9,7 +9,7 @@ from vkbottle.tools import PhotoToAlbumUploader
 from vkbottle.user import User
 
 import create_pool
-from config import BANNERS_ALBUM_ID, GROUP_ID, TEST_MODE, VK_USER_TOKEN
+from config import BANNERS_ALBUM_ID, GROUP_ID, VK_USER_TOKEN
 from gacha_banner_vars import FALLBACK_ITEMS_5_POOL_1
 from keyboards import (
     KEYBOARD_BEGINNER,
@@ -318,9 +318,6 @@ async def check_banner_cache(prefab_id):
 
 
 async def create_banner(gacha_type) -> dict | None:
-    if TEST_MODE:  # We don't generate banner, if test mode is true
-        return
-
     # Return cache if exists
     banner: Banner = await get_banner(gacha_type)
     prefab_id = banner.prefab_id
@@ -351,7 +348,9 @@ async def create_banner(gacha_type) -> dict | None:
                 main_rate_up_rarity = avatar.quality
 
                 banner_bg = Image.open(f"{banners_bg_path}{banner_bg}")
-                main_rate_up_picture = Image.open(f"{banners_items_path}{main_rate_up_picture_path}")
+                main_rate_up_picture = Image.open(
+                    f"{banners_items_path}{main_rate_up_picture_path}"
+                )
 
                 banner_picture = BannerPicture(banner_bg, main_rate_up_picture)
                 banner_picture.add_main_rate_up_noob()
@@ -380,10 +379,16 @@ async def create_banner(gacha_type) -> dict | None:
                     }
 
                 banner_bg = Image.open(f"{banners_bg_path}{banner_bg}")
-                main_rate_up_picture = Image.open(f"{banners_items_path}{main_rate_up_picture_path}")
-                second_rate_up_picture = Image.open(f"{banners_items_path}{second_rate_up_picture_path}")
+                main_rate_up_picture = Image.open(
+                    f"{banners_items_path}{main_rate_up_picture_path}"
+                )
+                second_rate_up_picture = Image.open(
+                    f"{banners_items_path}{second_rate_up_picture_path}"
+                )
 
-                banner_picture = BannerPicture(banner_bg, main_rate_up_picture, second_rate_up_picture)
+                banner_picture = BannerPicture(
+                    banner_bg, main_rate_up_picture, second_rate_up_picture
+                )
                 banner_picture.add_main_rate_up_event()
                 banner_picture.add_second_rate_up_event()
                 banner_picture.draw_event_banner_name(banner_name)
@@ -526,8 +531,8 @@ async def show_my_banner(message: Message):
     # Banner picture
     banner_attachment = await create_banner(current_banner) or {}
     if banner_attachment.get("error"):
-        return banner_attachment["error"]
-    banner_attachment = banner_attachment.get("attachment")
+        logger.error(f"Couldn't get attachment: {banner_attachment['error']}")
+    banner_attachment = banner_attachment.get("attachment", None)
 
     # Banner name
     banner_name = await get_banner_name(current_banner)
@@ -605,11 +610,12 @@ async def choose_banner(message: Message, banner):
             banners[banner], message.from_id, message.peer_id
         )
 
+    # Banner picture
     banner_name = await get_banner_name(selected_banner.gacha_type)
     banner_attachment = await create_banner(selected_banner.gacha_type) or {}
     if banner_attachment.get("error"):
-        return banner_attachment["error"]
-    banner_attachment = banner_attachment.get("attachment")
+        logger.error(f"Couldn't get attachment: {banner_attachment['error']}")
+    banner_attachment = banner_attachment.get("attachment", None)
 
     await message.answer(
         (await translate("banners", "selected")).format(banner_name=banner_name),
@@ -625,12 +631,13 @@ async def choose_banner(message: Message, banner):
 async def show_beginner_banner(message: Message):
     if not await exists(message):
         return
-
     gacha_type = 100
+
+    # Banner picture
     banner_attachment = await create_banner(gacha_type) or {}
     if banner_attachment.get("error"):
-        return banner_attachment["error"]
-    banner_attachment = banner_attachment.get("attachment")
+        logger.error(f"Couldn't get attachment: {banner_attachment['error']}")
+    banner_attachment = banner_attachment.get("attachment", None)
 
     if banners_cache[gacha_type]:
         ans_msg = banners_cache[gacha_type]
@@ -662,10 +669,11 @@ async def show_event_banner(message: Message, banner_id: int = 1):
     else:
         return await translate("banners", "unknown_id")
 
+    # Banner picture
     banner_attachment = await create_banner(gacha_type) or {}
     if banner_attachment.get("error"):
-        return banner_attachment["error"]
-    banner_attachment = banner_attachment.get("attachment")
+        logger.error(f"Couldn't get attachment: {banner_attachment['error']}")
+    banner_attachment = banner_attachment.get("attachment", None)
 
     if banners_cache[gacha_type]:
         ans_msg = banners_cache[gacha_type]
@@ -689,12 +697,13 @@ async def show_event_banner(message: Message, banner_id: int = 1):
 async def show_weapon_banner(message: Message):
     if not await exists(message):
         return
-
     gacha_type = 302
+
+    # Banner picture
     banner_attachment = await create_banner(gacha_type) or {}
     if banner_attachment.get("error"):
-        return banner_attachment["error"]
-    banner_attachment = banner_attachment.get("attachment")
+        logger.error(f"Couldn't get attachment: {banner_attachment['error']}")
+    banner_attachment = banner_attachment.get("attachment", None)
 
     if banners_cache[gacha_type]:
         ans_msg = banners_cache[gacha_type]
@@ -717,12 +726,13 @@ async def show_weapon_banner(message: Message):
 async def show_standard_banner(message: Message):
     if not await exists(message):
         return
-
     gacha_type = 200
+
+    # Banner picture
     banner_attachment = await create_banner(gacha_type) or {}
     if banner_attachment.get("error"):
-        return banner_attachment["error"]
-    banner_attachment = banner_attachment.get("attachment")
+        logger.error(f"Couldn't get attachment: {banner_attachment['error']}")
+    banner_attachment = banner_attachment.get("attachment", None)
 
     if banners_cache[gacha_type]:
         ans_msg = banners_cache[gacha_type]
