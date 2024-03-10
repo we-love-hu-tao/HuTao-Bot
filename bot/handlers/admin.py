@@ -193,8 +193,35 @@ async def give_level(
             return "Такого пользователя нет в игре!"
 
 
+@bl.message(text="!изменить ник <nickname>")
+async def change_nickname(message: Message, nickname: str):
+    if message.reply_message is not None:
+        mention_id = message.reply_message.from_id
+    else:
+        return "так ответь на сообщение"
+
+    pool = create_pool.pool
+    async with pool.acquire() as pool:
+        is_exists = await pool.fetchrow(
+            "SELECT nickname FROM players WHERE user_id=$1 AND peer_id=$2",
+            mention_id, message.peer_id
+        )
+        if not is_exists:
+            return "Этого лилброу даже в боте нету!"
+
+        logger.info(f"Changing {message.from_id}'s nickname to {nickname}")
+        await pool.execute(
+            "UPDATE players SET nickname=$1 WHERE user_id=$2 AND peer_id=$3",
+            nickname, message.from_id, message.peer_id
+        )
+    return (
+        "Никнейм этого чела обновлен. В следующий раз может"
+        " произойти что-то хуже, чем просто смена никнейма..."
+    )
+
+
 @bl.message(text=("!гнш бан <mention>", "!гнш бан"))
-async def ban_user(message: Message, mention=None):
+async def ban_user(message: Message, mention: Optional[str] = None):
     if mention is not None:
         mention_id = int(mention.split("|")[0][1:].replace("id", ""))
     else:
@@ -223,9 +250,8 @@ async def ban_user(message: Message, mention=None):
                 )
             except ValueError as e:
                 logger.info(f"Couldn't ban user from chat: {e}")
-
         else:
-            await message.answer("этот человек уже забанен")
+            return "этот человек уже забанен"
 
 
 @bl.message(text=("!гнш разбан <mention>", "!гнш разбан"))
@@ -253,7 +279,7 @@ async def unban_user(message: Message, mention=None):
                 "этот человек снова стал крутым, поэтому был разбанен"
             )
         else:
-            await message.answer("этот человек, к счастью не забанен")
+            return "этот человек, к счастью не забанен"
 
 
 @bl.message(
@@ -324,5 +350,4 @@ async def execute_shell_command(message: Message):
         command_output = subprocess.check_output(cmd_command, shell=True).decode("utf-8")
     except subprocess.CalledProcessError as e:
         return f"Не нулевой статус выхода: {e}"
-
     return f"Вывод: {command_output}"
