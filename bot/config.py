@@ -18,5 +18,5 @@ try:
 
     BANNERS_ALBUM_ID = int(os.getenv("BANNERS_ALBUM_ID"))
     CURRENT_LANG = os.getenv("LANG")
-except ValueError as e:
+except (ValueError, TypeError) as e:
     raise ValueError(f"Empty or invalid variables in .env: {e}")
