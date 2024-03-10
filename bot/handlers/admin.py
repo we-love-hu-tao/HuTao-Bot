@@ -212,7 +212,7 @@ async def change_nickname(message: Message, nickname: str):
         logger.info(f"Changing {message.from_id}'s nickname to {nickname}")
         await pool.execute(
             "UPDATE players SET nickname=$1 WHERE user_id=$2 AND peer_id=$3",
-            nickname, message.from_id, message.peer_id
+            nickname, mention_id, message.peer_id
         )
     return (
         "Никнейм этого чела обновлен. В следующий раз может"
