@@ -14,7 +14,7 @@ try:
     VK_USER_TOKEN = os.getenv("VK_USER_TOKEN")
 
     # Removing empty string elements and converting them to int
-    ADMIN_IDS = (int(i) for i in os.getenv("ADMIN_IDS") if i)
+    ADMIN_IDS = tuple(int(i) for i in os.getenv("ADMIN_IDS").split(",") if i)
 
     BANNERS_ALBUM_ID = int(os.getenv("BANNERS_ALBUM_ID"))
     CURRENT_LANG = os.getenv("LANG")
