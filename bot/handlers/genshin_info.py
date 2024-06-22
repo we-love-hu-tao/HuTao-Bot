@@ -116,7 +116,7 @@ async def genshin_info(message: Message, uid: Optional[int] = None):
     adv_rank = player_info.level or unknown
     signature = player_info.signature or unknown
     world_level = player_info.world_level or unknown
-    profile_picture = player_info.profile_picture.avatar_id or 0
+    profile_picture = player_info.profile_picture.avatar_id or player_info.profile_picture.id or 0
     show_avatars = player_info.show_avatar_info_list or None
 
     avatar_data = await get_avatar_data()

@@ -553,7 +553,7 @@ def resolve_map_hash(text_map: dict, text_map_hash: int | str) -> str:
 
 @cached(ttl=60)
 async def get_player_info(
-        http_client: AiohttpClient, uid: int, only_info: bool = False
+    http_client: AiohttpClient, uid: int, only_info: bool = False
 ) -> PlayerProfile | None:
     """
     Gets account information from enka.network and
