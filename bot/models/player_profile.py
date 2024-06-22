@@ -4,7 +4,10 @@ import msgspec
 
 
 class ProfilePicture(msgspec.Struct, rename="camel"):
-    avatar_id: int
+    # For some reason enka.network has 2 different avatar ids. Some profiles have
+    # `avatarId`, some have just `id`.
+    avatar_id: Optional[int] = None
+    id: Optional[int] = None
     costume_id: Optional[int] = None
 
 
