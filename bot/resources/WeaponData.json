@@ -441,6 +441,24 @@
         "gacha_img": "UI_Gacha_EquipIcon_Sword_Regalis.png"
     },
     {
+        "id": 11514,
+        "weapon_type": "Sword",
+        "rank": 5,
+        "name_text_map_hash": 1818340435,
+        "desc_text_map_hash": 1906968093,
+        "weapon_name": "Needle",
+        "gacha_img": "UI_Gacha_EquipIcon_Sword_Needle.png"
+    },
+    {
+        "id": 11515,
+        "weapon_type": "Sword",
+        "rank": 5,
+        "name_text_map_hash": 1009471939,
+        "desc_text_map_hash": 3721613085,
+        "weapon_name": "Estoc",
+        "gacha_img": "UI_Gacha_EquipIcon_Sword_Estoc.png"
+    },
+    {
         "id": 12101,
         "weapon_type": "Claymore",
         "rank": 1,
@@ -999,6 +1017,15 @@
         "gacha_img": "UI_Gacha_EquipIcon_Pole_Vorpal.png"
     },
     {
+        "id": 13426,
+        "weapon_type": "Pole",
+        "rank": 4,
+        "name_text_map_hash": 2847771107,
+        "desc_text_map_hash": 3525950357,
+        "weapon_name": "Caduceus",
+        "gacha_img": "UI_Gacha_EquipIcon_Pole_Caduceus.png"
+    },
+    {
         "id": 13427,
         "weapon_type": "Pole",
         "rank": 4,
@@ -1087,6 +1114,15 @@
         "desc_text_map_hash": 1590458749,
         "weapon_name": "Deshret",
         "gacha_img": "UI_Gacha_EquipIcon_Pole_Deshret.png"
+    },
+    {
+        "id": 13512,
+        "weapon_type": "Pole",
+        "rank": 5,
+        "name_text_map_hash": 2944936683,
+        "desc_text_map_hash": 2595316557,
+        "weapon_name": "BloodMoon",
+        "gacha_img": "UI_Gacha_EquipIcon_Pole_BloodMoon.png"
     },
     {
         "id": 14101,
@@ -1449,6 +1485,15 @@
         "gacha_img": "UI_Gacha_EquipIcon_Catalyst_Iudex.png"
     },
     {
+        "id": 14515,
+        "weapon_type": "Catalyst",
+        "rank": 5,
+        "name_text_map_hash": 3660626387,
+        "desc_text_map_hash": 3195584853,
+        "weapon_name": "MountainGale",
+        "gacha_img": "UI_Gacha_EquipIcon_Catalyst_MountainGale.png"
+    },
+    {
         "id": 15101,
         "weapon_type": "Bow",
         "rank": 1,
@@ -1710,6 +1755,15 @@
         "gacha_img": "UI_Gacha_EquipIcon_Bow_Vorpal.png"
     },
     {
+        "id": 15426,
+        "weapon_type": "Bow",
+        "rank": 4,
+        "name_text_map_hash": 4038676067,
+        "desc_text_map_hash": 1021500469,
+        "weapon_name": "Ultimatum",
+        "gacha_img": "UI_Gacha_EquipIcon_Bow_Ultimatum.png"
+    },
+    {
         "id": 15427,
         "weapon_type": "Bow",
         "rank": 4,
@@ -1816,6 +1870,15 @@
         "desc_text_map_hash": 2871661869,
         "weapon_name": "Pledge",
         "gacha_img": "UI_Gacha_EquipIcon_Bow_Pledge.png"
+    },
+    {
+        "id": 15513,
+        "weapon_type": "Bow",
+        "rank": 5,
+        "name_text_map_hash": 1257396043,
+        "desc_text_map_hash": 117570973,
+        "weapon_name": "Arcdange",
+        "gacha_img": "UI_Gacha_EquipIcon_Bow_Arcdange.png"
     },
     {
         "id": 20001,

@@ -7,6 +7,7 @@ from vkbottle import ShowSnackbarEvent
 from vkbottle.bot import BotLabeler, Message, MessageEvent, rules
 from vkbottle.http import AiohttpClient
 
+from bot.models.player_profile import PlayerInfo
 import create_pool
 from config import ADMIN_IDS
 from models.avatar import Avatar
@@ -111,21 +112,30 @@ async def genshin_info(message: Message, uid: Optional[int] = None):
         else:
             return await translate("genshin_info", "uid_not_found")
 
+    player_info: PlayerInfo
+
     unknown = await translate("genshin_info", "unknown_value")
     nickname = player_info.nickname or unknown
     adv_rank = player_info.level or unknown
     signature = player_info.signature or unknown
     world_level = player_info.world_level or unknown
-    profile_picture = player_info.profile_picture.avatar_id or player_info.profile_picture.id or 0
     show_avatars = player_info.show_avatar_info_list or None
 
-    avatar_data = await get_avatar_data()
-    text_map = await get_text_map()
-    avatar_picture_info: Avatar = resolve_id(profile_picture, avatar_data)
-    if avatar_picture_info is None:
-        avatar_picture_name = unknown
+    profile_picture_id: int | None = (
+        player_info.profile_picture.avatar_id or player_info.profile_picture.id or None
+    )
+    if profile_picture_id:
+        if profile_picture_id < 10000000:
+            # handling enka.network's different avatar ids
+            profile_picture_id += 9900000
+
+        avatar_data = await get_avatar_data()
+        text_map = await get_text_map()
+        avatar_picture_info: Avatar = resolve_id(profile_picture_id, avatar_data)
+        if avatar_picture_info:
+            avatar_picture_name = resolve_map_hash(text_map, avatar_picture_info.name_text_map_hash)
     else:
-        avatar_picture_name = resolve_map_hash(text_map, avatar_picture_info.name_text_map_hash)
+        avatar_picture_name = unknown
 
     keyboard = None
     if show_avatars is not None and len(show_avatars) > 0:
@@ -135,7 +145,7 @@ async def genshin_info(message: Message, uid: Optional[int] = None):
         await translate('genshin_info', 'info_msg_start')
     ).format(uid=uid, nickname=nickname) + '\n'
 
-    if profile_picture in FAV_AVATARS:
+    if profile_picture_id in FAV_AVATARS:
         info_msg += (
             await translate("genshin_info", "fav_avatar_profile_picture")
         ).format(avatar_name=avatar_picture_name)

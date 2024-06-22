@@ -700,5 +700,68 @@
         "desc_text_map_hash": 251470345,
         "element": "Rock",
         "gacha_img": "UI_Gacha_AvatarImg_Navia.png"
+    },
+    {
+        "id": 10000092,
+        "avatar_name": "Gaming",
+        "quality": 4,
+        "name_text_map_hash": 2822240322,
+        "desc_text_map_hash": 669926801,
+        "element": "Fire",
+        "gacha_img": "UI_Gacha_AvatarImg_Gaming.png"
+    },
+    {
+        "id": 10000093,
+        "avatar_name": "Liuyun",
+        "quality": 5,
+        "name_text_map_hash": 3648220770,
+        "desc_text_map_hash": 1611204721,
+        "element": "Wind",
+        "gacha_img": "UI_Gacha_AvatarImg_Liuyun.png"
+    },
+    {
+        "id": 10000094,
+        "avatar_name": "Chiori",
+        "quality": 5,
+        "name_text_map_hash": 1944606922,
+        "desc_text_map_hash": 808184993,
+        "element": "Rock",
+        "gacha_img": "UI_Gacha_AvatarImg_Chiori.png"
+    },
+    {
+        "id": 10000095,
+        "avatar_name": "Sigewinne",
+        "quality": 5,
+        "name_text_map_hash": 781488962,
+        "desc_text_map_hash": 1746058729,
+        "element": "Water",
+        "gacha_img": "UI_Gacha_AvatarImg_Sigewinne.png"
+    },
+    {
+        "id": 10000096,
+        "avatar_name": "Arlecchino",
+        "quality": 5,
+        "name_text_map_hash": 167199474,
+        "desc_text_map_hash": 4055490121,
+        "element": "Fire",
+        "gacha_img": "UI_Gacha_AvatarImg_Arlecchino.png"
+    },
+    {
+        "id": 10000097,
+        "avatar_name": "Sethos",
+        "quality": 4,
+        "name_text_map_hash": 1431322346,
+        "desc_text_map_hash": 865382657,
+        "element": "Elect",
+        "gacha_img": "UI_Gacha_AvatarImg_Sethos.png"
+    },
+    {
+        "id": 10000098,
+        "avatar_name": "Clorinde",
+        "quality": 5,
+        "name_text_map_hash": 2745369298,
+        "desc_text_map_hash": 3165106529,
+        "element": "Elect",
+        "gacha_img": "UI_Gacha_AvatarImg_Clorinde.png"
     }
 ]
