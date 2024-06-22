@@ -1,20 +1,24 @@
 from typing import Optional
 
+import create_pool
+from config import ADMIN_IDS
 from loguru import logger
+from models.avatar import Avatar
+from models.player_profile import PlayerInfo
+from utils import (
+    get_avatar_data,
+    get_player_info,
+    get_text_map,
+    resolve_id,
+    resolve_map_hash,
+    translate
+)
+from variables import FAV_AVATARS
 from vkbottle import Callback, GroupEventType, Keyboard
 from vkbottle import KeyboardButtonColor as Color
 from vkbottle import ShowSnackbarEvent
 from vkbottle.bot import BotLabeler, Message, MessageEvent, rules
 from vkbottle.http import AiohttpClient
-
-from bot.models.player_profile import PlayerInfo
-import create_pool
-from config import ADMIN_IDS
-from models.avatar import Avatar
-from utils import (
-    get_avatar_data, get_player_info, get_text_map, resolve_id, resolve_map_hash, translate
-)
-from variables import FAV_AVATARS
 
 bl = BotLabeler()
 bl.vbml_ignore_case = True
