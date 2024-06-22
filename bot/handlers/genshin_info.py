@@ -128,6 +128,7 @@ async def genshin_info(message: Message, uid: Optional[int] = None):
     profile_picture_id: int | None = (
         player_info.profile_picture.avatar_id or player_info.profile_picture.id or None
     )
+    avatar_picture_name = unknown
     if profile_picture_id:
         if profile_picture_id < 10000000:
             # handling enka.network's different avatar ids
@@ -138,8 +139,6 @@ async def genshin_info(message: Message, uid: Optional[int] = None):
         avatar_picture_info: Avatar = resolve_id(profile_picture_id, avatar_data)
         if avatar_picture_info:
             avatar_picture_name = resolve_map_hash(text_map, avatar_picture_info.name_text_map_hash)
-    else:
-        avatar_picture_name = unknown
 
     keyboard = None
     if show_avatars is not None and len(show_avatars) > 0:
