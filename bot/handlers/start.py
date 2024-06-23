@@ -86,6 +86,6 @@ async def start_game(message: Message):
         )
 
         await message.answer(
-            (await translate("create_account", "new_player")),
+            (await translate("create_account", "new_user")),
             keyboard=PROFILE_INFO_KEYBOARD
         )
