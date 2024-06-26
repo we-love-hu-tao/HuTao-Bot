@@ -1,6 +1,6 @@
+from enka.gi import Player
 from loguru import logger
 from vkbottle.bot import BotLabeler, Message
-from vkbottle.http import AiohttpClient
 
 import create_pool
 from config import ADMIN_IDS
@@ -19,20 +19,18 @@ async def change_ingame_uid(message: Message, uid: int):
     if not await exists(message):
         return
 
-    http_client = AiohttpClient()
     try:
-        player_info = await get_player_info(http_client, uid)
+        player_info: Player = (await get_player_info(uid, info_only=True)).player
     except Exception as e:
         logger.error(e)
         return (await translate("set_uid", "enka_network_error")).format(user_id=ADMIN_IDS[0])
 
     if not player_info:
         return await translate("set_uid", "player_not_found")
-    player_info = player_info.player_info
 
     nickname = player_info.nickname or await translate("set_uid", "unknown_nickname")
     adv_rank = player_info.level or await translate("set_uid", "unknown_adv_rank")
-    profile_picture = player_info.profile_picture.avatar_id
+    profile_picture = player_info.profile_picture_id
 
     pool = create_pool.pool
     async with pool.acquire() as pool:

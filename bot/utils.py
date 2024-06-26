@@ -5,20 +5,19 @@ import sys
 import time
 
 import aiofiles
+import enka
 import msgspec
 from aiocache import cached
 from loguru import logger
 from vkbottle.bot import Message
-from vkbottle.http import AiohttpClient
 
 import create_pool
+from config import ADMIN_IDS
 from item_names import ADVENTURE_EXP, INTERTWINED_FATE
 from keyboards import KEYBOARD_START
 from models.avatar import Avatar
 from models.banner import Banner
-from models.player_profile import PlayerProfile
 from models.weapon import Weapon
-from config import ADMIN_IDS
 
 rank_levels_exp = {
     1: 0,
@@ -552,33 +551,26 @@ def resolve_map_hash(text_map: dict, text_map_hash: int | str) -> str:
 
 
 @cached(ttl=60)
-async def get_player_info(
-    http_client: AiohttpClient, uid: int, only_info: bool = False
-) -> PlayerProfile | None:
+async def get_player_info(uid: int, info_only: bool = False):
     """
-    Gets account information from enka.network and
-    converts it into an `PlayerProfile` object
+    Gets account information from enka.network using enka-py
     """
-    player_info = await http_client.request_content(
-        f"https://enka.network/api/uid/{uid}{'?info' if only_info else ''}",
-        headers=get_default_header()
-    )
-    try:
-        player_info = msgspec.json.decode(player_info, type=PlayerProfile)
-    except msgspec.ValidationError as e:
-        logger.error(f"Error while trying to validate enka.network response: {e}")
-        player_info = None
+    async with enka.GenshinClient(
+        enka.gi.Language.RUSSIAN, headers=get_default_headers()
+    ) as client:
+        response = await client.fetch_showcase(uid, info_only=info_only)
 
-    return player_info
+    return response
 
 
-def get_default_header() -> dict:
+def get_default_headers() -> dict:
     python_version = sys.version_info
-    version = 1.0
     major = python_version.major
     minor = python_version.minor
     micro = python_version.micro
 
     return {
-        "User-Agent": f"HuTao-Bot/{version} (Python {major}.{minor}.{micro})"
+        "User-Agent": (
+            f"https://github.com/we-love-hu-tao/HuTao-Bot (Python {major}.{minor}.{micro})"
+        )
     }

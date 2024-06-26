@@ -2,9 +2,10 @@ aiocache
 aiofiles
 aiohttp
 asyncpg>=0.26.0
+enka-api
 loguru>=0.6.0
 msgspec>=0.9.0
 pillow
 python-dotenv
-vkbottle>=4.3.10
-vkbottle-types>=5.131.146.13
+vkbottle @ https://github.com/vkbottle/vkbottle/archive/master.zip
+vkbottle-types @ git+https://github.com/vkbottle/types.git@bd2a79c7a78f0322d0ba57eb2591d7b0e4993994

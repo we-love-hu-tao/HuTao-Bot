@@ -136,3 +136,6 @@ banners_cache/
 
 # PostgreSQL config
 pgpass.conf
+
+# enka.py cache
+.enka_py

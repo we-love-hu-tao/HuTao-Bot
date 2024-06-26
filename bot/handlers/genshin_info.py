@@ -1,10 +1,15 @@
 from typing import Optional
 
+from enka.gi import Player, ShowcaseCharacter, ShowcaseResponse
+from loguru import logger
+from vkbottle import Callback, GroupEventType, Keyboard
+from vkbottle import KeyboardButtonColor as Color
+from vkbottle import ShowSnackbarEvent
+from vkbottle.bot import BotLabeler, Message, MessageEvent, rules
+
 import create_pool
 from config import ADMIN_IDS
-from loguru import logger
 from models.avatar import Avatar
-from models.player_profile import PlayerInfo
 from utils import (
     get_avatar_data,
     get_player_info,
@@ -14,26 +19,19 @@ from utils import (
     translate
 )
 from variables import FAV_AVATARS
-from vkbottle import Callback, GroupEventType, Keyboard
-from vkbottle import KeyboardButtonColor as Color
-from vkbottle import ShowSnackbarEvent
-from vkbottle.bot import BotLabeler, Message, MessageEvent, rules
-from vkbottle.http import AiohttpClient
 
 bl = BotLabeler()
 bl.vbml_ignore_case = True
 
-http_client = AiohttpClient()
 
-
-async def generate_avatars_kbd(from_id, uid, show_avatars):
+async def generate_avatars_kbd(from_id, uid, showcase_avatars: list[ShowcaseCharacter]):
     avatar_data = await get_avatar_data()
     text_map = await get_text_map()
 
     keyboard = Keyboard(inline=True)
     item_kbd = 0
-    for avatar in show_avatars:
-        avatar_show_info: Avatar = resolve_id(avatar.avatar_id, avatar_data)
+    for avatar in showcase_avatars:
+        avatar_show_info: Avatar = resolve_id(avatar.id, avatar_data)
         if avatar_show_info is None:
             continue
 
@@ -49,7 +47,7 @@ async def generate_avatars_kbd(from_id, uid, show_avatars):
         else:
             avatar_name_text += f" (Ур. {avatar.level})"
 
-        if avatar.avatar_id == 10000046:
+        if avatar.id == 10000046:
             color = Color.POSITIVE
 
         avatar_kbd_text = Callback(
@@ -57,7 +55,7 @@ async def generate_avatars_kbd(from_id, uid, show_avatars):
             payload={
                 "caller_id": from_id,
                 "uid": uid,
-                "avatar_id": avatar.avatar_id,
+                "avatar_id": avatar.id,
                 "avatar_name": avatar_name_text,
             },
         )
@@ -103,7 +101,7 @@ async def genshin_info(message: Message, uid: Optional[int] = None):
             uid = uid_request["uid"]
 
     try:
-        player_info = (await get_player_info(http_client, uid, only_info=True)).player_info
+        player_info: Player = (await get_player_info(uid, info_only=True)).player
     except Exception as e:
         logger.error(e)
         return (
@@ -116,33 +114,25 @@ async def genshin_info(message: Message, uid: Optional[int] = None):
         else:
             return await translate("genshin_info", "uid_not_found")
 
-    player_info: PlayerInfo
-
     unknown = await translate("genshin_info", "unknown_value")
     nickname = player_info.nickname or unknown
     adv_rank = player_info.level or unknown
     signature = player_info.signature or unknown
     world_level = player_info.world_level or unknown
-    show_avatars = player_info.show_avatar_info_list or None
+    showcase_avatars = player_info.showcase_characters or None
 
-    profile_picture_id: int | None = (
-        player_info.profile_picture.avatar_id or player_info.profile_picture.id or None
-    )
+    profile_picture_id: int = player_info.profile_picture_id
     avatar_picture_name = unknown
-    if profile_picture_id:
-        if profile_picture_id < 10000000:
-            # handling enka.network's different avatar ids
-            profile_picture_id += 9900000
 
-        avatar_data = await get_avatar_data()
-        text_map = await get_text_map()
-        avatar_picture_info: Avatar = resolve_id(profile_picture_id, avatar_data)
-        if avatar_picture_info:
-            avatar_picture_name = resolve_map_hash(text_map, avatar_picture_info.name_text_map_hash)
+    avatar_data = await get_avatar_data()
+    text_map = await get_text_map()
+    avatar_picture_info: Avatar = resolve_id(profile_picture_id, avatar_data)
+    if avatar_picture_info:
+        avatar_picture_name = resolve_map_hash(text_map, avatar_picture_info.name_text_map_hash)
 
     keyboard = None
-    if show_avatars is not None and len(show_avatars) > 0:
-        keyboard = await generate_avatars_kbd(message.from_id, uid, show_avatars)
+    if showcase_avatars:
+        keyboard = await generate_avatars_kbd(message.from_id, uid, showcase_avatars)
 
     info_msg += (
         await translate('genshin_info', 'info_msg_start')
@@ -171,25 +161,25 @@ async def genshin_info(message: Message, uid: Optional[int] = None):
 
 
 # https://api.enka.network/#/api?id=fightprop
-FIGHT_PROP_NAMES = {
-    '2000': 1377450402,  # HP
-    '2001': 1756301290,  # ATK
-    '2002': 3591287138,  # DEF
-    '28': 3421163681,    # Elemental Mastery
-    '20': 1916797986,    # CRIT Rate
-    '22': 4137936461,    # CRIT DMG
-    '26': 3911103831,    # Heal Bonus
-    '23': 1735465728,    # Energy Recharge
-    '30': 3763864883,    # Physical DMG Bonus
-    '40': 999734248,     # Pyro DMG Bonus
-    '41': 3514877774,    # Electro DMG Bonus
-    '42': 3619239513,    # Hydro DMG Bonus
-    '43': 1824382851,    # Dendro DMG Bonus
-    '44': 312842903,     # Anemo DMG Bonus
-    '45': 2557985416,    # Geo DMG Bonus
-    '46': 4054347456,    # Cryo DMG Bonus
-}
-FIGHT_PROP_EMOJIS = {
+STATS_TO_SHOW: tuple = (
+    '2000',  # HP
+    '2001',  # ATK
+    '2002',  # DEF
+    '28',    # Elemental Mastery
+    '20',    # CRIT Rate
+    '22',    # CRIT DMG
+    '26',    # Heal Bonus
+    '23',    # Energy Recharge
+    '30',    # Physical DMG Bonus
+    '40',    # Pyro DMG Bonus
+    '41',    # Electro DMG Bonus
+    '42',    # Hydro DMG Bonus
+    '43',    # Dendro DMG Bonus
+    '44',    # Anemo DMG Bonus
+    '45',    # Geo DMG Bonus
+    '46',    # Cryo DMG Bonus
+)
+STATS_EMOJIS = {
     '2000': '💖',
     '2001': '⚔️',
     '2002': '🛡️',
@@ -207,9 +197,6 @@ FIGHT_PROP_EMOJIS = {
     '45': '🪨',
     '46': '❄️',
 }
-FIGHT_PROP_DECIMAL = (
-    '20', '22', '23', '26', '30', '40', '41', '42', '43', '44', '45', '46'
-)
 
 
 @bl.raw_event(
@@ -241,58 +228,79 @@ async def show_avatar_info(event: MessageEvent):
     avatar_id = payload['avatar_id']
     avatar_name = payload['avatar_name']
     try:
-        player_info = await get_player_info(http_client, uid)
+        player_info: ShowcaseResponse = await get_player_info(uid)
     except Exception as e:
         logger.error(e)
         await event.edit_message(await translate("genshin_info", "get_build_error"))
+        return
+
+    showcase_avatars = player_info.characters
+    if not showcase_avatars:
+        await event.edit_message(await translate("genshin_info", "detailed_info_disabled"))
+        return
+    avatar = None
+    for avatar in showcase_avatars:
+        if avatar.id == avatar_id:
+            break
+    if avatar is None:
+        await event.edit_message(await translate("genshin_info", "avatar_removed_from_stand"))
         return
 
     msg = (
         await translate("genshin_info", "avatar_info_start")
     ).format(avatar_name=avatar_name, uid=uid)
     msg += '\n'
-    avatars_info = player_info.avatar_info_list
-    if avatars_info is None:
-        await event.edit_message(await translate("genshin_info", "detailed_info_disabled"))
-        return
-    avatar = None
-    for avatar in avatars_info:
-        if avatar.avatar_id == avatar_id:
-            break
-    if avatar is None:
-        await event.edit_message(await translate("genshin_info", "avatar_removed_from_stand"))
-        return
-    fight_prop_map = avatar.fight_prop_map
-    fight_prop_map = {k: v for k, v in fight_prop_map.items() if v > 0}
+
+    avatar_stats = avatar.stats
+
+    for stat in avatar_stats:
+        stat_id = str(avatar_stats[stat].type.value)
+        if stat_id not in STATS_TO_SHOW:
+            # Skipping stats we don't know or aren't important
+            continue
+        if avatar_stats[stat].value == 0:
+            # Skipping stats with no value
+            continue
+
+        stat_name = avatar_stats[stat].name
+        stat_formatted_value = avatar_stats[stat].formatted_value
+        emoji = '?'
+        if stat_id in STATS_EMOJIS:
+            emoji = STATS_EMOJIS[stat_id]
+
+        msg += f"{emoji} | {stat_name}: {stat_formatted_value}\n"
+    """
+    fight_prop_map = {prop_id: v for prop_id, v in fight_prop_map.items() if v > 0}
 
     text_map = await get_text_map()
-    for k, v in FIGHT_PROP_NAMES.items():
-        if k not in fight_prop_map:
+    for prop_id, v in FIGHT_PROP_NAMES.items():
+        if prop_id not in fight_prop_map:
             continue
 
-        fight_prop_val = fight_prop_map.get(k)
+        fight_prop_val = fight_prop_map.get(prop_id)
         if fight_prop_val is None:
-            logger.warning(f"Unknown fight prop value: {k}")
+            logger.warning(f"Unknown fight prop value: {prop_id}")
             continue
-        if k in FIGHT_PROP_DECIMAL:
+        if prop_id in FIGHT_PROP_DECIMAL:
             fight_prop_val = round(fight_prop_val * 100, 1)
         else:
             fight_prop_val = round(fight_prop_val)
 
         emoji = ''
-        if k in FIGHT_PROP_EMOJIS:
-            emoji = FIGHT_PROP_EMOJIS[k] + ' | '
+        if prop_id in FIGHT_PROP_EMOJIS:
+            emoji = FIGHT_PROP_EMOJIS[prop_id] + ' | '
 
         msg += f"{emoji}{resolve_map_hash(text_map, v)}: {fight_prop_val}\n"
+    """
 
-    # We use `copy()` since `get_player_info()` is cached, if we change
-    # `show_avatar_info_list` without using `copy()`, then
-    # `player_info.player_info.show_avatar_info_list` will also change
+    # We use `copy()` because `get_player_info()` is cached, and if we change
+    # `showcase_characters` without using `copy()`, then
+    # `player_info.player.showcase_characters` will also change
     # and will be returned every time we call `get_player_info()`
-    show_avatar_info_list = player_info.player_info.show_avatar_info_list.copy()
+    show_avatar_info_list = player_info.player.showcase_characters.copy()
     logger.info(show_avatar_info_list)
     for avatar in show_avatar_info_list:
-        if avatar.avatar_id == avatar_id:
+        if avatar.id == avatar_id:
             show_avatar_info_list.remove(avatar)
             break
 
